@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 
 
+//TODO(Delete if not used)
 @Entity(
     tableName = "todo_schedule", foreignKeys = [
         ForeignKey(
