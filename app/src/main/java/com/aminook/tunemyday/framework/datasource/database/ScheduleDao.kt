@@ -10,9 +10,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ScheduleDao {
 
+    @Transaction
     @Query("SELECT * FROM schedules")
      fun testRelation():Flow<List<ScheduleAndProgram>>
 
+    @Transaction
     @Query("select * from schedules where day= :day")
     fun selectDailySchedule(day:Int):Flow<List<ScheduleAndProgram>>
 
@@ -20,16 +22,16 @@ interface ScheduleDao {
     fun selectSchedule(id:Int):Flow<ScheduleEntity?>
 
     @Query("delete from schedules")
-    suspend fun deleteAllSchedules()
+    fun deleteAllSchedules():Int
 
 
     @Delete
-    fun deleteSchedule(scheduleEntity: ScheduleEntity):Flow<Int>
+    fun deleteSchedule(scheduleEntity: ScheduleEntity):Int
 
     @Insert
-    fun insertSchedule(scheduleEntity: ScheduleEntity):Flow<Long>
+    fun insertSchedule(scheduleEntity: ScheduleEntity):Long
 
     @Update(onConflict = OnConflictStrategy.IGNORE)
-    fun updateSchedule(scheduleEntity: ScheduleEntity):Flow<Int>
+    fun updateSchedule(scheduleEntity: ScheduleEntity):Int
 
 }

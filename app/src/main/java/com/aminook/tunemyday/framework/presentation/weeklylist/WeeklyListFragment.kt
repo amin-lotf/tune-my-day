@@ -54,24 +54,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list) {
         }.attach()
 
         CoroutineScope(IO).launch {
-//            var program = ProgramEntity("Gym", Color.RED)
-//            scheduleDao.insertProgram(program)
-//
-            var program = ProgramEntity("Programming", Color.BLUE)
-            scheduleDao.insertProgram(program)
 
-            var schedule = ScheduleEntity(1, null, 2, 3, 1)
-            scheduleDao.insertSchedule(schedule)
-//
-            schedule = ScheduleEntity(1, null, 2, 3, 3)
-            scheduleDao.insertSchedule(schedule)
-//            scheduleDao.testRelation().collect {
-//                for (s in it) {
-//                    Log.d(TAG, "onViewCreated: ${s.program.name}")
-//                }
-//            }
-
-          //  scheduleDao.deleteProgram("Programming")
 
             scheduleDao.testRelation().collect {
                 for (s in it) {

@@ -31,17 +31,37 @@ abstract class AppModule {
                 return AppFragmentFactory()
             }
 
-//            @Singleton
-//            @Provides
-//            fun provideScheduleDatabase(@ApplicationContext application:Context)=
-//                Room.databaseBuilder(application,ScheduleDatabase::class.java,"schedule_database")
-//                    .build()
+            @Singleton
+            @Provides
+            fun provideScheduleDatabase(@ApplicationContext application:Context)=
+                ScheduleDatabase.getDatabase(application)
 
 
             @Singleton
             @Provides
-            fun provideScheduleDao(@ApplicationContext application:Context)=
-                ScheduleDatabase.getDatabase(application).scheduleDao()
+            fun provideProgramDao(scheduleDatabase: ScheduleDatabase)=
+                scheduleDatabase.programDao()
+
+            @Singleton
+            @Provides
+            fun provideAlarmDao(scheduleDatabase: ScheduleDatabase)=
+                scheduleDatabase.alarmDao()
+
+            @Singleton
+            @Provides
+            fun provideToDoDao(scheduleDatabase: ScheduleDatabase)=
+                scheduleDatabase.todoDao()
+
+            @Singleton
+            @Provides
+            fun provideScheduleDao(scheduleDatabase: ScheduleDatabase)=
+                scheduleDatabase.scheduleDao()
+
+            @Singleton
+            @Provides
+            fun provideTodoScheduleDao(scheduleDatabase: ScheduleDatabase)=
+                scheduleDatabase.todoScheduleDao()
+
 
         }
 }

@@ -15,14 +15,14 @@ interface ProgramDao {
     fun selectProgram(id:Int):Flow<ProgramEntity?>
 
     @Query("delete from programs")
-    suspend fun deleteAllPrograms()
+    fun deleteAllPrograms(): Int
 
     @Delete
-    fun deleteProgram(program: String): Flow<Int>
+    fun deleteProgram(programEntity: ProgramEntity): Int
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertProgram(programEntity: ProgramEntity): Flow<Long>
+    fun insertProgram(programEntity: ProgramEntity): Long
 
     @Update(onConflict = OnConflictStrategy.IGNORE)
-    fun updateProgram(programEntity: ProgramEntity): Flow<Int>
+    fun updateProgram(programEntity: ProgramEntity): Int
 }

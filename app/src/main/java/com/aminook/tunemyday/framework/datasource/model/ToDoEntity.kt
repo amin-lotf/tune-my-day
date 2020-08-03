@@ -24,7 +24,7 @@ import androidx.room.PrimaryKey
 data class ToDoEntity(
     @ColumnInfo(name = "program_id", index = true)
     val programId: Int,
-    @ColumnInfo(name = "schedule_id")
+    @ColumnInfo(name = "schedule_id",index = true)
     val scheduleId:Int,
     val title: String,
     val priority: Int,

@@ -19,8 +19,7 @@ import androidx.room.*
   ]
 )
 data class AlarmEntity(
-  @PrimaryKey
-  @ColumnInfo(name = "schedule_id")
+  @ColumnInfo(name = "schedule_id",index = true)
   val scheduleId:Int,
   @ColumnInfo(name = "program_id", index = true)
   val programId: Int,
@@ -30,6 +29,6 @@ data class AlarmEntity(
   val day: Int
 ) {
 
-//    @PrimaryKey(autoGenerate = true)
-//    var id: Int = 0
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0
 }

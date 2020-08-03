@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
         ScheduleEntity::class,
         ToDoScheduleMapper::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 

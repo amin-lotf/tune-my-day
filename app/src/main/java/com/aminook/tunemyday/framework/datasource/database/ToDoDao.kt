@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.Flow
 interface ToDoDao {
 
     @Insert
-    fun insertTodo(toDoEntity: ToDoEntity): Flow<Long>
+    fun insertTodo(toDoEntity: ToDoEntity): Long
 
     @Update
-    fun updateTodo(toDoEntity: ToDoEntity):Flow<Int>
+    fun updateTodo(toDoEntity: ToDoEntity):Int
 
     @Delete
-    fun deleteTodo(toDoEntity: ToDoEntity):Flow<Int>
+    fun deleteTodo(toDoEntity: ToDoEntity):Int
 
     @Query("select * from todos where schedule_id= :scheduleId")
     fun getScheduleToDo(scheduleId:Int):Flow<List<ToDoEntity>>

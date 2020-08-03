@@ -22,7 +22,7 @@ import androidx.room.*
 data class ScheduleEntity(
     @ColumnInfo(name = "program_id", index = true)
     val programId: Int,
-    @ColumnInfo(name = "alarm_id")
+    @ColumnInfo(name = "alarm_id",index = true)
     val alarmId: Int?=null,
     val start: Long,
     val end: Long,
@@ -32,6 +32,7 @@ data class ScheduleEntity(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0
 }
+
 
 data class ScheduleAndProgram(
     @Embedded

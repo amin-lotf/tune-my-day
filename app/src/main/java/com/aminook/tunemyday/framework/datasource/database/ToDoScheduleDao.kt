@@ -9,6 +9,6 @@ import kotlinx.coroutines.flow.Flow
 interface ToDoScheduleDao {
 
     @Insert
-    fun insertToDoSchedule(toDoScheduleMapper: ToDoScheduleMapper):Flow<Long>
+    fun insertToDoSchedule(toDoScheduleMapper: ToDoScheduleMapper):Long
 
 }

@@ -24,8 +24,8 @@ import androidx.room.ForeignKey
     primaryKeys = ["schedule_id","todo_id"]
 )
 data class ToDoScheduleMapper(
-    @ColumnInfo(name = "schedule_id")
+    @ColumnInfo(name = "schedule_id",index = true)
     val scheduleId:Int,
-    @ColumnInfo(name = "todo_id")
+    @ColumnInfo(name = "todo_id",index = true)
     val todoId:Int
 )

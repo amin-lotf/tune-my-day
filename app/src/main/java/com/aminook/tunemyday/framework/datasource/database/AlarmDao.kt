@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.Flow
 interface AlarmDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertAlarm(alarmEntity: AlarmEntity):Flow<Long>
+    fun insertAlarm(alarmEntity: AlarmEntity):Long
 
     @Update(onConflict = OnConflictStrategy.IGNORE)
-    fun updateAlarm(alarmEntity: AlarmEntity):Flow<Int>
+    fun updateAlarm(alarmEntity: AlarmEntity):Int
 
     @Delete
-    fun deleteAlarm(alarmEntity: AlarmEntity):Flow<Int>
+    fun deleteAlarm(alarmEntity: AlarmEntity):Int
 
     @Query("select * from alarms where day= :day")
     fun selectDailyAlarms(day:Int):Flow<List<AlarmEntity>>
