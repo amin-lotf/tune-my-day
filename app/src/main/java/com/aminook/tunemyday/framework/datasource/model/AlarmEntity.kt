@@ -29,6 +29,7 @@ data class AlarmEntity(
   @ColumnInfo(index = true)
   val day: Int
 ) {
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0
+
+//    @PrimaryKey(autoGenerate = true)
+//    var id: Int = 0
 }
