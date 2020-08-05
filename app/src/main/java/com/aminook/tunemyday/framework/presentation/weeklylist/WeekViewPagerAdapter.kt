@@ -17,7 +17,7 @@ class WeekViewPagerAdapter(val names:List<String>):RecyclerView.Adapter<WeekView
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val text=names[position]
-        holder.itemView.txt_test.text=text
+       // holder.itemView.txt_test.text=text
 
     }
 
