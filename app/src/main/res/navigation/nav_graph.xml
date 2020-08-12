@@ -3,21 +3,34 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/weeklyListFragment">
+    app:startDestination="@id/addScheduleFragment">
 
     <fragment
         android:id="@+id/weeklyListFragment"
         android:name="com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragment"
         android:label="fragment_weekly_list"
-        tools:layout="@layout/fragment_weekly_list" />
+        tools:layout="@layout/fragment_weekly_list" >
+        <action
+            android:id="@+id/action_weeklyListFragment_to_addScheduleFragment"
+            app:destination="@id/addScheduleFragment" />
+    </fragment>
     <fragment
         android:id="@+id/dailyListFragment"
         android:name="com.aminook.tunemyday.framework.presentation.dailylist.DailyListFragment"
         android:label="fragment_daily_list"
-        tools:layout="@layout/fragment_daily_list" />
+        tools:layout="@layout/fragment_daily_list" >
+        <action
+            android:id="@+id/action_dailyListFragment_to_addScheduleFragment"
+            app:destination="@id/addScheduleFragment" />
+    </fragment>
     <fragment
         android:id="@+id/taskListFragment"
         android:name="com.aminook.tunemyday.framework.presentation.tasklist.TaskListFragment"
         android:label="fragment_task_list"
         tools:layout="@layout/fragment_task_list" />
+    <fragment
+        android:id="@+id/addScheduleFragment"
+        android:name="com.aminook.tunemyday.framework.presentation.addschedule.AddScheduleFragment"
+        android:label="fragment_add_schedule"
+        tools:layout="@layout/fragment_add_schedule" />
 </navigation>

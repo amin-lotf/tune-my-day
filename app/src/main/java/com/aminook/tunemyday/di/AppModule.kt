@@ -2,6 +2,7 @@ package com.aminook.tunemyday.di
 
 import android.content.Context
 import androidx.fragment.app.FragmentFactory
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.aminook.tunemyday.business.domain.util.DateUtil
@@ -12,6 +13,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityScoped
 import kotlinx.coroutines.CoroutineScope
@@ -61,6 +63,7 @@ abstract class AppModule {
             @Provides
             fun provideTodoScheduleDao(scheduleDatabase: ScheduleDatabase)=
                 scheduleDatabase.todoScheduleDao()
+
 
 
         }

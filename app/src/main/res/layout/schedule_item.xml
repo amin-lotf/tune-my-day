@@ -3,24 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    >
+    android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/schedule_hour"
-            android:layout_width="80dp"
-            android:layout_height="35dp"
-            android:paddingEnd="4dp"
-            android:text="19:45"
-            android:textAlignment="textEnd"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+
 
 
 
@@ -32,65 +21,92 @@
 
 
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/schedule_hour" />
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="0dp"
+
+
+
+        <TextView
+            android:id="@+id/schedule_program"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="@id/blackline"
-            app:layout_constraintStart_toStartOf="@id/blackline"
-            app:layout_constraintTop_toBottomOf="@id/blackline">
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:text="Programming"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp" />
 
-            <TextView
-                android:id="@+id/schedule_program"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
-                android:text="Programming"
-                android:textAlignment="center"
-                android:textSize="24sp"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:layout_editor_absoluteX="0dp" />
+        <TextView
+            android:id="@+id/schedule_hour_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="19:45"
+            android:textAlignment="textEnd"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:drawablePadding="2dp"
+            android:drawableLeft="@drawable/ic_stop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="40dp"
+            android:layout_marginBottom="4dp" />
 
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="0dp"
+        <ImageView
+            android:id="@+id/program_color"
+            android:layout_width="40dp"
+            android:layout_height="0dp"
 
-                android:scaleType="fitStart"
-                android:src="@drawable/program_label"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+            android:scaleType="fitStart"
+            android:src="@drawable/program_label"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/schedule_hour_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="19:45"
+            android:textAlignment="textEnd"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:drawablePadding="2dp"
+            android:drawableLeft="@drawable/ic_start"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/program_color"
+            android:layout_marginBottom="4dp" />
 
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="3h"
-                android:textAlignment="center"
-                android:layout_marginBottom="4dp"
-                app:layout_constraintTop_toBottomOf="@id/schedule_program"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+        <TextView
+            android:id="@+id/schedule_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3h"
+            android:textAlignment="center"
+            android:layout_marginBottom="4dp"
+            app:layout_constraintTop_toBottomOf="@id/schedule_program"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_alarm_on"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_margin="4dp"/>
+        <ImageView
+            android:id="@+id/schedule_alarm_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_alarm_on"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="4dp" />
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_note_schedule"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_margin="4dp"/>
+        <ImageView
+            android:id="@+id/schedule_todo_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_note_schedule"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_margin="4dp" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

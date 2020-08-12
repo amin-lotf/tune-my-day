@@ -15,11 +15,13 @@ class DayFactory @Inject constructor(){
 
         for (i in 1..7) {
             val d = calendar.time
+
             days.add(
                 Day(
                     shortName = SimpleDateFormat("EE", Locale.getDefault()).format(d.time),
                     fullName = SimpleDateFormat("EEEE", Locale.getDefault()).format(d.time),
-                    date = SimpleDateFormat("MM/dd", Locale.getDefault()).format(d.time)
+                    date = SimpleDateFormat("MM/dd", Locale.getDefault()).format(d.time),
+                    dayIndex = calendar.get(Calendar.DAY_OF_WEEK)
                 )
             )
             calendar.add(Calendar.DATE, 1)
@@ -34,16 +36,19 @@ class DayFactory @Inject constructor(){
         return Day(
             shortName = SimpleDateFormat("EE", Locale.getDefault()).format(today.time),
             fullName = SimpleDateFormat("EEEE", Locale.getDefault()).format(today.time),
-            date = SimpleDateFormat("MM/dd", Locale.getDefault()).format(today.time)
+            date = SimpleDateFormat("MM/dd", Locale.getDefault()).format(today.time),
+            dayIndex = calendar.get(Calendar.DAY_OF_WEEK)
         )
     }
 
     fun getDay(date: Date):Day {
-
+        val calendar = Calendar.getInstance()
+        calendar.time=date
         return Day(
             shortName = SimpleDateFormat("EE", Locale.getDefault()).format(date.time),
             fullName = SimpleDateFormat("EEEE", Locale.getDefault()).format(date.time),
-            date = SimpleDateFormat("MM/dd", Locale.getDefault()).format(date.time)
+            date = SimpleDateFormat("MM/dd", Locale.getDefault()).format(date.time),
+            dayIndex = calendar.get(Calendar.DAY_OF_WEEK)
         )
     }
 

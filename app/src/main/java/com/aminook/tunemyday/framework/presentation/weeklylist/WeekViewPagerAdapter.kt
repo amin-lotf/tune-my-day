@@ -3,11 +3,20 @@ package com.aminook.tunemyday.framework.presentation.weeklylist
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
+import com.aminook.tunemyday.business.domain.model.Day
+import dagger.hilt.android.scopes.FragmentScoped
 import kotlinx.android.synthetic.main.weekly_item_view_pager.view.*
+import javax.inject.Inject
 
-class WeekViewPagerAdapter(val names:List<String>):RecyclerView.Adapter<WeekViewPagerAdapter.ViewHolder>() {
+
+class WeekViewPagerAdapter(val days:List<Day>):RecyclerView.Adapter<WeekViewPagerAdapter.ViewHolder>() {
+
+
+
+    private var listener:WeeklyRecyclerViewListener?=null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
        val view=LayoutInflater.from(parent.context).inflate(R.layout.weekly_item_view_pager,parent,false)
@@ -16,15 +25,28 @@ class WeekViewPagerAdapter(val names:List<String>):RecyclerView.Adapter<WeekView
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val text=names[position]
-       // holder.itemView.txt_test.text=text
 
+        listener?.setAdapter(holder,position)
     }
 
-    override fun getItemCount()=names.size
 
+
+    override fun getItemCount()=days.size
+
+
+
+    fun setListener(listener:WeeklyRecyclerViewListener){
+        this.listener=listener
+    }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+         var recyclerView: RecyclerView = itemView.daily_schedules_recycler
+    }
+
+    interface WeeklyRecyclerViewListener{
+        fun setAdapter(itemView: ViewHolder,position: Int)
 
     }
 }
+
+

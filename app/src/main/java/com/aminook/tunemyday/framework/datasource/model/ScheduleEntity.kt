@@ -44,3 +44,8 @@ data class ScheduleAndProgram(
     )
     val program:ProgramEntity
 )
+
+data class SchedulesPerDay(
+    val day:Int,
+    val schedules:List<ScheduleAndProgram>
+)

@@ -1,9 +1,11 @@
 package com.aminook.tunemyday.framework.datasource.database
 
+import android.content.LocusId
 import androidx.room.*
 import com.aminook.tunemyday.framework.datasource.model.ProgramEntity
 import com.aminook.tunemyday.framework.datasource.model.ScheduleAndProgram
 import com.aminook.tunemyday.framework.datasource.model.ScheduleEntity
+import com.aminook.tunemyday.framework.datasource.model.SchedulesPerDay
 import kotlinx.coroutines.flow.Flow
 
 
@@ -24,6 +26,9 @@ interface ScheduleDao {
     @Query("delete from schedules")
     fun deleteAllSchedules():Int
 
+
+    @Query("select * from schedules ")
+    fun selectSevenDaysSchedule():Flow<List<ScheduleAndProgram>>
 
     @Delete
     fun deleteSchedule(scheduleEntity: ScheduleEntity):Int
