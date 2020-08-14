@@ -32,5 +32,14 @@
         android:id="@+id/addScheduleFragment"
         android:name="com.aminook.tunemyday.framework.presentation.addschedule.AddScheduleFragment"
         android:label="fragment_add_schedule"
-        tools:layout="@layout/fragment_add_schedule" />
+        tools:layout="@layout/fragment_add_schedule" >
+        <action
+            android:id="@+id/action_addScheduleFragment_to_addToDoFragment"
+            app:destination="@id/addToDoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addToDoFragment"
+        android:name="com.aminook.tunemyday.framework.presentation.addtodo.AddToDoFragment"
+        android:label="fragment_add_to_do"
+        tools:layout="@layout/fragment_add_to_do" />
 </navigation>

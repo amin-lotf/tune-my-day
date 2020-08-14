@@ -51,6 +51,7 @@ class ShortDailyScheduleRecycler : RecyclerView.Adapter<ShortDailyScheduleRecycl
 
     fun submitList(schedules:List<Schedule>){
         differ.submitList(schedules)
+        //TODO(Check if notify db is needed)
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

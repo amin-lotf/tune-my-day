@@ -133,8 +133,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             app:layout_constraintTop_toBottomOf="@id/blackline_notification"
-            tools:layout_editor_absoluteX="16dp"
-            tools:listitem="@layout/alarm_item" />
+            tools:listitem="@layout/alarm_item"
+            tools:itemCount="2"/>
 
         <TextView
         android:id="@+id/txt_add_alert"
@@ -156,17 +156,15 @@
 
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/horizontal_todo"
+            android:id="@+id/recycler_schedule_todo"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginTop="8dp"
-            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/blackline_todos"
-            app:spanCount="2"
-            tools:layout_editor_absoluteX="0dp"
-            tools:listitem="@layout/todo_item">
 
-        </androidx.recyclerview.widget.RecyclerView>
+            app:layout_constraintTop_toBottomOf="@id/blackline_todos"
+
+            tools:listitem="@layout/todo_item"
+            tools:itemCount="3"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

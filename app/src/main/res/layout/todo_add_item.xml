@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    android:elevation="8dp">
+
+    <TextView
+        android:id="@+id/txt_todo_add"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add a task"
+        android:layout_margin="8dp"
+        android:textAlignment="center"/>
+
+
+</androidx.cardview.widget.CardView>

@@ -3,6 +3,7 @@ package com.aminook.tunemyday.framework.presentation.common
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import com.aminook.tunemyday.framework.presentation.addschedule.AddScheduleFragment
+import com.aminook.tunemyday.framework.presentation.addtodo.AddToDoFragment
 import com.aminook.tunemyday.framework.presentation.dailylist.DailyListFragment
 import com.aminook.tunemyday.framework.presentation.tasklist.TaskListFragment
 import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragment
@@ -22,6 +23,8 @@ class AppFragmentFactory @Inject constructor() : FragmentFactory() {
             TaskListFragment::class.java.name->TaskListFragment()
 
             AddScheduleFragment::class.java.name->AddScheduleFragment()
+
+            AddToDoFragment::class.java.name->AddToDoFragment()
 
             else->WeeklyListFragment()
         }
