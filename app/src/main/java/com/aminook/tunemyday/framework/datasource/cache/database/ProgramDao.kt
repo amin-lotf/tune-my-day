@@ -1,7 +1,7 @@
-package com.aminook.tunemyday.framework.datasource.database
+package com.aminook.tunemyday.framework.datasource.cache.database
 
 import androidx.room.*
-import com.aminook.tunemyday.framework.datasource.model.ProgramEntity
+import com.aminook.tunemyday.framework.datasource.cache.model.ProgramEntity
 import kotlinx.coroutines.flow.Flow
 
 
@@ -18,11 +18,11 @@ interface ProgramDao {
     fun deleteAllPrograms(): Int
 
     @Delete
-    fun deleteProgram(programEntity: ProgramEntity): Int
+    suspend fun deleteProgram(programEntity: ProgramEntity): Int
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertProgram(programEntity: ProgramEntity): Long
+    suspend fun insertProgram(programEntity: ProgramEntity): Long
 
     @Update(onConflict = OnConflictStrategy.IGNORE)
-    fun updateProgram(programEntity: ProgramEntity): Int
+    suspend fun updateProgram(programEntity: ProgramEntity): Int
 }

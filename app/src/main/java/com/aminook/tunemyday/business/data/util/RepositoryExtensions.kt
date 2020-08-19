@@ -13,12 +13,12 @@ import kotlinx.coroutines.withTimeout
 
 suspend fun <T> safeCacheCall(
     dispatcher:CoroutineDispatcher,
-    cacheCall: Flow<T?>
-):CacheResult<T?>{
+    cacheCall: () -> Flow<T>
+): CacheResult<T?> {
     return withContext(dispatcher){
         try {
             withTimeout(CACHE_TIMEOUT){
-               CacheResult.Success(cacheCall.single())
+               CacheResult.Success(cacheCall().single())
             }
         }catch (throwable:Throwable){
             when (throwable) {

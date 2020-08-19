@@ -1,14 +1,11 @@
-package com.aminook.tunemyday.framework.datasource.database
+package com.aminook.tunemyday.framework.datasource.cache.database
 
 import android.content.Context
-import android.graphics.Color
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
+import com.aminook.tunemyday.framework.datasource.cache.model.*
 import com.aminook.tunemyday.framework.datasource.model.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 
 @Database(

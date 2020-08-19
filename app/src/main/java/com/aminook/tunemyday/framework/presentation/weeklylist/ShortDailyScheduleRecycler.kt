@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Schedule
-import com.aminook.tunemyday.framework.datasource.model.ScheduleEntity
+import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
 import kotlinx.android.synthetic.main.schedule_item.view.*
 import java.util.zip.Inflater
 

@@ -1,24 +1,17 @@
 package com.aminook.tunemyday.framework.presentation.weeklylist
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewpager2.widget.ViewPager2
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Day
 import com.aminook.tunemyday.business.domain.model.Schedule
-import com.aminook.tunemyday.framework.datasource.database.ScheduleDao
+import com.aminook.tunemyday.framework.datasource.cache.database.ScheduleDao
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_weekly_list.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.single
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 

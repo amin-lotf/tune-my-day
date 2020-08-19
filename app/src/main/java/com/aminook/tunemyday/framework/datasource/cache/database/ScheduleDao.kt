@@ -1,11 +1,8 @@
-package com.aminook.tunemyday.framework.datasource.database
+package com.aminook.tunemyday.framework.datasource.cache.database
 
-import android.content.LocusId
 import androidx.room.*
-import com.aminook.tunemyday.framework.datasource.model.ProgramEntity
-import com.aminook.tunemyday.framework.datasource.model.ScheduleAndProgram
-import com.aminook.tunemyday.framework.datasource.model.ScheduleEntity
-import com.aminook.tunemyday.framework.datasource.model.SchedulesPerDay
+import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleAndProgram
+import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
 import kotlinx.coroutines.flow.Flow
 
 

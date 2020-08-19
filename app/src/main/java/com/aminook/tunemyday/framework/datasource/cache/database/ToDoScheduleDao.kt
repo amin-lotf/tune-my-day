@@ -1,9 +1,8 @@
-package com.aminook.tunemyday.framework.datasource.database
+package com.aminook.tunemyday.framework.datasource.cache.database
 
 import androidx.room.Dao
 import androidx.room.Insert
-import com.aminook.tunemyday.framework.datasource.model.ToDoScheduleMapper
-import kotlinx.coroutines.flow.Flow
+import com.aminook.tunemyday.framework.datasource.cache.model.ToDoScheduleMapper
 
 @Dao
 interface ToDoScheduleDao {

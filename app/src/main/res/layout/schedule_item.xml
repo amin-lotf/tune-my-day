@@ -18,8 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="2dp"
             android:background="#c0c0c0"
-
-
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 

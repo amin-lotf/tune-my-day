@@ -1,4 +1,4 @@
-package com.aminook.tunemyday.framework.datasource.model
+package com.aminook.tunemyday.framework.datasource.cache.model
 
 import androidx.room.*
 

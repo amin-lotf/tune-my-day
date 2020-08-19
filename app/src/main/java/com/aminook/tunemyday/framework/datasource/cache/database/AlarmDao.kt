@@ -1,7 +1,7 @@
-package com.aminook.tunemyday.framework.datasource.database
+package com.aminook.tunemyday.framework.datasource.cache.database
 
 import androidx.room.*
-import com.aminook.tunemyday.framework.datasource.model.AlarmEntity
+import com.aminook.tunemyday.framework.datasource.cache.model.AlarmEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

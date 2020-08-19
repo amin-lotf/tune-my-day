@@ -1,4 +1,4 @@
-package com.aminook.tunemyday.framework.datasource.model
+package com.aminook.tunemyday.framework.datasource.cache.model
 
 import androidx.room.*
 
@@ -36,13 +36,13 @@ data class ScheduleEntity(
 
 data class ScheduleAndProgram(
     @Embedded
-    val schedule:ScheduleEntity,
+    val schedule: ScheduleEntity,
 
     @Relation(
         parentColumn = "program_id",
         entityColumn = "id"
     )
-    val program:ProgramEntity
+    val program: ProgramEntity
 )
 
 data class SchedulesPerDay(

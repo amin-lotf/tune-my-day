@@ -1,4 +1,4 @@
-package com.aminook.tunemyday.framework.datasource.model
+package com.aminook.tunemyday.framework.datasource.cache.model
 
 import androidx.room.Embedded
 import androidx.room.Relation
@@ -11,6 +11,6 @@ data class DetailedSchedule(
     val  toDos:List<ToDoEntity>,
 
     @Relation(parentColumn = "program_id",entityColumn = "id")
-    val program:ProgramEntity
+    val program: ProgramEntity
 
 )

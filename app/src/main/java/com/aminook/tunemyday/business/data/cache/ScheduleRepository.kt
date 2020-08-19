@@ -1,19 +1,20 @@
 package com.aminook.tunemyday.business.data.cache
 
-import com.aminook.tunemyday.framework.datasource.model.ProgramEntity
+import com.aminook.tunemyday.business.domain.model.Program
+import com.aminook.tunemyday.framework.datasource.cache.model.ProgramEntity
 import kotlinx.coroutines.flow.Flow
 
 interface ScheduleRepository {
 
-    fun updateProgram(programEntity: ProgramEntity):Int
+    suspend fun updateProgram(program: Program):Int
 
-    fun insertProgram(programEntity: ProgramEntity):Long
+    suspend fun insertProgram(program: Program):Long
 
-    fun selectAllPrograms(): Flow<List<ProgramEntity>>
+    fun selectAllPrograms(): Flow<List<Program>>
 
-    fun selectProgram(id:Int):Flow<ProgramEntity?>
+    fun selectProgram(id:Int):Flow<Program?>
 
-    fun deleteAllPrograms(): Int
+    suspend fun deleteAllPrograms(): Int
 
-    fun deleteProgram(programEntity: ProgramEntity): Int
+    suspend fun deleteProgram(program: Program): Int
 }
