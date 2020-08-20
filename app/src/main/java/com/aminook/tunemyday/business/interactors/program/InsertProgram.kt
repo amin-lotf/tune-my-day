@@ -6,10 +6,13 @@ import com.aminook.tunemyday.business.data.util.safeCacheCall
 import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.state.*
 import com.aminook.tunemyday.framework.presentation.addschedule.state.AddScheduleViewState
+import dagger.hilt.android.scopes.FragmentScoped
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-class InsertProgram(
+@FragmentScoped
+class InsertProgram @Inject constructor(
     private val scheduleRepository: ScheduleRepository
 ) {
 

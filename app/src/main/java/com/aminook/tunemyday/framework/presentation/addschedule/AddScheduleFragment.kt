@@ -13,19 +13,24 @@ import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Color
 import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.model.ToDo
+import com.aminook.tunemyday.business.interactors.program.ProgramInteractors
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.bottom_sheet_programs.*
 import kotlinx.android.synthetic.main.bottom_sheet_programs.view.*
 import kotlinx.android.synthetic.main.dialog_add_program.*
 import kotlinx.android.synthetic.main.dialog_add_program.view.*
 import kotlinx.android.synthetic.main.fragment_add_schedule.*
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), ProgramClickListener,
     OnColorClickListener {
     private val TAG = "aminjoon"
+
 
     private var toDoListAdapter: ToDoListAdapter? = null
     private var programColorsAdapter:ProgramColorsAdapter?=null
@@ -63,15 +68,15 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
 
         programsAdapter=SheetProgramAdapter(
             listOf(
-                Program("1","Gym",1),
-                Program("1","Sleep",1),
-                Program("1","Gym",1),
-                Program("1","Gym",1),
-                Program("1","Gym",1),
-                Program("1","Gym",1),
-                Program("1","Gym",1),
-                Program("1","Gym",1),
-                Program("1","Gym",1)
+                Program(1,"Gym",1),
+                Program(1,"Sleep",1),
+                Program(1,"Gym",1),
+                Program(1,"Gym",1),
+                Program(1,"Gym",1),
+                Program(1,"Gym",1),
+                Program(1,"Gym",1),
+                Program(1,"Gym",1),
+                Program(1,"Gym",1)
             )
         )
         programsAdapter?.setProgramClickListener(this)

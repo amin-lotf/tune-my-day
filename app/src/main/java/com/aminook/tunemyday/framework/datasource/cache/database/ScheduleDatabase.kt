@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.aminook.tunemyday.framework.datasource.cache.model.*
-import com.aminook.tunemyday.framework.datasource.model.*
+
 
 
 @Database(
