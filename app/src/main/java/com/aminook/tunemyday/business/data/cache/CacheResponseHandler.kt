@@ -3,22 +3,20 @@ package com.aminook.tunemyday.business.data.cache
 import com.aminook.tunemyday.business.data.util.ErrorConstants.CACHE_DATA_NULL
 import com.aminook.tunemyday.business.domain.state.*
 
-abstract class CacheResponseHandler<ViewState,Data>(
-    private val response:CacheResult<Data?>,
-    private val stateEvent: StateEvent?
+abstract class CacheResponseHandler<Input,Output>(
+    private val response:CacheResult<Input?>
 ) {
 
-    suspend fun getResult():DataState<ViewState>?{
+    suspend fun getResult():DataState<Output?>{
         return when(response){
             is CacheResult.Success -> {
                if (response.value==null){
                    DataState.error(
                        response = Response(
-                           message = "${stateEvent?.errorInfo}\n\nReason: ${CACHE_DATA_NULL}.",
+                           message = CACHE_DATA_NULL,
                            uiComponentType = UIComponentType.Dialog,
                            messageType = MessageType.Error
-                       ),
-                       stateEvent=stateEvent
+                       )
                    )
                }else{
                    handleSuccess(response.value)
@@ -27,16 +25,15 @@ abstract class CacheResponseHandler<ViewState,Data>(
             is CacheResult.GenericError -> {
                 DataState.error(
                     response = Response(
-                        message = "${stateEvent?.errorInfo}\n\nReason: ${response.errorMessage}",
+                        message = response.errorMessage,
                         uiComponentType = UIComponentType.Dialog,
                         messageType = MessageType.Error
-                    ),
-                    stateEvent=stateEvent
+                    )
                 )
             }
         }
     }
 
-    abstract suspend fun handleSuccess(resultObj: Data): DataState<ViewState>?
+    abstract suspend fun handleSuccess(resultObj: Input): DataState<Output?>
 
 }

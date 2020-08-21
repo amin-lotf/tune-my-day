@@ -5,42 +5,40 @@ import com.aminook.tunemyday.business.data.cache.ScheduleRepository
 import com.aminook.tunemyday.business.data.util.safeCacheCall
 import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.state.*
-import com.aminook.tunemyday.framework.presentation.addschedule.state.AddScheduleViewState
-import dagger.hilt.android.scopes.FragmentScoped
+import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleViewState
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@FragmentScoped
+@Singleton
 class InsertProgram @Inject constructor(
     private val scheduleRepository: ScheduleRepository
 ) {
 
-    operator fun invoke(program: Program, stateEvent: StateEvent) =
+    private val TAG="aminjoon"
+    operator fun invoke(program: Program) =
         flow {
-
             val cacheResult = safeCacheCall(IO) {
                 flow {
+
                     emit(scheduleRepository.insertProgram(program))
                 }
             }
 
-            val cacheResponse = object : CacheResponseHandler<AddScheduleViewState, Long>(
-                response = cacheResult,
-                stateEvent = stateEvent
+            val cacheResponse = object : CacheResponseHandler< Long,Program>(
+                response = cacheResult
+
             ) {
-                override suspend fun handleSuccess(resultObj: Long): DataState<AddScheduleViewState>? {
+                override suspend fun handleSuccess(resultObj: Long): DataState<Program?> {
                     return if (resultObj > 0) {
-                        val viewState = AddScheduleViewState(
-                            newProgram = program
-                        )
                         DataState.data(
                             response = Response(
                                 message = INSERT_PROGRAM_SUCCESS,
                                 uiComponentType = UIComponentType.None,
                                 messageType = MessageType.Success
                             ),
-                            stateEvent = stateEvent
+                            data = program
                         )
                     } else {
                         DataState.data(
@@ -48,8 +46,7 @@ class InsertProgram @Inject constructor(
                                 message = INSERT_PROGRAM_FAILED,
                                 uiComponentType = UIComponentType.Toast,
                                 messageType = MessageType.Error
-                            ),
-                            stateEvent = stateEvent
+                            )
                         )
                     }
                 }

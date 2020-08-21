@@ -38,7 +38,6 @@ class ToDoListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val differ = AsyncListDiffer(this, DIFF_CALLBACK)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        Log.d(TAG, "onCreateViewHolder: $viewType ")
         if(viewType==TYPE_ITEM) {
             val view =
                 LayoutInflater.from(parent.context).inflate(R.layout.todo_item, parent, false)

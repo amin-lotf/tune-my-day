@@ -2,9 +2,10 @@ package com.aminook.tunemyday.business.interactors.program
 
 import dagger.hilt.android.scopes.FragmentScoped
 import javax.inject.Inject
+import javax.inject.Singleton
 
 
-@FragmentScoped
+@Singleton
 class ProgramInteractors @Inject constructor(
     val insertProgram:InsertProgram
 )

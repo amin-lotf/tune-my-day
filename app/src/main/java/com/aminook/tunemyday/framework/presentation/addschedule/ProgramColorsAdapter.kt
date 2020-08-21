@@ -52,7 +52,7 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(color: Color){
             itemView.img_color.setBackgroundColor(color.value)
-            Log.d(TAG, "bind: ${color.isChosen}")
+
             if(color.isChosen){
                 itemView.img_chosen.visibility=View.VISIBLE
             }else{

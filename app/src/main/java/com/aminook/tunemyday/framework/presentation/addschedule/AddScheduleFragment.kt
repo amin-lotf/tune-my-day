@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminook.tunemyday.R
@@ -31,6 +33,9 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
     OnColorClickListener {
     private val TAG = "aminjoon"
 
+   
+
+    private val viewModel : AddScheduleViewModel by viewModels()
 
     private var toDoListAdapter: ToDoListAdapter? = null
     private var programColorsAdapter:ProgramColorsAdapter?=null
@@ -47,13 +52,16 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         add_schedule_name.setOnClickListener { showPrograms() }
 
         recycler_schedule_todo.apply {
-            Log.d(TAG, "onViewCreated: recycler")
             layoutManager=LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
             adapter=toDoListAdapter
             setHasFixedSize(true)
         }
 
         toDoListAdapter?.submitList(listOf(ToDo("2","3",false,false)))
+        
+        viewModel.selectedProgram.observe(viewLifecycleOwner, Observer {
+            add_schedule_name.text=it.name
+        })
 
     }
 
@@ -106,8 +114,9 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         view.btn_save_Program.setOnClickListener {
            if(!view.edt_add_program.text.isNullOrBlank()){
                val programName=view.edt_add_program.text.toString()
-               //TODO(Call viewmodel to save)
-
+               val color=ContextCompat.getColor(requireContext(),R.color.colorAccent)
+               val program=Program(name = programName,color = color)
+               viewModel.addProgram(program)
                addProgramBtnSheetDialog.dismiss()
            } else{
                //TODO(Field must not be empty error
