@@ -67,27 +67,27 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
             layoutManager = LinearLayoutManager(requireContext())
             this.adapter = shortDailyScheduleRecycler
 
-            val schedules1 = mutableListOf<Schedule>()
-            schedules1.add(Schedule(1, 1, "Gym", "3h", "19:45", "20:00", true, false))
-            schedules1.add(
-                Schedule(
-                    1,
-                    1,
-                    "Programming",
-                    "3h",
-                    "20:45",
-                    "21:00",
-                    false,
-                    true
-                )
-            )
-
-            val schedules2 = mutableListOf<Schedule>()
-            schedules2.add(Schedule(1, 1, "Study", "3h", "19:45", "20:00", true, false))
-            schedules2.add(Schedule(1, 1, "Rest", "3h", "20:45", "21:00", false, true))
-
-            val allSchedules= listOf(schedules1,schedules2,schedules1,schedules2,schedules1,schedules2,schedules1)
-            shortDailyScheduleRecycler.submitList(allSchedules[position])
+//            val schedules1 = mutableListOf<Schedule>()
+//            schedules1.add(Schedule(1, 1, "Gym", "3h", "19:45", "20:00", true, false))
+//            schedules1.add(
+//                Schedule(
+//                    1,
+//                    1,
+//                    "Programming",
+//                    "3h",
+//                    "20:45",
+//                    "21:00",
+//                    false,
+//                    true
+//                )
+//            )
+//
+//            val schedules2 = mutableListOf<Schedule>()
+//            schedules2.add(Schedule(1, 1, "Study", "3h", "19:45", "20:00", true, false))
+//            schedules2.add(Schedule(1, 1, "Rest", "3h", "20:45", "21:00", false, true))
+//
+//            val allSchedules= listOf(schedules1,schedules2,schedules1,schedules2,schedules1,schedules2,schedules1)
+//            shortDailyScheduleRecycler.submitList(allSchedules[position])
 
 
         }

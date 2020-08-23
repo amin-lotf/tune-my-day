@@ -4,12 +4,12 @@ import com.aminook.tunemyday.business.data.cache.CacheResult
 import com.aminook.tunemyday.business.data.util.CacheConstants.CACHE_TIMEOUT
 import com.aminook.tunemyday.business.data.util.ErrorConstants.CACHE_ERROR_TIMEOUT
 import com.aminook.tunemyday.business.data.util.ErrorConstants.CACHE_ERROR_UNKNOWN
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.single
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 
 suspend fun <T> safeCacheCall(
     dispatcher:CoroutineDispatcher,
@@ -18,7 +18,9 @@ suspend fun <T> safeCacheCall(
     return withContext(dispatcher){
         try {
             withTimeout(CACHE_TIMEOUT){
-               CacheResult.Success(cacheCall().single())
+
+            //cacheCall.
+                CacheResult.Success(null)
             }
         }catch (throwable:Throwable){
             when (throwable) {

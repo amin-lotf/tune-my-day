@@ -48,7 +48,7 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         toDoListAdapter = ToDoListAdapter()
-
+        showPrograms()
         add_schedule_name.setOnClickListener { showPrograms() }
 
         recycler_schedule_todo.apply {
@@ -57,12 +57,22 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
             setHasFixedSize(true)
         }
 
-        toDoListAdapter?.submitList(listOf(ToDo("2","3",false,false)))
+       // toDoListAdapter?.submitList(listOf(ToDo("2","3",false,false)))
+
+        subscribeObservers()
         
+
+
+    }
+
+    private fun subscribeObservers() {
         viewModel.selectedProgram.observe(viewLifecycleOwner, Observer {
-            add_schedule_name.text=it.name
+            add_schedule_name.text = it.name
         })
 
+        viewModel.allPrograms.observe(viewLifecycleOwner, Observer {
+            programsAdapter?.submitList(it)
+        })
     }
 
     private fun showPrograms() {
@@ -74,19 +84,9 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
             showAddProgramDialog()
         }
 
-        programsAdapter=SheetProgramAdapter(
-            listOf(
-                Program(1,"Gym",1),
-                Program(1,"Sleep",1),
-                Program(1,"Gym",1),
-                Program(1,"Gym",1),
-                Program(1,"Gym",1),
-                Program(1,"Gym",1),
-                Program(1,"Gym",1),
-                Program(1,"Gym",1),
-                Program(1,"Gym",1)
-            )
-        )
+        programsAdapter=SheetProgramAdapter()
+        viewModel.getAllPrograms()
+
         programsAdapter?.setProgramClickListener(this)
         view.recycler_programs_sheet.apply {
             layoutManager=LinearLayoutManager(requireContext())
@@ -114,8 +114,9 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         view.btn_save_Program.setOnClickListener {
            if(!view.edt_add_program.text.isNullOrBlank()){
                val programName=view.edt_add_program.text.toString()
-               val color=ContextCompat.getColor(requireContext(),R.color.colorAccent)
-               val program=Program(name = programName,color = color)
+               val color= programColorsAdapter?.selectedColor
+                   ?: Color(ContextCompat.getColor(requireContext(),R.color.colorAccent))
+               val program=Program(name = programName,color = color.value)
                viewModel.addProgram(program)
                addProgramBtnSheetDialog.dismiss()
            } else{

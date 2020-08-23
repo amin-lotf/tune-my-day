@@ -15,6 +15,12 @@ import kotlinx.android.synthetic.main.color_item.view.*
 class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<ProgramColorsAdapter.ViewHolder>() {
     private val TAG="aminjoon"
 
+
+    private var _selectedColor:Color?= if (colors.size>0) colors[0] else null
+
+    val selectedColor:Color?
+    get() = _selectedColor
+
     var listener:OnColorClickListener?=null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -49,6 +55,8 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
         }
     }
 
+
+
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(color: Color){
             itemView.img_color.setBackgroundColor(color.value)
@@ -61,6 +69,7 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
 
             itemView.setOnClickListener {
                 updateColors(color)
+                _selectedColor=color
                 listener?.onSelectColor(color)
             }
 

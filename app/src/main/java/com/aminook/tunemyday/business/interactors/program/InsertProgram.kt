@@ -2,11 +2,10 @@ package com.aminook.tunemyday.business.interactors.program
 
 import com.aminook.tunemyday.business.data.cache.CacheResponseHandler
 import com.aminook.tunemyday.business.data.cache.ScheduleRepository
-import com.aminook.tunemyday.business.data.util.safeCacheCall
 import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.state.*
-import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleViewState
-import kotlinx.coroutines.Dispatchers.IO
+
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -17,44 +16,41 @@ class InsertProgram @Inject constructor(
 ) {
 
     private val TAG="aminjoon"
-    operator fun invoke(program: Program) =
-        flow {
-            val cacheResult = safeCacheCall(IO) {
-                flow {
-
-                    emit(scheduleRepository.insertProgram(program))
+    suspend  operator fun invoke(program: Program): Flow<DataState<Program>?> {
+        val cacheResponse = object : CacheResponseHandler<Long, Program>() {
+            override suspend fun handleSuccess(resultObj: Long): DataState<Program>? {
+                return if (resultObj > 0) {
+                    DataState.data(
+                        response = Response(
+                            message = InsertProgram.INSERT_PROGRAM_SUCCESS,
+                            uiComponentType = UIComponentType.None,
+                            messageType = MessageType.Success
+                        ),
+                        data = program
+                    )
+                } else {
+                    DataState.data(
+                        response = Response(
+                            message = InsertProgram.INSERT_PROGRAM_FAILED,
+                            uiComponentType = UIComponentType.Toast,
+                            messageType = MessageType.Error
+                        )
+                    )
                 }
             }
 
-            val cacheResponse = object : CacheResponseHandler< Long,Program>(
-                response = cacheResult
-
-            ) {
-                override suspend fun handleSuccess(resultObj: Long): DataState<Program?> {
-                    return if (resultObj > 0) {
-                        DataState.data(
-                            response = Response(
-                                message = INSERT_PROGRAM_SUCCESS,
-                                uiComponentType = UIComponentType.None,
-                                messageType = MessageType.Success
-                            ),
-                            data = program
-                        )
-                    } else {
-                        DataState.data(
-                            response = Response(
-                                message = INSERT_PROGRAM_FAILED,
-                                uiComponentType = UIComponentType.Toast,
-                                messageType = MessageType.Error
-                            )
-                        )
-                    }
-                }
-
-            }.getResult()
-            emit(cacheResponse)
-
         }
+
+        return cacheResponse.getResult {
+            flow {
+
+                emit(
+                    scheduleRepository.insertProgram(program)
+                )
+            }
+        }
+
+    }
 
     companion object {
         val INSERT_PROGRAM_SUCCESS = "Successfully inserted new program."

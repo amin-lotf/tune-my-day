@@ -9,7 +9,9 @@ import com.aminook.tunemyday.business.domain.model.Program
 import kotlinx.android.synthetic.main.bottom_sheet_programs.view.*
 import kotlinx.android.synthetic.main.program_item.view.*
 
-class SheetProgramAdapter(private val programs:List<Program>):RecyclerView.Adapter<SheetProgramAdapter.ViewHolder>() {
+class SheetProgramAdapter():RecyclerView.Adapter<SheetProgramAdapter.ViewHolder>() {
+
+    private var programs:List<Program> = listOf()
 
     private var listener:ProgramClickListener?=null
 
@@ -28,6 +30,10 @@ class SheetProgramAdapter(private val programs:List<Program>):RecyclerView.Adapt
 
     fun setProgramClickListener(listener: ProgramClickListener){
         this.listener=listener
+    }
+
+    fun submitList(programs:List<Program>){
+        this.programs=programs
     }
 
     inner class ViewHolder(itemView:View): RecyclerView.ViewHolder(itemView) {

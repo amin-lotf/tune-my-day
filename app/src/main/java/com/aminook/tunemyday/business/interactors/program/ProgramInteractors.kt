@@ -7,5 +7,6 @@ import javax.inject.Singleton
 
 @Singleton
 class ProgramInteractors @Inject constructor(
-    val insertProgram:InsertProgram
+    val insertProgram:InsertProgram,
+    val getAllPrograms: GetAllPrograms
 )

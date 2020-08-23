@@ -8,7 +8,7 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class Color(
     val value:Int,
-    var isChosen:Boolean
+    var isChosen:Boolean=false
 ):Parcelable {
 
 }

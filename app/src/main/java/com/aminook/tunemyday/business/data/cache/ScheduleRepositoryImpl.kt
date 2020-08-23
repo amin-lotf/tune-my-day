@@ -26,7 +26,7 @@ class ScheduleRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun selectAllPrograms(): Flow<List<Program>> {
+    override fun getAllPrograms(): Flow<List<Program>> {
         return  daoService.programDao.selectAllPrograms().map { entityList->
             entityList.map {entity->
                 mappers.programCacheMapper.mapFromEntity(entity)

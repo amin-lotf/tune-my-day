@@ -57,7 +57,7 @@ class ShortDailyScheduleRecycler : RecyclerView.Adapter<ShortDailyScheduleRecycl
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(schedule: Schedule) {
-            itemView.schedule_program.text=schedule.program
+            itemView.schedule_program.text=schedule.program?.name
             itemView.schedule_hour_start.text=schedule.start
             itemView.schedule_hour_end.text=schedule.end
             itemView.schedule_duration.text=schedule.duration

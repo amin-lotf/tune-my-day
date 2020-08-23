@@ -10,7 +10,7 @@ interface ScheduleRepository {
 
     suspend fun insertProgram(program: Program):Long
 
-    fun selectAllPrograms(): Flow<List<Program>>
+    fun getAllPrograms(): Flow<List<Program>>
 
     fun selectProgram(id:Int):Flow<Program?>
 
