@@ -1,5 +1,6 @@
 package com.aminook.tunemyday.business.data.cache
 
+import com.aminook.tunemyday.business.domain.model.Day
 import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.framework.datasource.cache.model.ProgramEntity
 import kotlinx.coroutines.flow.Flow
@@ -17,4 +18,6 @@ interface ScheduleRepository {
     suspend fun deleteAllPrograms(): Int
 
     suspend fun deleteProgram(program: Program): Int
+
+    fun getDaysOfWeek(chosenDay:Int=1):List<Day>
 }

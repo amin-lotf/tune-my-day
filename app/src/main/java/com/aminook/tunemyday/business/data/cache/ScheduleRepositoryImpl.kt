@@ -1,5 +1,7 @@
 package com.aminook.tunemyday.business.data.cache
 
+import com.aminook.tunemyday.business.domain.model.Day
+import com.aminook.tunemyday.business.domain.model.DayFactory
 import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.framework.datasource.cache.database.*
 import com.aminook.tunemyday.framework.datasource.cache.mappers.Mappers
@@ -12,7 +14,8 @@ import javax.inject.Singleton
 @Singleton
 class ScheduleRepositoryImpl @Inject constructor(
    val daoService: DaoService,
-   val mappers: Mappers
+   val mappers: Mappers,
+   val dayFactory: DayFactory
 ):ScheduleRepository {
     override suspend fun updateProgram(program: Program):Int {
         return daoService.programDao.updateProgram(
@@ -50,6 +53,10 @@ class ScheduleRepositoryImpl @Inject constructor(
        return  daoService.programDao.deleteProgram(
            mappers.programCacheMapper.mapToEntity(program)
        )
+    }
+
+    override fun getDaysOfWeek(chosenDay:Int): List<Day> {
+        return dayFactory.getDaysOfWeek(chosenDay)
     }
 
 

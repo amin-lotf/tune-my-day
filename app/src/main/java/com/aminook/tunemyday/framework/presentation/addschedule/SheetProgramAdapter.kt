@@ -40,6 +40,7 @@ class SheetProgramAdapter():RecyclerView.Adapter<SheetProgramAdapter.ViewHolder>
 
         fun bind(program:Program){
             itemView.txt_program_name.text=program.name
+            itemView.img_program_label.setBackgroundColor(program.color)
             itemView.setOnClickListener {
                 listener?.AddProgramClick(program)
 

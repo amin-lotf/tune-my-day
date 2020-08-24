@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Color
+import com.aminook.tunemyday.business.domain.model.Day
 import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.model.ToDo
 import com.aminook.tunemyday.business.interactors.program.ProgramInteractors
@@ -33,7 +34,11 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
     OnColorClickListener {
     private val TAG = "aminjoon"
 
-   
+   @Inject
+   lateinit var colors:List<Color>
+
+    @Inject
+    lateinit var days:List<Day>
 
     private val viewModel : AddScheduleViewModel by viewModels()
 
@@ -43,8 +48,8 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
     private lateinit var chooseProgramBtnSheetDialog:BottomSheetDialog
     private lateinit var addProgramBtnSheetDialog: BottomSheetDialog
 
-    //TODO(Add to Hilt)
-    private lateinit var colors:MutableList<Color>
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         toDoListAdapter = ToDoListAdapter()
@@ -57,22 +62,23 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
             setHasFixedSize(true)
         }
 
-       // toDoListAdapter?.submitList(listOf(ToDo("2","3",false,false)))
-
         subscribeObservers()
-        
-
 
     }
 
     private fun subscribeObservers() {
-        viewModel.selectedProgram.observe(viewLifecycleOwner, Observer {
+        viewModel.catchDaysOfWeek(1) //TODO(change the number to corresponding day
+        viewModel.selectedProgram.observe(viewLifecycleOwner) {
             add_schedule_name.text = it.name
-        })
 
-        viewModel.allPrograms.observe(viewLifecycleOwner, Observer {
+        }
+        viewModel.allPrograms.observe(viewLifecycleOwner) {
             programsAdapter?.submitList(it)
-        })
+        }
+
+        viewModel.chosenDay.observe(viewLifecycleOwner) { day->
+            add_schedule_day.text=day.fullName
+        }
     }
 
     private fun showPrograms() {
@@ -123,11 +129,7 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
                //TODO(Field must not be empty error
            }
         }
-        colors= mutableListOf(
-            Color(ContextCompat.getColor(requireContext(),R.color.colorAccent),true),
-            Color(ContextCompat.getColor(requireContext(),R.color.colorPrimary),false),
-            Color(ContextCompat.getColor(requireContext(),R.color.colorPrimaryDark),false)
-        )
+
         programColorsAdapter= ProgramColorsAdapter(colors)
 
         programColorsAdapter?.setOnColorClickListener(this)
@@ -146,7 +148,7 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
 
     override fun AddProgramClick(program: Program) {
         chooseProgramBtnSheetDialog.dismiss()
-        //TODO(manage chosen program from list)
+        viewModel.bufferChosenProgram(program)
     }
 
     override fun onSelectColor(color: Color) {

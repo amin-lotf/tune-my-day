@@ -5,9 +5,11 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.aminook.tunemyday.business.domain.model.Day
 import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.state.DataState
 import com.aminook.tunemyday.business.interactors.program.ProgramInteractors
+import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import dagger.hilt.android.scopes.ActivityScoped
@@ -22,14 +24,17 @@ import kotlinx.coroutines.launch
 
 
 class AddScheduleViewModel @ViewModelInject constructor(
-    val programInteractors: ProgramInteractors
+    val programInteractors: ProgramInteractors,
+    val scheduleInteractors: ScheduleInteractors
 ) : BaseViewModel() {
 
     private val TAG = "aminjoon"
     private val addScheduleManager = AddScheduleManager()
 
-    private val activeScope=IO + viewModelScope.coroutineContext
+    private val activeScope = IO + viewModelScope.coroutineContext
 
+    private var _chosenDay=MutableLiveData<Day>()
+    private var _daysOfWeek = mutableListOf<Day>()
     private var _selectedProgram = MutableLiveData<Program>()
     private var _allPrograms = MutableLiveData<List<Program>>()
 
@@ -38,6 +43,30 @@ class AddScheduleViewModel @ViewModelInject constructor(
 
     val allPrograms: LiveData<List<Program>>
         get() = _allPrograms
+
+    val daysOfWeek: List<Day>
+        get() = _daysOfWeek
+
+    val chosenDay:LiveData<Day>
+    get()=_chosenDay
+
+
+    fun catchDaysOfWeek(chosenDay:Int){
+        CoroutineScope(activeScope).launch {
+            scheduleInteractors.getDaysOfWeek(chosenDay).collect { dataState->
+                dataState?.data?.let {daysList->
+                    _daysOfWeek.addAll(daysList)
+                    daysList.forEach { day->
+                        if(day.isChosen){
+                            _chosenDay.value=day
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
 
     fun addProgram(program: Program) {
         //_selectedProgram= programInteractors.insertProgram(program).asLiveData(IO+viewModelScope.coroutineContext) as MutableLiveData<DataState<Program?>>
@@ -53,13 +82,21 @@ class AddScheduleViewModel @ViewModelInject constructor(
         }
     }
 
-    fun getAllPrograms(){
+    fun bufferChosenProgram(program: Program) {
+        addScheduleManager.addProgramToBuffer(program)
+        _selectedProgram.value = program
+    }
+
+    fun getAllPrograms() {
         CoroutineScope(activeScope).launch {
-            programInteractors.getAllPrograms().collect { dataState->
-                Log.d(TAG, "getAllPrograms: ${dataState?.stateMessage?.peekContent()?.response?.message}")
+            programInteractors.getAllPrograms().collect { dataState ->
+                Log.d(
+                    TAG,
+                    "getAllPrograms: ${dataState?.stateMessage?.peekContent()?.response?.message}"
+                )
                 dataState?.data?.let {
 
-                    _allPrograms.value=dataState.data
+                    _allPrograms.value = dataState.data
                 }
 
             }

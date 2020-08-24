@@ -35,6 +35,7 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
     }
 
     override fun getItemCount(): Int {
+//        Log.d(TAG, "getItemCount: ${colors.size}")
         return colors.size
     }
 

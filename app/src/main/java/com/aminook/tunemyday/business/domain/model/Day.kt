@@ -4,5 +4,6 @@ data class Day (
     val fullName:String,
     val shortName:String,
     val date:String,
-    val dayIndex:Int
+    val dayIndex:Int,
+    var isChosen:Boolean=false
 )
