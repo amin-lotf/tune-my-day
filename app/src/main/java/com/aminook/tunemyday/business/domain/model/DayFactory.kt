@@ -10,24 +10,20 @@ import javax.inject.Singleton
 class DayFactory @Inject constructor(){
     private val TAG="aminjoon"
     fun getDaysOfWeek(chosenDay:Int=1):List<Day>{
-        val calendar=Calendar.getInstance()
+        val calendar=Calendar.getInstance(Locale.US)
 
-        calendar.set(Calendar.HOUR_OF_DAY, 0) // ! clear would not reset the hour of day !
-        calendar.clear(Calendar.MINUTE)
-        calendar.clear(Calendar.SECOND)
-        calendar.clear(Calendar.MILLISECOND)
         calendar.firstDayOfWeek=Calendar.MONDAY
         calendar.set(Calendar.DAY_OF_WEEK,calendar.firstDayOfWeek)
         val days = mutableListOf<Day>()
-        for (i in 1..7) {
+        for (i in 0..6) {
             val d = calendar.time
 
             days.add(
                 Day(
-                    shortName = SimpleDateFormat("EE", Locale.getDefault()).format(d.time),
-                    fullName = SimpleDateFormat("EEEE", Locale.getDefault()).format(d.time),
-                    date = SimpleDateFormat("MM/dd", Locale.getDefault()).format(d.time),
-                    dayIndex = calendar.get(Calendar.DAY_OF_WEEK)
+                    shortName = SimpleDateFormat("EE", Locale.US).format(d.time),
+                    fullName = SimpleDateFormat("EEEE", Locale.US).format(d.time),
+                    date = SimpleDateFormat("MM/dd", Locale.US).format(d.time),
+                    dayIndex = i
                 ).apply {
                     isChosen= i==chosenDay
                 }

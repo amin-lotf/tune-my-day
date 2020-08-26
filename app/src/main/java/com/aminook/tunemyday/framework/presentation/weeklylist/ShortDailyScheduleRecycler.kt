@@ -58,8 +58,8 @@ class ShortDailyScheduleRecycler : RecyclerView.Adapter<ShortDailyScheduleRecycl
 
         fun bind(schedule: Schedule) {
             itemView.schedule_program.text=schedule.program?.name
-            itemView.schedule_hour_start.text=schedule.start
-            itemView.schedule_hour_end.text=schedule.end
+            itemView.schedule_hour_start.text=schedule.startTime.toString()
+            itemView.schedule_hour_end.text=schedule.endTime.toString()
             itemView.schedule_duration.text=schedule.duration
             if (schedule.hasToDo){
                 itemView.schedule_todo_icon.visibility=View.VISIBLE
