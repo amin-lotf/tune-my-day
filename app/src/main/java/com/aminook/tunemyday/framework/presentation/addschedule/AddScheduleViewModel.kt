@@ -5,6 +5,7 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.aminook.tunemyday.business.domain.model.Alarm
 import com.aminook.tunemyday.business.domain.model.Day
 import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.model.Time
@@ -12,6 +13,7 @@ import com.aminook.tunemyday.business.interactors.program.ProgramInteractors
 import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
+import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.collect
@@ -22,19 +24,17 @@ import java.util.*
 class AddScheduleViewModel @ViewModelInject constructor(
     val programInteractors: ProgramInteractors,
     val scheduleInteractors: ScheduleInteractors,
-    val addScheduleManager: AddScheduleManager
+
 ) : BaseViewModel() {
-
     private val TAG = "aminjoon"
-
+    val addScheduleManager= AddScheduleManager()
     private val activeScope = IO + viewModelScope.coroutineContext
 
-    private var _chosenDay = MutableLiveData<Day>()
-    private var _selectedProgram = MutableLiveData<Program>()
     private var _allPrograms = MutableLiveData<List<Program>>()
+    private var _alarm=MutableLiveData<Alarm>()
 
     val selectedProgram: LiveData<Program>
-        get() = _selectedProgram
+        get() = addScheduleManager.chosenProgram
 
     val allPrograms: LiveData<List<Program>>
         get() = _allPrograms
@@ -51,14 +51,48 @@ class AddScheduleViewModel @ViewModelInject constructor(
     val endTime: LiveData<Time>
         get() = addScheduleManager.endTime
 
-    fun setTime(hour:Int,minute:Int, type: Int){
-        addScheduleManager.setTime(hour,minute, type)
+
+    val listChanged: LiveData<String>
+        get() = addScheduleManager.listChanged
+
+    val alarmModifiedPosition:Int
+    get() = addScheduleManager.alarmModifiedPosition
+
+
+    fun processRequest(request: String) {
+        when(request){
+            SCHEDULE_REQUEST_NEW->{
+                addScheduleManager.clearBuffer()
+            }
+        }
+    }
+
+    fun checkReceivedAlarmFromDialog():LiveData<Alarm> = _alarm
+
+    fun removeAlarm(alarm: Alarm){
+        addScheduleManager.removeAlarm(alarm)
+    }
+
+    fun getAlarms()=addScheduleManager.alarms
+
+    fun saveAlarmFromDialog(alarm: Alarm){
+        Log.d(TAG, "saveAlarmFromDialog: ")
+        _alarm.postValue(alarm)
+    }
+
+    fun setAlarm(alarm: Alarm) {
+
+        addScheduleManager.addAlarm(alarm)
+    }
+
+    fun setTime(hour: Int, minute: Int, type: Int) {
+        addScheduleManager.setTime(hour, minute, type)
     }
 
     fun updateBufferedDays(updatedDay: Day) {
-        //_chosenDay.value=updatedDay
         addScheduleManager.setChosenDay(updatedDay)
     }
+
 
     fun catchDaysOfWeek(chosenDay: Int) {
         CoroutineScope(activeScope).launch {
@@ -77,38 +111,40 @@ class AddScheduleViewModel @ViewModelInject constructor(
 
 
     fun addProgram(program: Program) {
-        //_selectedProgram= programInteractors.insertProgram(program).asLiveData(IO+viewModelScope.coroutineContext) as MutableLiveData<DataState<Program?>>
         CoroutineScope(activeScope).launch {
             programInteractors.insertProgram(program).collect { dataState ->
                 //TODO(save stateMessage if an then send it main activity to show dialog and ...)
                 dataState?.data?.let {
-                    addScheduleManager.addProgramToBuffer(it)
-                    _selectedProgram.value = it
+                    bufferChosenProgram(it)
                 }
-
             }
         }
     }
 
     fun bufferChosenProgram(program: Program) {
         addScheduleManager.addProgramToBuffer(program)
-        _selectedProgram.value = program
+
     }
 
     fun getAllPrograms() {
         CoroutineScope(activeScope).launch {
             programInteractors.getAllPrograms().collect { dataState ->
-                Log.d(
-                    TAG,
-                    "getAllPrograms: ${dataState?.stateMessage?.peekContent()?.response?.message}"
-                )
+
                 dataState?.data?.let {
 
-                    _allPrograms.value = dataState.data
+                    _allPrograms.postValue(dataState.data)
                 }
 
             }
         }
     }
+
+    override fun onCleared() {
+        Log.d(TAG, "onCleared: viewmodel")
+        super.onCleared()
+    }
+
+
+
 
 }

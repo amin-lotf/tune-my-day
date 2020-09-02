@@ -34,6 +34,7 @@ class SheetProgramAdapter():RecyclerView.Adapter<SheetProgramAdapter.ViewHolder>
 
     fun submitList(programs:List<Program>){
         this.programs=programs
+        notifyDataSetChanged()
     }
 
     inner class ViewHolder(itemView:View): RecyclerView.ViewHolder(itemView) {

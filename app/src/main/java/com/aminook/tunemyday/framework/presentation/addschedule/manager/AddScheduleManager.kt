@@ -1,25 +1,26 @@
 package com.aminook.tunemyday.framework.presentation.addschedule.manager
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.aminook.tunemyday.business.domain.model.*
-import java.util.*
+import dagger.hilt.android.scopes.ActivityScoped
+import dagger.hilt.android.scopes.FragmentScoped
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.min
 
-@Singleton
-class AddScheduleManager @Inject constructor(
-    val dayFactory: DayFactory
-) {
+
+
+class AddScheduleManager {
     private val TAG="aminjoon"
-    private val buffSchedule = Schedule()
+    private var buffSchedule = Schedule()
+    private var _chosenProgram=MutableLiveData<Program>()
     private var _daysOfWeek = mutableListOf<Day>()
     private var _chosenDay =MutableLiveData<Day>()
     private var _startTime=MutableLiveData<Time>()
     private var _endTime=MutableLiveData<Time>()
+    private var _listChanged=MutableLiveData<String>()
+    private var _alarmModifiedPosition=0
 
 
 
@@ -29,17 +30,67 @@ class AddScheduleManager @Inject constructor(
     }
 
     val startTime:LiveData<Time>
-    get()=_startTime
+    get()= _startTime
 
     val endTime:LiveData<Time>
     get() = _endTime
 
+    val alarms:List<Alarm>
+    get() = buffSchedule.alarms
 
+
+    val listChanged:LiveData<String>
+    get() = _listChanged
+
+    val alarmModifiedPosition:Int
+    get() = _alarmModifiedPosition
+
+    val chosenProgram:LiveData<Program>
+    get() = _chosenProgram
+
+    fun removeAlarm(alarm: Alarm){
+        buffSchedule.alarms.remove(alarm)
+        _alarmModifiedPosition=alarm.index
+        _listChanged.value= ALARM_LIST_REMOVED
+
+    }
+
+    fun addAlarm(alarm: Alarm){
+        if(!alarm.inEditMode) {
+            buffSchedule.alarms.add(alarm)
+            buffSchedule.alarms.sortWith(compareBy<Alarm> { it.hourBefore }.thenBy { it.minuteBefore })
+            val index = buffSchedule.alarms.indexOf(alarm)
+            alarm.index=index
+
+            _alarmModifiedPosition = index
+            _listChanged.value = ALARM_LIST_ADDED
+        }else{
+            if(alarm.index !=-1){
+
+                if (alarm.index<buffSchedule.alarms.size){
+
+                    buffSchedule.alarms.removeAt(alarm.index)
+                    _alarmModifiedPosition=alarm.index
+                    _listChanged.value= ALARM_LIST_REMOVED
+
+                    buffSchedule.alarms.add(alarm)
+
+                    buffSchedule.alarms.sortWith(compareBy<Alarm>{it.hourBefore}.thenBy { it.minuteBefore })
+                    val newIndex=buffSchedule.alarms.indexOf(alarm)
+                    alarm.index=newIndex
+                    _alarmModifiedPosition=newIndex
+                    _listChanged.value= ALARM_LIST_ADDED
+                }
+
+            }
+        }
+    }
 
     fun getChosenDay() = _chosenDay
 
     fun addProgramToBuffer(program: Program) {
         buffSchedule.program = program
+        _chosenProgram.value=program
     }
 
     fun removeProgramFromBuffer() {
@@ -50,6 +101,7 @@ class AddScheduleManager @Inject constructor(
         get() = buffSchedule.program != null
 
     fun addDaysToBuffer(days: List<Day>) {
+        _daysOfWeek.clear()
         _daysOfWeek.addAll(days)
     }
 
@@ -78,9 +130,18 @@ class AddScheduleManager @Inject constructor(
 
     fun getBufferedDays(): List<Day> = _daysOfWeek
 
+    fun clearBuffer() {
+        buffSchedule=Schedule()
+//        _startTime.value=buffSchedule.startTime
+//        _endTime.value=buffSchedule.endTime
+//        _chosenProgram.value=buffSchedule.program
+    }
+
     companion object{
         val TIME_START=0
         val TIME_END=1
+        val ALARM_LIST_ADDED="item added to alarm list"
+        val ALARM_LIST_REMOVED="item removed from alarm list"
     }
 
 }

@@ -9,6 +9,7 @@ import com.aminook.tunemyday.business.domain.model.Day
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.framework.datasource.cache.database.ScheduleDao
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
+import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_weekly_list.*
@@ -37,7 +38,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
         super.onViewCreated(view, savedInstanceState)
 
         fab_schedule.setOnClickListener {
-            val action=WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment()
+            val action=WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(SCHEDULE_REQUEST_NEW)
             findNavController().navigate(action)
         }
 

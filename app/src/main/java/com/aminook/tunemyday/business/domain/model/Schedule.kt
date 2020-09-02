@@ -13,5 +13,6 @@ data class Schedule(
     var startTime: Time= Time(),
     var endTime: Time=Time(),
     var hasToDo: Boolean = false,
-    var hasAlarm: Boolean = false
+    var hasAlarm: Boolean = false,
+    var alarms:MutableList<Alarm> = mutableListOf()
 ) : Parcelable

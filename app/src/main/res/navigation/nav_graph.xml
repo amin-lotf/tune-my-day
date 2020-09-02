@@ -36,6 +36,10 @@
         <action
             android:id="@+id/action_addScheduleFragment_to_addToDoFragment"
             app:destination="@id/addToDoFragment" />
+        <argument
+            android:name="request_type"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/addToDoFragment"

@@ -144,7 +144,7 @@
         app:layout_constraintTop_toBottomOf="@id/recycler_alarms"
         android:layout_marginTop="8dp"
         android:layout_marginStart="8dp"
-        android:text="   Add notification"/>
+        android:text="   Remind me"/>
 
     <View
         android:id="@+id/blackline_todos"
