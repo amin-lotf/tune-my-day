@@ -43,7 +43,7 @@ class GetDaysOfWeek @Inject constructor(
         }
     }
     companion object {
-        val GET_DAYS_SUCCESS = "Successfully inserted new program."
-        val INSERT_DAYS_FAILED = "Failed to insert new program."
+        val GET_DAYS_SUCCESS = "Successfully received days of week."
+        val INSERT_DAYS_FAILED = "Failed to received days of week."
     }
 }

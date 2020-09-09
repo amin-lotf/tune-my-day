@@ -5,7 +5,7 @@ import javax.inject.Singleton
 
 @Singleton
 class DaoService @Inject constructor(
-    val scheduleDao: ToDoScheduleDao,
+    val scheduleDao: ScheduleDao,
     val programDao: ProgramDao,
     val alarmDao: AlarmDao,
     val toDoDao: ToDoDao,

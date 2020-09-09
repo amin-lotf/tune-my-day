@@ -1,8 +1,10 @@
 package com.aminook.tunemyday.business.interactors.program
 
+import android.util.Log
 import com.aminook.tunemyday.business.data.cache.CacheResponseHandler
 import com.aminook.tunemyday.business.data.cache.ScheduleRepository
 import com.aminook.tunemyday.business.domain.model.Program
+import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.*
 
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +22,7 @@ class InsertProgram @Inject constructor(
         val cacheResponse = object : CacheResponseHandler<Long, Program>() {
             override suspend fun handleSuccess(resultObj: Long): DataState<Program>? {
                 return if (resultObj > 0) {
+
                     DataState.data(
                         response = Response(
                             message = InsertProgram.INSERT_PROGRAM_SUCCESS,
@@ -29,7 +32,7 @@ class InsertProgram @Inject constructor(
                         data = program
                     )
                 } else {
-                    DataState.data(
+                    DataState.error(
                         response = Response(
                             message = InsertProgram.INSERT_PROGRAM_FAILED,
                             uiComponentType = UIComponentType.Toast,
@@ -43,7 +46,6 @@ class InsertProgram @Inject constructor(
 
         return cacheResponse.getResult {
             flow {
-
                 emit(
                     scheduleRepository.insertProgram(program)
                 )

@@ -21,12 +21,13 @@ import androidx.room.*
 )
 data class ScheduleEntity(
     @ColumnInfo(name = "program_id", index = true)
-    val programId: Int,
+    var programId: Int,
     @ColumnInfo(name = "alarm_id",index = true)
-    val alarmId: Int?=null,
-    val start: Long,
-    val end: Long,
-    val day: Int
+    var alarmId: Int?=null,
+    var start: Int,
+    var end: Int,
+    var startDay: Int,
+    var endDay:Int
 ) {
 
     @PrimaryKey(autoGenerate = true)

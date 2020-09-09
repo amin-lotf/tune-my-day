@@ -4,9 +4,9 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
+import android.view.*
 import android.widget.TimePicker
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -16,6 +16,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.*
+import com.aminook.tunemyday.business.domain.state.AreYouSureCallback
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_LIST_ADDED
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_LIST_REMOVED
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_END
@@ -37,12 +38,14 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), ProgramClickListener,
-    OnColorClickListener, TimePickerDialog.OnTimeSetListener, AlarmListAdapter.AlarmClickListener {
+    OnColorClickListener, TimePickerDialog.OnTimeSetListener, AlarmListAdapter.AlarmClickListener,
+    AreYouSureCallback {
     private val TAG = "aminjoon"
 
+    private var isShowingDialog=false
     private var chosenDayIndex = 0
-    private var startTime:Time? = null
-    private var endTime:Time? = null
+    private var startTime: Time? = null
+    private var endTime: Time? = null
     private var timeType: Int = TIME_START
 
     @Inject
@@ -53,29 +56,31 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
 
     private val viewModel: AddScheduleViewModel by viewModels()
 
-    private var alarmAdapter: AlarmListAdapter?=null
+    private var alarmAdapter: AlarmListAdapter? = null
     private var dayAdapter: DaysAdapter? = null
     private var toDoListAdapter: ToDoListAdapter? = null
     private var programColorsAdapter: ProgramColorsAdapter? = null
     private var programsAdapter: SheetProgramAdapter? = null
     private lateinit var chooseProgramBtmSheetDialog: BottomSheetDialog
     private lateinit var addProgramBtmSheetDialog: BottomSheetDialog
-    private lateinit var addAlarmBtmSheetDialog:BottomSheetDialog
-
+    private lateinit var addAlarmBtmSheetDialog: BottomSheetDialog
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
+       // (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
+        (activity as AppCompatActivity).setTitle("New Activity")
         alarmAdapter = AlarmListAdapter()
         toDoListAdapter = ToDoListAdapter()
-        startTime= Time()
-        endTime= Time()
-        showPrograms()
+        startTime = Time()
+        endTime = Time()
+        //showPrograms()
         setClickListeners()
 
-        val arg=arguments
+        val arg = arguments
 
-        arg?.getString("request_type")?.let { request->
+        arg?.getString("request_type")?.let { request ->
 
             viewModel.processRequest(request)
         }
@@ -98,7 +103,12 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
     }
 
     private fun setClickListeners() {
-        add_schedule_name.setOnClickListener { showPrograms() }
+        add_schedule_name.setOnClickListener {
+            if (!isShowingDialog){
+                isShowingDialog=true
+                showPrograms()
+            }
+        }
         add_schedule_day.setOnClickListener {
             showDaysDialog()
         }
@@ -110,7 +120,10 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         }
         txt_add_alert.setOnClickListener {
             //openAlarmDialog()
-            showAlarmDialog()
+            if (!isShowingDialog) {
+                isShowingDialog=true
+                showAlarmDialog()
+            }
         }
     }
 
@@ -118,10 +131,16 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
     private fun subscribeObservers() {
         viewModel.catchDaysOfWeek(0) //TODO(change the number to the day that opened this fragment
 
-//        viewModel.checkReceivedAlarmFromDialog().observe(viewLifecycleOwner){alarm->
-//            Log.d(TAG, "subscribeObservers: alarm received")
-//            viewModel.setAlarm(alarm)
-//        }
+        viewModel.stateMessage.observe(viewLifecycleOwner){event->
+            event?.getContentIfNotHandled()?.let {stateMessage->
+                uiController.onResponseReceived(stateMessage.response)
+                //TODO(test it)
+            }
+        }
+
+        viewModel.allPrograms.observe(viewLifecycleOwner) {
+            programsAdapter?.submitList(it)
+        }
 
         viewModel.getAlarms().apply {
 
@@ -137,12 +156,12 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
                     alarmAdapter?.notifyListChanged(ALARM_LIST_ADDED, modifiedPos)
 
                 }
-                ALARM_LIST_REMOVED->{
-                    val modifiedPos=viewModel.alarmModifiedPosition
+                ALARM_LIST_REMOVED -> {
+                    val modifiedPos = viewModel.alarmModifiedPosition
                     viewModel.getAlarms().apply {
                         alarmAdapter?.submitList(this)
                     }
-                    alarmAdapter?.notifyListChanged(ALARM_LIST_REMOVED,modifiedPos)
+                    alarmAdapter?.notifyListChanged(ALARM_LIST_REMOVED, modifiedPos)
                 }
             }
         }
@@ -158,12 +177,11 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         }
 
         viewModel.selectedProgram.observe(viewLifecycleOwner) {
+           // Log.d(TAG, "subscribeObservers: selectedProgram $it")
             add_schedule_name.text = it.name
 
         }
-        viewModel.allPrograms.observe(viewLifecycleOwner) {
-            programsAdapter?.submitList(it)
-        }
+
 
         viewModel.chosenDay.observe(viewLifecycleOwner) { day ->
             day?.let {
@@ -175,19 +193,6 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
 
     }
 
-//    private fun openAlarmDialog(alarm: Alarm?=null) {
-//
-//        val alarmDialog = AlarmDialog().apply {
-//
-//        }
-//        val action=AddScheduleFragmentDirections.actionAddScheduleFragmentToAlarmDialog(alarm)
-//
-//        findNavController().navigate(action)
-////        alarmDialog.setTargetFragment(this,1)
-////        alarmDialog.show(requireActivity().supportFragmentManager, "alarmDialog")
-//
-//    }
-
     private fun openTimeDialog(view: View?) {
         when (view) {
             add_schedule_start -> {
@@ -195,13 +200,19 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
                 TimePickerDialog(
                     requireContext(),
                     this,
-                    startTime?.hour?:0,
-                    startTime?.minute?:0,
+                    startTime?.hour ?: 0,
+                    startTime?.minute ?: 0,
                     true
                 ).show()
             }
             add_schedule_end -> {
-                TimePickerDialog(requireContext(), this, endTime?.hour?:0, endTime?.minute?:0, true).show()
+                TimePickerDialog(
+                    requireContext(),
+                    this,
+                    endTime?.hour ?: 0,
+                    endTime?.minute ?: 0,
+                    true
+                ).show()
                 timeType = TIME_END
             }
         }
@@ -226,18 +237,18 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         }
     }
 
-    private fun showAlarmDialog(alarm: Alarm?=null){
-        addAlarmBtmSheetDialog=
-            BottomSheetDialog(requireContext(),R.style.DialogStyle)
-        val view=LayoutInflater.from(requireContext())
-            .inflate(R.layout.layout_add_alarm,bottom_sheet_add_alarm)
+    private fun showAlarmDialog(alarm: Alarm? = null) {
+        addAlarmBtmSheetDialog =
+            BottomSheetDialog(requireContext(), R.style.DialogStyle)
+        val view = LayoutInflater.from(requireContext())
+            .inflate(R.layout.layout_add_alarm, bottom_sheet_add_alarm)
 
-        view.chk_at_start.isChecked=alarm?.isAtStart?:true
+        view.chk_at_start.isChecked = alarm?.isAtStart ?: true
 
         view.edt_alarm_hour.apply {
 
             alarm?.let {
-                if(!it.isAtStart){
+                if (!it.isAtStart) {
                     this@apply.setText(it.hourBefore)
                 }
             }
@@ -254,7 +265,7 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
             })
 
             this.setOnFocusChangeListener { _, hasFocus ->
-                if(hasFocus){
+                if (hasFocus) {
                     this@apply.setText("")
                 }
             }
@@ -263,7 +274,7 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         view.edt_alarm_minute.apply {
 
             alarm?.let {
-                if(!it.isAtStart){
+                if (!it.isAtStart) {
                     this@apply.setText(it.minuteBefore)
                 }
             }
@@ -280,25 +291,25 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
             })
 
             this.setOnFocusChangeListener { _, hasFocus ->
-                if(hasFocus){
+                if (hasFocus) {
                     this.setText("")
                 }
             }
         }
         view.btn_add_alarm.setOnClickListener {
-            var hour=0
-            var minute=0
-            if(!view.chk_at_start.isChecked){
+            var hour = 0
+            var minute = 0
+            if (!view.chk_at_start.isChecked) {
 
-                hour=view.edt_alarm_hour.text.toString().toIntOrNull()?:0
-                minute=view.edt_alarm_minute.text.toString().toIntOrNull()?:0
+                hour = view.edt_alarm_hour.text.toString().toIntOrNull() ?: 0
+                minute = view.edt_alarm_minute.text.toString().toIntOrNull() ?: 0
             }
-            val alarmInEdit=if(alarm==null){
-                 Alarm(hourBefore = hour,minuteBefore = minute)
-            }else{
+            val alarmInEdit = if (alarm == null) {
+                Alarm(hourBefore = hour, minuteBefore = minute)
+            } else {
                 alarm.apply {
-                    this.hourBefore=hour
-                    this.minuteBefore=minute
+                    this.hourBefore = hour
+                    this.minuteBefore = minute
                 }
             }
 
@@ -308,9 +319,13 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
 
         addAlarmBtmSheetDialog.setContentView(view)
         addAlarmBtmSheetDialog.show()
+        addAlarmBtmSheetDialog.setOnDismissListener {
+            isShowingDialog=false
+        }
     }
 
     private fun showPrograms() {
+        Log.d(TAG, "showPrograms: ")
         chooseProgramBtmSheetDialog =
             BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme)
         val view = LayoutInflater.from(requireContext())
@@ -324,7 +339,10 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         }
 
         programsAdapter = SheetProgramAdapter()
+        Log.d(TAG, "showPrograms: ")
         viewModel.getAllPrograms()
+
+
 
         programsAdapter?.setProgramClickListener(this)
         view.recycler_programs_sheet.apply {
@@ -335,7 +353,8 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         chooseProgramBtmSheetDialog.setContentView(view)
         chooseProgramBtmSheetDialog.show()
         chooseProgramBtmSheetDialog.setOnDismissListener {
-            view.recycler_programs_sheet.adapter=null
+            view.recycler_programs_sheet.adapter = null
+            isShowingDialog=false
             programsAdapter = null
         }
     }
@@ -348,8 +367,8 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         addProgramBtmSheetDialog.setContentView(view)
         addProgramBtmSheetDialog.show()
         addProgramBtmSheetDialog.setOnDismissListener {
-            view.recycler_program_colors.adapter=null
-            programColorsAdapter=null
+            view.recycler_program_colors.adapter = null
+            programColorsAdapter = null
         }
         view.edt_add_program.requestFocus()
         view.btn_save_Program.setOnClickListener {
@@ -376,10 +395,27 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
 
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+
+        inflater.inflate(R.menu.save_delete_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
 
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
+        when (item.itemId) {
+            R.id.action_save -> {
 
+                viewModel.validateSchedule(this)
+            }
+            R.id.action_delete -> {
+
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
 
 
     override fun AddProgramClick(program: Program) {
@@ -401,19 +437,28 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
     }
 
     override fun onAlarmClick(alarm: Alarm) {
-       showAlarmDialog(
-           alarm.apply {
-               this.inEditMode=true
-           }
-       )
+        showAlarmDialog(
+            alarm.apply {
+                this.inEditMode = true
+            }
+        )
     }
 
     override fun onDestroyView() {
-        recycler_alarms.adapter=null
-        recycler_schedule_todo.adapter=null
+        recycler_alarms.adapter = null
+        recycler_schedule_todo.adapter = null
         super.onDestroyView()
     }
 
+    override fun proceed() {
+
+        viewModel.saveSchedule()
+
+    }
+
+    override fun cancel() {
+        //do nothing
+    }
 
 
 }

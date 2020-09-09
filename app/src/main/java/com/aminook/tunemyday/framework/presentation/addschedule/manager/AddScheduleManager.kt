@@ -2,18 +2,13 @@ package com.aminook.tunemyday.framework.presentation.addschedule.manager
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
 import com.aminook.tunemyday.business.domain.model.*
-import dagger.hilt.android.scopes.ActivityScoped
-import dagger.hilt.android.scopes.FragmentScoped
-import javax.inject.Inject
-import javax.inject.Singleton
-
 
 
 class AddScheduleManager {
     private val TAG="aminjoon"
-    private var buffSchedule = Schedule()
+
+    val buffSchedule = Schedule()
     private var _chosenProgram=MutableLiveData<Program>()
     private var _daysOfWeek = mutableListOf<Day>()
     private var _chosenDay =MutableLiveData<Day>()
@@ -23,11 +18,6 @@ class AddScheduleManager {
     private var _alarmModifiedPosition=0
 
 
-
-    val bufferedSchedule:LiveData<Schedule>
-    get()= liveData {
-        emit(buffSchedule)
-    }
 
     val startTime:LiveData<Time>
     get()= _startTime
@@ -121,7 +111,7 @@ class AddScheduleManager {
     }
 
     fun setChosenDay(chosenDay: Day) {
-        buffSchedule.day=chosenDay.dayIndex
+        buffSchedule.startDay=chosenDay.dayIndex
         _chosenDay.value=chosenDay
         for (day in _daysOfWeek) {
             day.isChosen = day === chosenDay
@@ -130,12 +120,7 @@ class AddScheduleManager {
 
     fun getBufferedDays(): List<Day> = _daysOfWeek
 
-    fun clearBuffer() {
-        buffSchedule=Schedule()
-//        _startTime.value=buffSchedule.startTime
-//        _endTime.value=buffSchedule.endTime
-//        _chosenProgram.value=buffSchedule.program
-    }
+
 
     companion object{
         val TIME_START=0

@@ -24,7 +24,7 @@ abstract class CacheResponseHandler<CacheDataType,OutputType>(
                 if (data==null){
                     DataState.error(
                         Response(
-                            message = INSERT_PROGRAM_FAILED,
+                            message = CACHE_DATA_NULL,
                             uiComponentType = UIComponentType.Toast,
                             messageType = MessageType.Error
                         )

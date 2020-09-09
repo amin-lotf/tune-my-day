@@ -5,5 +5,6 @@ import javax.inject.Singleton
 
 @Singleton
 class Mappers @Inject constructor(
-    val programCacheMapper: ProgramCacheMapper
+    val programCacheMapper: ProgramCacheMapper,
+    val scheduleCacheMapper: ScheduleCacheMapper
 )
