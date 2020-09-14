@@ -1,7 +1,9 @@
 package com.aminook.tunemyday.framework.presentation.weeklylist
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminook.tunemyday.R
@@ -22,12 +24,14 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
 
     private val TAG = "aminjoon"
 
+    private val viewModel: WeeklyListViewModel by viewModels()
+
     @Inject
-    lateinit var days:List<Day>
+    lateinit var days: List<Day>
 
 
-     var weekViewPagerAdapter: WeekViewPagerAdapter?=null
-
+    var weekViewPagerAdapter: WeekViewPagerAdapter? = null
+    var shortDailyScheduleRecycler:ShortDailyScheduleRecycler?=null
     @Inject
     lateinit var scheduleDao: ScheduleDao
 
@@ -36,61 +40,68 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        Log.d(TAG, "onViewCreated: weekly list")
         fab_schedule.setOnClickListener {
-            val action=WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(SCHEDULE_REQUEST_NEW)
+            val action = WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
+                SCHEDULE_REQUEST_NEW
+            )
             findNavController().navigate(action)
         }
-
-        weekViewPagerAdapter= WeekViewPagerAdapter(days).apply {
+        weekViewPagerAdapter = WeekViewPagerAdapter().apply {
             setListener(this@WeeklyListFragment)
         }
-       // shortDailyScheduleRecycler = ShortDailyScheduleRecycler()
-       
+        // shortDailyScheduleRecycler = ShortDailyScheduleRecycler()
+
 
         weekly_view_pager.apply {
             this.adapter = weekViewPagerAdapter
 
+
         }
+        subscribeObservers()
+    }
 
-        TabLayoutMediator(weekly_tab_layout, weekly_view_pager) { tab, position ->
-            val day = days[position]
-            tab.text = day.shortName
 
-        }.attach()
+    private fun subscribeObservers() {
+
+        viewModel.catchDaysOfWeek()
+        viewModel.daysOfWeek.observe(viewLifecycleOwner) { days ->
+
+            var selectedDay = viewModel.selectedDay?:days.find { day -> day.isChosen }?.dayIndex ?: 1
+
+            weekViewPagerAdapter?.submitList(days)
+            TabLayoutMediator(weekly_tab_layout, weekly_view_pager) { tab, position ->
+                val day = days[position]
+                tab.text = day.shortName
+
+            }.attach()
+            weekly_view_pager.currentItem = selectedDay
+
+            weekly_tab_layout.getTabAt(selectedDay)?.select()
+            //TODO(Fix the scrolling Issue)
+//            Handler(Looper.getMainLooper()).postDelayed(
+//                {
+//                    Log.d(TAG, "subscribeObservers: $selectedDay")
+//                    weekly_tab_layout.getTabAt(selectedDay)?.select()
+//                },
+//                100
+//            )
+        }
+        viewModel.getAllSchedules()
 
 
     }
 
     override fun setAdapter(itemView: WeekViewPagerAdapter.ViewHolder, position: Int) {
-        val shortDailyScheduleRecycler = ShortDailyScheduleRecycler()
+        shortDailyScheduleRecycler = ShortDailyScheduleRecycler()
         itemView.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             this.adapter = shortDailyScheduleRecycler
-
-//            val schedules1 = mutableListOf<Schedule>()
-//            schedules1.add(Schedule(1, 1, "Gym", "3h", "19:45", "20:00", true, false))
-//            schedules1.add(
-//                Schedule(
-//                    1,
-//                    1,
-//                    "Programming",
-//                    "3h",
-//                    "20:45",
-//                    "21:00",
-//                    false,
-//                    true
-//                )
-//            )
-//
-//            val schedules2 = mutableListOf<Schedule>()
-//            schedules2.add(Schedule(1, 1, "Study", "3h", "19:45", "20:00", true, false))
-//            schedules2.add(Schedule(1, 1, "Rest", "3h", "20:45", "21:00", false, true))
-//
-//            val allSchedules= listOf(schedules1,schedules2,schedules1,schedules2,schedules1,schedules2,schedules1)
-//            shortDailyScheduleRecycler.submitList(allSchedules[position])
-
-
+            viewModel.selectedDay=position
+            viewModel.schedules.removeObservers(viewLifecycleOwner)
+            viewModel.schedules.observe(viewLifecycleOwner) { schedules ->
+                shortDailyScheduleRecycler?.submitList(schedules.filter { it.startDay == position })
+            }
         }
 
 
@@ -99,8 +110,8 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
 
     override fun onPause() {
 
-        weekly_view_pager.adapter=null
-        weekViewPagerAdapter=null
+        weekly_view_pager.adapter = null
+        weekViewPagerAdapter = null
         super.onPause()
 
     }

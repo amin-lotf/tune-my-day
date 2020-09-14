@@ -9,9 +9,9 @@ import javax.inject.Singleton
 @Singleton
 class DayFactory @Inject constructor(){
     private val TAG="aminjoon"
-    fun getDaysOfWeek(chosenDay:Int=1):List<Day>{
+    fun getDaysOfWeek(chosenDay:Int= -1):List<Day>{
         val calendar=Calendar.getInstance(Locale.US)
-
+        val today=Date()
         calendar.firstDayOfWeek=Calendar.MONDAY
         calendar.set(Calendar.DAY_OF_WEEK,calendar.firstDayOfWeek)
         val days = mutableListOf<Day>()
@@ -25,7 +25,13 @@ class DayFactory @Inject constructor(){
                     date = SimpleDateFormat("MM/dd", Locale.US).format(d.time),
                     dayIndex = i
                 ).apply {
-                    isChosen= i==chosenDay
+                    if (chosenDay!= -1) {
+                        isChosen = i == chosenDay
+                    }else{
+                        if (d==today){
+                            isChosen=true
+                        }
+                    }
                 }
             )
             calendar.add(Calendar.DATE, 1)

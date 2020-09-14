@@ -1,6 +1,7 @@
 package com.aminook.tunemyday.business.domain.model
 
 import android.os.Parcelable
+import android.util.Log
 import kotlinx.android.parcel.Parcelize
 
 
@@ -9,7 +10,6 @@ data class Schedule(
     var id: Int? = null,
     var startDay: Int = 0,
     var program: Program? = null,
-    var duration: String? = null,
     var startTime: Time = Time(),
     var endTime: Time = Time(),
     var hasToDo: Boolean = false,
@@ -30,4 +30,17 @@ data class Schedule(
                 (startDay + 1) % 7
             }
         }
+
+    val duration: String
+    get() {
+        val startSec=startTime.hour*3600+startTime.minute*60
+        val endSec=(endTime.hour+ (if (endDay==startDay) 0 else 24))*3600+endTime.minute*60
+
+        val totDuration=endSec-startSec
+        val durationH=totDuration/3600
+        val durationM=(totDuration-durationH*3600)/60
+        return (if (durationH==0) "" else "${durationH}h")+(if (durationM==0) "" else " ${durationM}min")
+    }
+
+
 }

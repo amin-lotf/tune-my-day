@@ -2,28 +2,27 @@ package com.aminook.tunemyday.business.interactors.schedule
 
 import com.aminook.tunemyday.business.data.cache.CacheResponseHandler
 import com.aminook.tunemyday.business.data.cache.ScheduleRepository
-import com.aminook.tunemyday.business.domain.model.Day
+import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.DataState
 import com.aminook.tunemyday.business.domain.state.MessageType
 import com.aminook.tunemyday.business.domain.state.Response
 import com.aminook.tunemyday.business.domain.state.UIComponentType
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetDaysOfWeek @Inject constructor(
+class GetDailySchedules @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-    suspend operator fun invoke(chosenDay:Int= -1): Flow<DataState<List<Day>>?>{
-        val cacheResponse=object :CacheResponseHandler<List<Day>,List<Day>>() {
-            override suspend fun handleSuccess(resultObj: List<Day>): DataState<List<Day>>? {
+    suspend operator fun invoke(): Flow<DataState<List<Schedule>>?> {
+
+        val cacheResult=object :CacheResponseHandler<List<Schedule>,List<Schedule>>(){
+            override suspend fun handleSuccess(resultObj: List<Schedule>): DataState<List<Schedule>>? {
                 return DataState.data(
                     response = Response(
-                        message = GET_DAYS_SUCCESS,
+                        message = DAILY_SCHEDULES_RECEIVED,
                         uiComponentType = UIComponentType.None,
                         messageType = MessageType.Success
                     ),
@@ -33,17 +32,12 @@ class GetDaysOfWeek @Inject constructor(
 
         }
 
-        return cacheResponse.getResult {
-            flow {
-                emit(
-                    scheduleRepository.getDaysOfWeek(chosenDay)
-                )
-            }
-
+        return  cacheResult.getResult {
+            scheduleRepository.getDailySchedules()
         }
     }
-    companion object {
-        val GET_DAYS_SUCCESS = "Successfully received days of week."
-        val INSERT_DAYS_FAILED = "Failed to received days of week."
+
+    companion object{
+        val DAILY_SCHEDULES_RECEIVED="Successfully received schedules"
     }
 }

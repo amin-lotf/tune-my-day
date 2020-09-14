@@ -10,6 +10,7 @@ import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.framework.datasource.cache.database.*
 import com.aminook.tunemyday.framework.datasource.cache.mappers.Mappers
+import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleAndProgram
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.map
@@ -75,47 +76,62 @@ class ScheduleRepositoryImpl @Inject constructor(
         val conflictedEntitySchedule = conflictedSchedule.map {
             mappers.scheduleCacheMapper.mapToEntity(it).schedule
         }
-        val schedulesToDelete= selectSchedulesToDelete(
+        val schedulesToDelete = selectSchedulesToDelete(
             conflictedEntitySchedule,
             schedule
         )
-        Log.d(TAG, "insertSchedule: Target schedule : ${schedule.startDay} ${schedule.startInSec}--${schedule.endDay} ${schedule.endInSec} ")
+        Log.d(
+            TAG,
+            "insertSchedule: Target schedule : ${schedule.startDay} ${schedule.startInSec}--${schedule.endDay} ${schedule.endInSec} "
+        )
 
 
 
         schedulesToDelete.forEach {
-            Log.d(TAG, "Schedules to delete: id:${it.id}- startDay=${it.startDay}" +
-                    " startSec:${it.start}-- endDay:${it.endDay} endSec:${it.end}")
+            Log.d(
+                TAG, "Schedules to delete: id:${it.id}- startDay=${it.startDay}" +
+                        " startSec:${it.start}-- endDay:${it.endDay} endSec:${it.end}"
+            )
         }
-        val schedulesToUpdate=updateSchedules(
+        val schedulesToUpdate = updateSchedules(
             conflictedEntitySchedule.minus(schedulesToDelete),
             schedule
         )
         schedulesToUpdate.forEach {
-            Log.d(TAG, "Schedules to update: id:${it.id}- startDay=${it.startDay}" +
-                    " startSec:${it.start}-- endDay:${it.endDay} endSec:${it.end}")
+            Log.d(
+                TAG, "Schedules to update: id:${it.id}- startDay=${it.startDay}" +
+                        " startSec:${it.start}-- endDay:${it.endDay} endSec:${it.end}"
+            )
         }
 
-       return daoService.scheduleDao.insertTransaction(
+        return daoService.scheduleDao.insertTransaction(
             scheduleEntity = mappers.scheduleCacheMapper.mapToEntity(schedule).schedule,
             schedulesToDelete = schedulesToDelete,
-            schedulesToUpdate=schedulesToUpdate
+            schedulesToUpdate = schedulesToUpdate
         )
 
     }
 
-    override fun checkIfOverwrite(schedule: Schedule): Flow<List<Schedule>?> {
+    override suspend fun checkIfOverwrite(schedule: Schedule): List<Schedule> {
         val startDay = schedule.startDay
-        val endDay=schedule.endDay
+        val endDay = schedule.endDay
         Log.d(TAG, "checkIfOverwrite: target start $startDay")
-        return daoService.scheduleDao.selectStartingTimes(startDay,endDay).map { schedules ->
-            getConflictedSchedules(schedules, schedule).map {
-//                  Log.d(TAG, "checkIfOverwrite: ${it.schedule.startDay}")
-                mappers.scheduleCacheMapper.mapFromEntity(it)
-            }
-
+        return getConflictedSchedules(
+            daoService.scheduleDao.selectStartingTimes(startDay, endDay),
+            schedule
+        ).map {
+            mappers.scheduleCacheMapper.mapFromEntity(it)
         }
+
     }
 
-
+    override fun getDailySchedules(): Flow<List<Schedule>> {
+        return daoService.scheduleDao.selectSevenDaysSchedule().map {schedules->
+          schedules.map {
+              mappers.scheduleCacheMapper.mapFromEntity(it)
+          }
+        }
+    }
 }
+
+

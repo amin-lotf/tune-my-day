@@ -43,7 +43,12 @@ class ValidateSchedule @Inject constructor(
         }
 
         return cacheResponse.getResult {
+            flow {
+                emit(
                     scheduleRepository.checkIfOverwrite(schedule)
+                )
+            }
+
         }
     }
 

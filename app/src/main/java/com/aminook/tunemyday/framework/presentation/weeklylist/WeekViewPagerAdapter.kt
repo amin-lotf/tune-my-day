@@ -12,9 +12,9 @@ import kotlinx.android.synthetic.main.weekly_item_view_pager.view.*
 import javax.inject.Inject
 
 
-class WeekViewPagerAdapter(val days:List<Day>):RecyclerView.Adapter<WeekViewPagerAdapter.ViewHolder>() {
+class WeekViewPagerAdapter():RecyclerView.Adapter<WeekViewPagerAdapter.ViewHolder>() {
 
-
+    private var days:List<Day> = emptyList()
 
     private var listener:WeeklyRecyclerViewListener?=null
 
@@ -37,6 +37,11 @@ class WeekViewPagerAdapter(val days:List<Day>):RecyclerView.Adapter<WeekViewPage
 
     fun setListener(listener:WeeklyRecyclerViewListener){
         this.listener=listener
+    }
+
+    fun submitList(days:List<Day>){
+        this.days=days
+        notifyDataSetChanged()
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

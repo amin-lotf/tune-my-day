@@ -17,6 +17,8 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.*
 import com.aminook.tunemyday.business.domain.state.AreYouSureCallback
+import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule
+import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule.Companion.INSERT_Schedule_SUCCESS
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_LIST_ADDED
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_LIST_REMOVED
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_END
@@ -129,12 +131,14 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
 
 
     private fun subscribeObservers() {
-        viewModel.catchDaysOfWeek(0) //TODO(change the number to the day that opened this fragment
+        viewModel.catchDaysOfWeek(-1) //TODO(change the number to the day that opened this fragment
 
         viewModel.stateMessage.observe(viewLifecycleOwner){event->
             event?.getContentIfNotHandled()?.let {stateMessage->
                 uiController.onResponseReceived(stateMessage.response)
-                //TODO(test it)
+                if (event.peekContent()?.response?.message== INSERT_Schedule_SUCCESS){
+                    findNavController().popBackStack()
+                }
             }
         }
 

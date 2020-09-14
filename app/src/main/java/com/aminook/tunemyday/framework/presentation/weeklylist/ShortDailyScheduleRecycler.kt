@@ -15,6 +15,8 @@ import java.util.zip.Inflater
 class ShortDailyScheduleRecycler : RecyclerView.Adapter<ShortDailyScheduleRecycler.ViewHolder>() {
 
     private var listener:ItemClickListener?=null
+    private val TYPE_BUSY=1
+    private val TYPE_FREE=2
 
     private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Schedule>() {
         override fun areItemsTheSame(oldItem: Schedule, newItem: Schedule): Boolean {
@@ -30,15 +32,31 @@ class ShortDailyScheduleRecycler : RecyclerView.Adapter<ShortDailyScheduleRecycl
     private val differ = AsyncListDiffer(this, DIFF_CALLBACK)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.schedule_item, parent, false)
+        var view :View
+        if (viewType==TYPE_BUSY) {
+          view=  LayoutInflater.from(parent.context).inflate(R.layout.schedule_item, parent, false)
+        }else{
+            view=  LayoutInflater.from(parent.context).inflate(R.layout.no_schedule_item, parent, false)
+        }
 
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun getItemViewType(position: Int): Int {
         val item=differ.currentList[position]
-        holder.bind(item)
+        return if (item.id== -1){
+            TYPE_FREE
+        }else{
+            TYPE_BUSY
+        }
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        if(getItemViewType(position)==TYPE_BUSY){
+            val item=differ.currentList[position]
+            holder.bind(item)
+        }
+
     }
 
     override fun getItemCount(): Int {
@@ -72,10 +90,14 @@ class ShortDailyScheduleRecycler : RecyclerView.Adapter<ShortDailyScheduleRecycl
             }else{
                 itemView.schedule_alarm_icon.visibility=View.GONE
             }
+            if(schedule.startDay!=schedule.endDay){
+                itemView.txt_next_day.visibility=View.VISIBLE
+            }
 
             itemView.setOnClickListener{
                 listener?.onItemClick(schedule)
             }
+
         }
 
     }

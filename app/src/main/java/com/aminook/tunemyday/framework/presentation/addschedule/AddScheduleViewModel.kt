@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onCompletion
 
 
-@ExperimentalCoroutinesApi
+
 class AddScheduleViewModel @ViewModelInject constructor(
     val programInteractors: ProgramInteractors,
     val scheduleInteractors: ScheduleInteractors,
@@ -31,7 +31,8 @@ class AddScheduleViewModel @ViewModelInject constructor(
     private var conflictedSchedules = listOf<Schedule>()
     private val activeScope = IO + viewModelScope.coroutineContext
     private var _allPrograms = MutableLiveData<List<Program>>()
-    var job:Job?=null
+    private var job:Job?=null
+
 
     val selectedProgram: LiveData<Program>
         get() = addScheduleManager.chosenProgram
@@ -72,10 +73,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
              job=CoroutineScope(activeScope).launch {
                 scheduleInteractors.validateSchedule(
                     schedule = addScheduleManager.buffSchedule, areYouSureCallback
-                ).onCompletion {
-                    handleJob(job)
-
-                }
+                )
                     .collect { dataState ->
                     Log.d(TAG, "validateSchedule: ")
                     processResponse(dataState?.stateMessage)
@@ -107,14 +105,13 @@ class AddScheduleViewModel @ViewModelInject constructor(
                     addScheduleManager.buffSchedule,
                     confSchedules
                 )
-                    .onCompletion { handleJob(job) }
                     .collect { dataState ->
                     Log.d(TAG, "saveSchedule: ")
                     processResponse(dataState?.stateMessage)
 
+
                 }
             }
-           // handleJob(job)
         }
     }
 
@@ -190,7 +187,6 @@ class AddScheduleViewModel @ViewModelInject constructor(
         Log.d(TAG, "getAllPrograms: out ")
         job=CoroutineScope(activeScope).launch {
             programInteractors.getAllPrograms()
-                .onCompletion { handleJob(job) }
                 .collect { dataState ->
                 Log.d(TAG, "getAllPrograms: ")
                 processResponse(dataState?.stateMessage)
@@ -201,12 +197,8 @@ class AddScheduleViewModel @ViewModelInject constructor(
 
             }
         }
-       // handleJob(job)
     }
 
-//    fun <T> test(data: DataState<T>,suspend){
-//
-//    }
 
     private fun handleJob(job:Job?){
         job?.let {

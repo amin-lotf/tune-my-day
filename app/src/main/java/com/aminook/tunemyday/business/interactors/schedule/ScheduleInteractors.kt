@@ -7,5 +7,6 @@ import javax.inject.Singleton
 class ScheduleInteractors @Inject constructor(
     val getDaysOfWeek: GetDaysOfWeek,
     val insertSchedule: InsertSchedule,
-    val validateSchedule: ValidateSchedule
+    val validateSchedule: ValidateSchedule,
+    val getDailySchedules: GetDailySchedules
 )

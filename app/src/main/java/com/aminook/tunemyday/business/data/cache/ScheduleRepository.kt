@@ -15,8 +15,10 @@ interface ScheduleRepository {
     fun selectProgram(id:Int):Flow<Program?>
     suspend fun deleteAllPrograms(): Int
     suspend fun deleteProgram(program: Program): Int
+
     fun getDaysOfWeek(chosenDay:Int=1):List<Day>
 
     suspend fun insertSchedule(schedule: Schedule,conflictedSchedule:List<Schedule>):Long
-    fun checkIfOverwrite(schedule: Schedule):Flow<List<Schedule>?>
+    suspend fun checkIfOverwrite(schedule: Schedule):List<Schedule>
+    fun getDailySchedules():Flow<List<Schedule>>
 }

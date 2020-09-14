@@ -24,10 +24,10 @@ interface ScheduleDao {
     fun deleteAllSchedules(): Int
 
     @Query("select * from schedules where startDay=:startDay or endDay=:startDay or endDay=:endDay or startDay=:endDay order by start")
-    fun selectStartingTimes(startDay: Int,endDay:Int): Flow<List<ScheduleAndProgram>>
+    suspend fun selectStartingTimes(startDay: Int,endDay:Int): List<ScheduleAndProgram>
 
 
-    @Query("select * from schedules ")
+    @Query("select * from schedules order by start")
     fun selectSevenDaysSchedule(): Flow<List<ScheduleAndProgram>>
 
     @Delete
