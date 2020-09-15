@@ -42,7 +42,8 @@ class ScheduleCacheMapper @Inject constructor(
             start = domainModel.startInSec,
             end = domainModel.endInSec,
             startDay = domainModel.startDay,
-            endDay = domainModel.endDay, programId = domainModel.program?.id ?: 1
+            endDay = domainModel.endDay,
+            programId = domainModel.program?.id ?: 1
         ).apply {
             this.id = domainModel.id
         }
