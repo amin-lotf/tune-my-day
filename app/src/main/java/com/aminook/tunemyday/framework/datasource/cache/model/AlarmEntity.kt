@@ -19,16 +19,19 @@ import androidx.room.*
   ]
 )
 data class AlarmEntity(
-  @ColumnInfo(name = "schedule_id",index = true)
-  val scheduleId:Int,
+  @ColumnInfo(name = "schedule_id", index = true)
+  var scheduleId: Int,
   @ColumnInfo(name = "program_id", index = true)
-  val programId: Int,
-  val date: String,
-  val time: String,
-  @ColumnInfo(index = true)
-  val day: Int
+  var programId: Int,
+  var programName:String,
+  val hourBefore: Int,
+  val minBefore: Int,
+  var day:Int,
+  var startInSec:Int
 ) {
 
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0
+
+
 }

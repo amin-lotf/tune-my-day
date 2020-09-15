@@ -10,24 +10,16 @@ import androidx.room.*
             childColumns = ["program_id"],
             onDelete = ForeignKey.CASCADE,
             onUpdate = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = AlarmEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["alarm_id"],
-            onDelete = ForeignKey.SET_NULL
         )
     ]
 )
 data class ScheduleEntity(
     @ColumnInfo(name = "program_id", index = true)
     var programId: Int,
-    @ColumnInfo(name = "alarm_id",index = true)
-    var alarmId: Int?=null,
     var start: Int,
     var end: Int,
     var startDay: Int,
-    var endDay:Int
+    var endDay: Int
 ) {
 
     @PrimaryKey(autoGenerate = true)
@@ -35,7 +27,7 @@ data class ScheduleEntity(
 }
 
 
-data class ScheduleAndProgram(
+data class FullSchedule(
     @Embedded
     val schedule: ScheduleEntity,
 
@@ -43,10 +35,16 @@ data class ScheduleAndProgram(
         parentColumn = "program_id",
         entityColumn = "id"
     )
-    val program: ProgramEntity
+    val program: ProgramEntity,
+
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "schedule_id")
+    val alarms:List<AlarmEntity>
+
 )
 
 data class SchedulesPerDay(
-    val day:Int,
-    val schedules:List<ScheduleAndProgram>
+    val day: Int,
+    val schedules: List<FullSchedule>
 )

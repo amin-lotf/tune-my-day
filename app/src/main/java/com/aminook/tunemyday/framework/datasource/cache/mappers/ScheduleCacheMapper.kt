@@ -1,19 +1,20 @@
 package com.aminook.tunemyday.framework.datasource.cache.mappers
 
+import com.aminook.tunemyday.business.domain.model.Alarm
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.model.Time
 import com.aminook.tunemyday.business.domain.util.EntityMapper
-import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleAndProgram
+import com.aminook.tunemyday.framework.datasource.cache.model.FullSchedule
 import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.ceil
 
 @Singleton
 class ScheduleCacheMapper @Inject constructor(
-    val programCacheMapper: ProgramCacheMapper
-) : EntityMapper<ScheduleAndProgram, Schedule> {
-    override fun mapFromEntity(entity: ScheduleAndProgram): Schedule {
+    val programCacheMapper: ProgramCacheMapper,
+    val alarmCacheMapper: AlarmCacheMapper
+) : EntityMapper<FullSchedule, Schedule> {
+    override fun mapFromEntity(entity: FullSchedule): Schedule {
         val program = programCacheMapper.mapFromEntity(entity.program)
         return Schedule(
             id = entity.schedule.id,
@@ -28,23 +29,49 @@ class ScheduleCacheMapper @Inject constructor(
             val endMinute = (entity.schedule.end - (entity.schedule.end / 3600) * 3600) / 60
             this.endTime = Time(endHour, endMinute)
 
+            val tmpAlarms = mutableListOf<Alarm>()
+            tmpAlarms.addAll(entity.alarms.map { alarmCacheMapper.mapFromEntity(it) })
+            this.alarms = tmpAlarms
             //TODO(map alarms and todos)
 
         }
     }
 
-    override fun mapToEntity(domainModel: Schedule): ScheduleAndProgram {
+    override fun mapToEntity(domainModel: Schedule): FullSchedule {
         val scheduleEntity = ScheduleEntity(
             start = domainModel.startInSec,
             end = domainModel.endInSec,
             startDay = domainModel.startDay,
-            endDay = domainModel.endDay, programId = domainModel.program?.id?:1
+            endDay = domainModel.endDay, programId = domainModel.program?.id ?: 1
         ).apply {
-            domainModel.id?.let {
-                this.id=it
+            this.id = domainModel.id
+        }
+        val alarms = domainModel.alarms.map {alarm->
+            alarmCacheMapper.mapToEntity(alarm).apply {
+                this.scheduleId = domainModel.id
+
+                domainModel.program?.let { program ->
+                    this.programId = program.id
+                    this.programName=program.name
+                }
+
+                val alarmStart=domainModel.startInSec-alarm.hourBefore*3600-alarm.minuteBefore*60
+                if (alarmStart<0){
+                    this.day=6
+                    this.startInSec=604800-alarmStart
+
+                }else{
+                    this.day=  alarmStart/86400
+                    this.startInSec=alarmStart
+                }
             }
         }
-        return ScheduleAndProgram(scheduleEntity,programCacheMapper.mapToEntity(domainModel = domainModel.program!!))
+
+        return FullSchedule(
+            scheduleEntity,
+            programCacheMapper.mapToEntity(domainModel = domainModel.program!!),
+            alarms
+        )
     }
 
 }

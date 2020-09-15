@@ -10,9 +10,8 @@ import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.framework.datasource.cache.database.*
 import com.aminook.tunemyday.framework.datasource.cache.mappers.Mappers
-import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleAndProgram
+import com.aminook.tunemyday.framework.datasource.cache.model.AlarmEntity
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -77,37 +76,51 @@ class ScheduleRepositoryImpl @Inject constructor(
             mappers.scheduleCacheMapper.mapToEntity(it).schedule
         }
         val schedulesToDelete = selectSchedulesToDelete(
-            conflictedEntitySchedule,
+            conflictedSchedule,
             schedule
         )
-        Log.d(
-            TAG,
-            "insertSchedule: Target schedule : ${schedule.startDay} ${schedule.startInSec}--${schedule.endDay} ${schedule.endInSec} "
-        )
+//        Log.d(
+//            TAG,
+//            "insertSchedule: Target schedule : ${schedule.startDay} ${schedule.startInSec}--${schedule.endDay} ${schedule.endInSec} "
+//        )
+        val scheduleEntitiesToDelete = schedulesToDelete.map {
+            mappers.scheduleCacheMapper.mapToEntity(it).schedule
+        }
 
 
 
         schedulesToDelete.forEach {
             Log.d(
                 TAG, "Schedules to delete: id:${it.id}- startDay=${it.startDay}" +
-                        " startSec:${it.start}-- endDay:${it.endDay} endSec:${it.end}"
+                        " startSec:${it.startInSec}-- endDay:${it.endDay} endSec:${it.endInSec}"
             )
         }
         val schedulesToUpdate = updateSchedules(
-            conflictedEntitySchedule.minus(schedulesToDelete),
+            conflictedSchedule.minus(schedulesToDelete),
             schedule
         )
         schedulesToUpdate.forEach {
             Log.d(
                 TAG, "Schedules to update: id:${it.id}- startDay=${it.startDay}" +
-                        " startSec:${it.start}-- endDay:${it.endDay} endSec:${it.end}"
+                        " startSec:${it.startInSec}-- endDay:${it.endDay} endSec:${it.endInSec}"
             )
         }
 
+        val scheduleEntitiesToUpdate = schedulesToUpdate.map {
+            mappers.scheduleCacheMapper.mapToEntity(it).schedule
+        }
+
+        val alarmsToUpdate= mutableListOf<AlarmEntity>()
+        schedulesToUpdate.forEach {
+            alarmsToUpdate.addAll(mappers.scheduleCacheMapper.mapToEntity(it).alarms)
+        }
+        val fullSchedule=mappers.scheduleCacheMapper.mapToEntity(schedule)
         return daoService.scheduleDao.insertTransaction(
-            scheduleEntity = mappers.scheduleCacheMapper.mapToEntity(schedule).schedule,
-            schedulesToDelete = schedulesToDelete,
-            schedulesToUpdate = schedulesToUpdate
+            scheduleEntity = fullSchedule.schedule,
+            schedulesToDelete = scheduleEntitiesToDelete,
+            schedulesToUpdate = scheduleEntitiesToUpdate,
+            alarmsToUpdate =alarmsToUpdate,
+            alarmsToInsert = fullSchedule.alarms
         )
 
     }

@@ -5,10 +5,13 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 class Alarm(
-    var id: Int? = null,
+    var id: Int = -1,
     var index: Int = -1,
+    var scheduleId:Int= -1,
+    var programId:Int= -1,
     var hourBefore: Int = 0,
     var minuteBefore: Int = 0,
+    var day:Int=0,
     var inEditMode:Boolean=false
 ) : Parcelable {
 

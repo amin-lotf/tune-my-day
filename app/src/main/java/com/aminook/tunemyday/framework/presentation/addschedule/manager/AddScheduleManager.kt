@@ -8,7 +8,7 @@ import com.aminook.tunemyday.business.domain.model.*
 class AddScheduleManager {
     private val TAG="aminjoon"
 
-    val buffSchedule = Schedule()
+    private val _buffSchedule = Schedule()
     private var _chosenProgram=MutableLiveData<Program>()
     private var _daysOfWeek = mutableListOf<Day>()
     private var _chosenDay =MutableLiveData<Day>()
@@ -18,6 +18,8 @@ class AddScheduleManager {
     private var _alarmModifiedPosition=0
 
 
+    val buffSchedule:Schedule
+    get()=_buffSchedule
 
     val startTime:LiveData<Time>
     get()= _startTime
@@ -26,7 +28,7 @@ class AddScheduleManager {
     get() = _endTime
 
     val alarms:List<Alarm>
-    get() = buffSchedule.alarms
+    get() = _buffSchedule.alarms
 
 
     val listChanged:LiveData<String>
@@ -39,17 +41,18 @@ class AddScheduleManager {
     get() = _chosenProgram
 
     fun removeAlarm(alarm: Alarm){
-        buffSchedule.alarms.remove(alarm)
+        _buffSchedule.alarms.remove(alarm)
         _alarmModifiedPosition=alarm.index
         _listChanged.value= ALARM_LIST_REMOVED
 
     }
 
     fun addAlarm(alarm: Alarm){
+        alarm.scheduleId=_buffSchedule.id
         if(!alarm.inEditMode) {
-            buffSchedule.alarms.add(alarm)
-            buffSchedule.alarms.sortWith(compareBy<Alarm> { it.hourBefore }.thenBy { it.minuteBefore })
-            val index = buffSchedule.alarms.indexOf(alarm)
+            _buffSchedule.alarms.add(alarm)
+            _buffSchedule.alarms.sortWith(compareBy<Alarm> { it.hourBefore }.thenBy { it.minuteBefore })
+            val index = _buffSchedule.alarms.indexOf(alarm)
             alarm.index=index
 
             _alarmModifiedPosition = index
@@ -57,16 +60,16 @@ class AddScheduleManager {
         }else{
             if(alarm.index !=-1){
 
-                if (alarm.index<buffSchedule.alarms.size){
+                if (alarm.index<_buffSchedule.alarms.size){
 
-                    buffSchedule.alarms.removeAt(alarm.index)
+                    _buffSchedule.alarms.removeAt(alarm.index)
                     _alarmModifiedPosition=alarm.index
                     _listChanged.value= ALARM_LIST_REMOVED
 
-                    buffSchedule.alarms.add(alarm)
+                    _buffSchedule.alarms.add(alarm)
 
-                    buffSchedule.alarms.sortWith(compareBy<Alarm>{it.hourBefore}.thenBy { it.minuteBefore })
-                    val newIndex=buffSchedule.alarms.indexOf(alarm)
+                    _buffSchedule.alarms.sortWith(compareBy<Alarm>{it.hourBefore}.thenBy { it.minuteBefore })
+                    val newIndex=_buffSchedule.alarms.indexOf(alarm)
                     alarm.index=newIndex
                     _alarmModifiedPosition=newIndex
                     _listChanged.value= ALARM_LIST_ADDED
@@ -79,16 +82,16 @@ class AddScheduleManager {
     fun getChosenDay() = _chosenDay
 
     fun addProgramToBuffer(program: Program) {
-        buffSchedule.program = program
+        _buffSchedule.program = program
         _chosenProgram.value=program
     }
 
     fun removeProgramFromBuffer() {
-        buffSchedule.program = null
+        _buffSchedule.program = null
     }
 
     val isValid: Boolean
-        get() = buffSchedule.program != null
+        get() = _buffSchedule.program != null
 
     fun addDaysToBuffer(days: List<Day>) {
         _daysOfWeek.clear()
@@ -98,20 +101,20 @@ class AddScheduleManager {
     fun setTime(hour:Int,minute:Int, type: Int){
         when(type){
             TIME_START->{
-                buffSchedule.startTime.hour=hour
-                buffSchedule.startTime.minute= minute
-                _startTime.value=buffSchedule.startTime
+                _buffSchedule.startTime.hour=hour
+                _buffSchedule.startTime.minute= minute
+                _startTime.value=_buffSchedule.startTime
             }
             TIME_END->{
-                buffSchedule.endTime.hour=hour
-                buffSchedule.endTime.minute= minute
-                _endTime.value=buffSchedule.endTime
+                _buffSchedule.endTime.hour=hour
+                _buffSchedule.endTime.minute= minute
+                _endTime.value=_buffSchedule.endTime
             }
         }
     }
 
     fun setChosenDay(chosenDay: Day) {
-        buffSchedule.startDay=chosenDay.dayIndex
+        _buffSchedule.startDay=chosenDay.dayIndex
         _chosenDay.value=chosenDay
         for (day in _daysOfWeek) {
             day.isChosen = day === chosenDay

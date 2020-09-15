@@ -5,7 +5,7 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class Program(
-    val id:Int?=null,
+    val id:Int= -1,
     val name:String,
     val color:Int
 ):Parcelable

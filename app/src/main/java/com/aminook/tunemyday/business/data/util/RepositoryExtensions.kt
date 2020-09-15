@@ -1,21 +1,14 @@
 package com.aminook.tunemyday.business.data.util
 
-import android.util.Log
 import com.aminook.tunemyday.business.data.cache.CacheResult
 import com.aminook.tunemyday.business.data.util.CacheConstants.CACHE_TIMEOUT
-import com.aminook.tunemyday.business.data.util.CacheConstants.DELETE_SCHEDULE
-import com.aminook.tunemyday.business.data.util.CacheConstants.UPDATE_SCHEDULE
 import com.aminook.tunemyday.business.data.util.ErrorConstants.CACHE_ERROR_TIMEOUT
 import com.aminook.tunemyday.business.data.util.ErrorConstants.CACHE_ERROR_UNKNOWN
 import com.aminook.tunemyday.business.domain.model.Schedule
-import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleAndProgram
+import com.aminook.tunemyday.framework.datasource.cache.model.FullSchedule
 import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
 import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.single
 
 suspend fun <T> safeCacheCall(
     dispatcher: CoroutineDispatcher,
@@ -43,9 +36,9 @@ suspend fun <T> safeCacheCall(
 }
 
 fun getConflictedSchedules(
-    schedules: List<ScheduleAndProgram>,
+    schedules: List<FullSchedule>,
     target: Schedule
-): List<ScheduleAndProgram> {
+): List<FullSchedule> {
     return schedules.filter {scheduleAndProgram->
 
         scheduleAndProgram.schedule.let {
@@ -64,16 +57,16 @@ fun getConflictedSchedules(
 }
 
 fun selectSchedulesToDelete(
-    schedules: List<ScheduleEntity>,
+    schedules: List<Schedule>,
     target: Schedule
-): List<ScheduleEntity> {
+): List<Schedule> {
     return schedules.filter {
 //            Log.d("aminjoon", "getInvolvedSchedules: entity start:${it.startDay} - schedule start:${target.startDay}")
         if (it.startDay == it.endDay) {
-            (target.startDay == it.startDay && target.startInSec <= it.start && (target.endInSec >= it.end || target.endDay != target.startDay)) ||
-                    (target.startDay != it.startDay && target.endDay == it.startDay && target.endInSec >= it.end)
+            (target.startDay == it.startDay && target.startInSec <= it.startInSec && (target.endInSec >= it.endInSec || target.endDay != target.startDay)) ||
+                    (target.startDay != it.startDay && target.endDay == it.startDay && target.endInSec >= it.endInSec)
         } else if (it.startDay == target.startDay) {
-            target.startInSec < it.start && target.endInSec >= it.end && target.endDay == it.endDay
+            target.startInSec < it.startInSec && target.endInSec >= it.endInSec && target.endDay == it.endDay
         } else {
             false
         }
@@ -82,30 +75,30 @@ fun selectSchedulesToDelete(
 }
 
 fun updateSchedules(
-    schedules: List<ScheduleEntity>,
+    schedules: List<Schedule>,
     target: Schedule
-): List<ScheduleEntity> {
+): List<Schedule> {
     schedules.onEach {
         if (it.startDay == it.endDay) {
             if (target.startDay == it.startDay) {
-                if (target.startInSec < it.start) {
-                    it.start = target.endInSec
+                if (target.startInSec < it.startInSec) {
+                    it.startTime = target.endTime
                 } else {
-                    it.end = target.startInSec
+                    it.endTime = target.startTime
                 }
             } else {
-                it.start = target.endInSec
+                it.startTime = target.endTime
             }
         } else if (it.startDay == target.startDay) {
-            if (target.startInSec < it.start) {
-                it.start = target.endInSec
+            if (target.startInSec < it.startInSec) {
+                it.startTime = target.endTime
                 it.startDay = target.endDay
             } else {
-                it.end = target.startInSec
-                it.endDay = target.startDay
+                it.endTime = target.startTime
+
             }
         } else if (it.endDay == target.startDay) {
-            it.end = target.startInSec
+            it.endTime = target.startTime
         }
     }
 

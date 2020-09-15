@@ -3,8 +3,6 @@ package com.aminook.tunemyday.business.data.cache
 import com.aminook.tunemyday.business.domain.model.Day
 import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.model.Schedule
-import com.aminook.tunemyday.framework.datasource.cache.model.ProgramEntity
-import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleAndProgram
 import kotlinx.coroutines.flow.Flow
 
 interface ScheduleRepository {

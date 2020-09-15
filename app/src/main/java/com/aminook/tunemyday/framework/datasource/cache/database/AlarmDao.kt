@@ -21,4 +21,7 @@ interface AlarmDao {
 
     @Query("select * from alarms where schedule_id= :scheduleId")
     fun selectScheduleAlarm(scheduleId:Int):Flow<AlarmEntity?>
+
+//    @Query
+//    fun selectThreeDaysAlarms
 }

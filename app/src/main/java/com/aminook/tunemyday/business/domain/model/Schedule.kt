@@ -7,7 +7,7 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class Schedule(
-    var id: Int? = null,
+    var id: Int = -1,
     var startDay: Int = 0,
     var program: Program? = null,
     var startTime: Time = Time(),
