@@ -100,6 +100,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
         if (addScheduleManager.buffSchedule.program == null) {
             handleLocalError("Please choose an activity")
         } else {
+            Log.d(TAG, "saveSchedule: id of program: ${addScheduleManager.buffSchedule.program?.id}")
             job=CoroutineScope(activeScope).launch {
                 scheduleInteractors.insertSchedule(
                     addScheduleManager.buffSchedule,
@@ -169,7 +170,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
         CoroutineScope(activeScope).launch {
 
             programInteractors.insertProgram(program).collect { dataState ->
-                Log.d(TAG, "addProgram: ")
+
                 processResponse(dataState?.stateMessage)
                 dataState?.data?.let {
                     bufferChosenProgram(it)

@@ -10,5 +10,5 @@ data class ProgramEntity(
     val color: Int,
 ) {
     @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
+    var id: Long = 0L
 }

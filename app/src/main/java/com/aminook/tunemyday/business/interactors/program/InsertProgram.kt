@@ -29,7 +29,7 @@ class InsertProgram @Inject constructor(
                             uiComponentType = UIComponentType.None,
                             messageType = MessageType.Success
                         ),
-                        data = program
+                        data = program.copy(id=resultObj)
                     )
                 } else {
                     DataState.error(

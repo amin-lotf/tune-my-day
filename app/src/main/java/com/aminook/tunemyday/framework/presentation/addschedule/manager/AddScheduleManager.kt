@@ -1,5 +1,6 @@
 package com.aminook.tunemyday.framework.presentation.addschedule.manager
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.aminook.tunemyday.business.domain.model.*
@@ -84,6 +85,7 @@ class AddScheduleManager {
     fun addProgramToBuffer(program: Program) {
         _buffSchedule.program = program
         _chosenProgram.value=program
+        Log.d(TAG, "addProgramToBuffer: ${_buffSchedule.program?.id}")
     }
 
     fun removeProgramFromBuffer() {

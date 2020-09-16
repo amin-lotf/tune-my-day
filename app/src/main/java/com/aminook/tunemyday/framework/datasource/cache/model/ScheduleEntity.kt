@@ -15,7 +15,7 @@ import androidx.room.*
 )
 data class ScheduleEntity(
     @ColumnInfo(name = "program_id", index = true)
-    var programId: Int,
+    var programId: Long,
     var start: Int,
     var end: Int,
     var startDay: Int,

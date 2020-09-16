@@ -22,7 +22,7 @@ data class AlarmEntity(
   @ColumnInfo(name = "schedule_id", index = true)
   var scheduleId: Int,
   @ColumnInfo(name = "program_id", index = true)
-  var programId: Int,
+  var programId: Long,
   var programName:String,
   val hourBefore: Int,
   val minBefore: Int,

@@ -22,7 +22,9 @@ class AlarmCacheMapper @Inject  constructor():EntityMapper<AlarmEntity,Alarm>  {
             programName = "",
             startInSec = 0
         ).apply {
-            id=domainModel.id
+            if(domainModel.id!=0) {
+                id = domainModel.id
+            }
 
         }
     }

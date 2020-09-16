@@ -45,7 +45,10 @@ class ScheduleCacheMapper @Inject constructor(
             endDay = domainModel.endDay,
             programId = domainModel.program?.id ?: 1
         ).apply {
-            this.id = domainModel.id
+            if (domainModel.id!=0){
+                this.id = domainModel.id
+            }
+
         }
         val alarms = domainModel.alarms.map {alarm->
             alarmCacheMapper.mapToEntity(alarm).apply {
