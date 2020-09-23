@@ -5,14 +5,16 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 class Alarm(
-    var id: Int = 0,
+    var id: Long = 0L,
     var index: Int = -1,
-    var scheduleId:Int= -1,
+    var scheduleId:Long= -1L,
     var programId:Long= -1,
+    var programName:String="",
     var hourBefore: Int = 0,
     var minuteBefore: Int = 0,
     var day:Int=0,
-    var inEditMode:Boolean=false
+    var inEditMode:Boolean=false,
+    var startInSec:Int= -1
 ) : Parcelable {
 
     val isAtStart:Boolean
@@ -36,4 +38,6 @@ class Alarm(
                     " before activity starts"
         }
     }
+
+
 }

@@ -8,6 +8,7 @@ import com.aminook.tunemyday.framework.datasource.cache.model.FullSchedule
 import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
 
 @Singleton
 class ScheduleCacheMapper @Inject constructor(
@@ -45,7 +46,7 @@ class ScheduleCacheMapper @Inject constructor(
             endDay = domainModel.endDay,
             programId = domainModel.program?.id ?: 1
         ).apply {
-            if (domainModel.id!=0){
+            if (domainModel.id!=0L){
                 this.id = domainModel.id
             }
 
@@ -62,7 +63,7 @@ class ScheduleCacheMapper @Inject constructor(
                 val alarmStart=domainModel.startInSec-alarm.hourBefore*3600-alarm.minuteBefore*60
                 if (alarmStart<0){
                     this.day=6
-                    this.startInSec=604800-alarmStart
+                    this.startInSec=604800-abs(alarmStart)
 
                 }else{
                     this.day=  alarmStart/86400

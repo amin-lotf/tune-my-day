@@ -5,11 +5,13 @@ import androidx.room.*
 @Entity(
   tableName = "alarms",
   foreignKeys = [
+
     ForeignKey(
       entity = ProgramEntity::class,
       parentColumns = ["id"],
       childColumns = ["program_id"],
       onDelete = ForeignKey.CASCADE,
+      onUpdate = ForeignKey.CASCADE
     ), ForeignKey(
       entity = ScheduleEntity::class,
       parentColumns = ["id"],
@@ -20,9 +22,10 @@ import androidx.room.*
 )
 data class AlarmEntity(
   @ColumnInfo(name = "schedule_id", index = true)
-  var scheduleId: Int,
+  var scheduleId: Long,
   @ColumnInfo(name = "program_id", index = true)
   var programId: Long,
+  //@ColumnInfo(name = "program_name")
   var programName:String,
   val hourBefore: Int,
   val minBefore: Int,
@@ -31,7 +34,7 @@ data class AlarmEntity(
 ) {
 
     @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
+    var id: Long = 0L
 
 
 }

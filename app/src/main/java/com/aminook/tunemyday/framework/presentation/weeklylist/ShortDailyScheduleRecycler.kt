@@ -44,7 +44,7 @@ class ShortDailyScheduleRecycler : RecyclerView.Adapter<ShortDailyScheduleRecycl
 
     override fun getItemViewType(position: Int): Int {
         val item=differ.currentList[position]
-        return if (item.id== -1){
+        return if (item.id== -1L){
             TYPE_FREE
         }else{
             TYPE_BUSY

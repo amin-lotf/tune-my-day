@@ -74,6 +74,7 @@ abstract class AppModule {
             Color(ContextCompat.getColor(context, R.color.label8),false),
             Color(ContextCompat.getColor(context, R.color.label9),false)
         )
+
     }
 
     @Singleton

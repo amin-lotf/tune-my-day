@@ -11,8 +11,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 
 suspend fun <T> safeCacheCall(
-    dispatcher: CoroutineDispatcher,
-    cacheCall: () -> Flow<T>
+    dispatcher: CoroutineDispatcher
 ): CacheResult<T?> {
     return withContext(dispatcher) {
         try {
@@ -81,7 +80,7 @@ fun updateSchedules(
     schedules.onEach {
         if (it.startDay == it.endDay) {
             if (target.startDay == it.startDay) {
-                if (target.startInSec < it.startInSec) {
+                if (target.startInSec <= it.startInSec) {
                     it.startTime = target.endTime
                 } else {
                     it.endTime = target.startTime
@@ -90,7 +89,7 @@ fun updateSchedules(
                 it.startTime = target.endTime
             }
         } else if (it.startDay == target.startDay) {
-            if (target.startInSec < it.startInSec) {
+            if (target.startInSec <= it.startInSec) {
                 it.startTime = target.endTime
                 it.startDay = target.endDay
             } else {

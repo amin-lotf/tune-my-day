@@ -9,16 +9,18 @@ import com.aminook.tunemyday.business.domain.model.*
 import com.aminook.tunemyday.business.domain.state.AreYouSureCallback
 import com.aminook.tunemyday.business.domain.state.DataState
 import com.aminook.tunemyday.business.interactors.program.ProgramInteractors
+import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule
+import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule.Companion.INSERT_SCHEDULE_SUCCESS
 import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onCompletion
-
 
 
 class AddScheduleViewModel @ViewModelInject constructor(
@@ -28,10 +30,11 @@ class AddScheduleViewModel @ViewModelInject constructor(
     ) : BaseViewModel() {
     private val TAG = "aminjoon"
     val addScheduleManager = AddScheduleManager()
-    private var conflictedSchedules = listOf<Schedule>()
+    var conflictedSchedules = listOf<Schedule>()
+    var modifiedAlarmIndexes= listOf<Long>()
     private val activeScope = IO + viewModelScope.coroutineContext
     private var _allPrograms = MutableLiveData<List<Program>>()
-    private var job:Job?=null
+    private var job: Job? = null
 
 
     val selectedProgram: LiveData<Program>
@@ -53,6 +56,8 @@ class AddScheduleViewModel @ViewModelInject constructor(
         get() = addScheduleManager.endTime
 
 
+
+
     val listChanged: LiveData<String>
         get() = addScheduleManager.listChanged
 
@@ -70,48 +75,55 @@ class AddScheduleViewModel @ViewModelInject constructor(
         if (addScheduleManager.buffSchedule.program == null) {
             handleLocalError("Please choose an activity")
         } else {
-             job=CoroutineScope(activeScope).launch {
+            job = CoroutineScope(activeScope).launch {
                 scheduleInteractors.validateSchedule(
                     schedule = addScheduleManager.buffSchedule, areYouSureCallback
                 )
                     .collect { dataState ->
-                    Log.d(TAG, "validateSchedule: ")
-                    processResponse(dataState?.stateMessage)
+                        Log.d(TAG, "validateSchedule: ")
+                        processResponse(dataState?.stateMessage)
 
-                    dataState?.data?.let {
-                        if (it.isNullOrEmpty()) {
+                        dataState?.data?.let {
+                            if (it.isNullOrEmpty()) {
 
-                            saveSchedule(emptyList())
-                        } else {
-//                            it.forEach {s->
-//                                Log.d(TAG, "validateSchedule: s day:${s.startDay} starts:${s.startTime.hour}:${s.startTime.minute} ")
-//                            }
-                            conflictedSchedules = it
+                                saveSchedule(emptyList())
+                            } else {
+                                val indexes= mutableListOf<Long>()
+                                it.forEach {
+
+                                    val alarms=it.alarms
+                                    alarms.forEach {
+                                        indexes.add(it.id)
+                                    }
+                                }
+                                modifiedAlarmIndexes=indexes
+                                conflictedSchedules = it
+                            }
+
                         }
-
                     }
-                }
             }
-          //  handleJob(job)
+            //  handleJob(job)
         }
     }
 
-    fun saveSchedule(confSchedules:List<Schedule> = conflictedSchedules) {
+    fun saveSchedule(confSchedules: List<Schedule> = conflictedSchedules) {
         if (addScheduleManager.buffSchedule.program == null) {
             handleLocalError("Please choose an activity")
         } else {
-            Log.d(TAG, "saveSchedule: id of program: ${addScheduleManager.buffSchedule.program?.id}")
-            job=CoroutineScope(activeScope).launch {
+
+            job = CoroutineScope(activeScope).launch {
                 scheduleInteractors.insertSchedule(
                     addScheduleManager.buffSchedule,
                     confSchedules
                 )
                     .collect { dataState ->
-                    Log.d(TAG, "saveSchedule: ")
-                    processResponse(dataState?.stateMessage)
+                        Log.d(TAG, "saveSchedule: ")
+
+                        processResponse(dataState?.stateMessage)
 
 
-                }
+                    }
             }
         }
     }
@@ -149,7 +161,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
     fun catchDaysOfWeek(chosenDay: Int) {
         CoroutineScope(activeScope).launch {
             scheduleInteractors.getDaysOfWeek(chosenDay).collect { dataState ->
-                Log.d(TAG, "catchDaysOfWeek: ")
+
                 processResponse(dataState?.stateMessage)
                 dataState?.data?.let { daysList ->
                     addScheduleManager.addDaysToBuffer(daysList)
@@ -186,22 +198,22 @@ class AddScheduleViewModel @ViewModelInject constructor(
 
     fun getAllPrograms() {
         Log.d(TAG, "getAllPrograms: out ")
-        job=CoroutineScope(activeScope).launch {
+        job = CoroutineScope(activeScope).launch {
             programInteractors.getAllPrograms()
                 .collect { dataState ->
-                Log.d(TAG, "getAllPrograms: ")
-                processResponse(dataState?.stateMessage)
-                dataState?.data?.let {
+                    Log.d(TAG, "getAllPrograms: ")
+                    processResponse(dataState?.stateMessage)
+                    dataState?.data?.let {
 
-                    _allPrograms.postValue(dataState.data)
+                        _allPrograms.postValue(dataState.data)
+                    }
+
                 }
-
-            }
         }
     }
 
 
-    private fun handleJob(job:Job?){
+    private fun handleJob(job: Job?) {
         job?.let {
             CoroutineScope(activeScope).launch {
                 job.cancelAndJoin()

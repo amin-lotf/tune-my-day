@@ -9,7 +9,6 @@ import com.aminook.tunemyday.business.domain.state.Response
 import com.aminook.tunemyday.business.domain.state.UIComponentType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,11 +23,11 @@ class InsertSchedule @Inject constructor(
                 return if (resultObj>0){
                     DataState.data(
                         response = Response(
-                            message = INSERT_Schedule_SUCCESS,
+                            message = INSERT_SCHEDULE_SUCCESS,
                             uiComponentType = UIComponentType.Toast,
                             messageType = MessageType.Success
                         ),
-                        data = INSERT_Schedule_SUCCESS
+                        data = INSERT_SCHEDULE_SUCCESS
                     )
                 }else{
                     DataState.data(
@@ -54,7 +53,7 @@ class InsertSchedule @Inject constructor(
     }
 
     companion object {
-        val INSERT_Schedule_SUCCESS = "Activity added to your schedule"
+        val INSERT_SCHEDULE_SUCCESS = "Activity added to your schedule"
         val INSERT_Schedule_FAILED = "Failed to add the activity"
     }
 }

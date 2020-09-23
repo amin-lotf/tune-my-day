@@ -9,7 +9,15 @@ import javax.inject.Singleton
 @Singleton
 class AlarmCacheMapper @Inject  constructor():EntityMapper<AlarmEntity,Alarm>  {
     override fun mapFromEntity(entity: AlarmEntity): Alarm {
-        return Alarm(id = entity.id,programId = entity.programId, hourBefore = entity.hourBefore,minuteBefore = entity.minBefore)
+        return Alarm(
+            id = entity.id,
+            scheduleId = entity.scheduleId,
+            programId = entity.programId,
+            programName = entity.programName,
+            hourBefore = entity.hourBefore,
+            minuteBefore = entity.minBefore,
+            day = entity.day,
+            startInSec = entity.startInSec)
     }
 
     override fun mapToEntity(domainModel: Alarm): AlarmEntity {
@@ -19,10 +27,10 @@ class AlarmCacheMapper @Inject  constructor():EntityMapper<AlarmEntity,Alarm>  {
             hourBefore = domainModel.hourBefore,
             minBefore = domainModel.minuteBefore,
             day = domainModel.day,
-            programName = "",
-            startInSec = 0
+            programName =domainModel.programName,
+            startInSec = domainModel.startInSec
         ).apply {
-            if(domainModel.id!=0) {
+            if(domainModel.id!=0L) {
                 id = domainModel.id
             }
 

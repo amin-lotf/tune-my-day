@@ -1,30 +1,39 @@
 package com.aminook.tunemyday.framework.presentation
 
-import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentFactory
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.aminook.tunemyday.BuildConfig
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.state.*
 import com.aminook.tunemyday.util.TodoCallback
+import com.aminook.tunemyday.worker.AlarmWorker
+import com.aminook.tunemyday.worker.AlarmWorker.Companion.ACTION_TYPE
+import com.aminook.tunemyday.worker.AlarmWorker.Companion.MODIFIED_ALARMS_INDEX
+import com.aminook.tunemyday.worker.AlarmWorker.Companion.TYPE_NEW_SCHEDULE
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
-import java.lang.reflect.Method
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(),UIController {
+class MainActivity : AppCompatActivity(),UIController, AlarmController {
 
+    private val TAG="aminjoon"
+    private val  mainViewModel:MainViewModel by viewModels()
     @Inject
     lateinit var appFragmentFactory: FragmentFactory
     private var dialogInView: AlertDialog? = null
@@ -38,6 +47,16 @@ class MainActivity : AppCompatActivity(),UIController {
         setSupportActionBar(toolbar)
         supportFragmentManager.fragmentFactory=appFragmentFactory
         setupNavigation()
+        subscribeObservers()
+    }
+
+    private fun subscribeObservers() {
+//        mainViewModel.upcomingAlarms.observe(this){alarms->
+//            alarms.forEach {
+//                Log.d(TAG, "subscribeObservers: alarm :schedule id:${it.scheduleId} day:${it.day} start ${it.startInSec}")
+//            }
+//        }
+//        mainViewModel.getUpcomingAlarms()
     }
 
     private fun setupNavigation(){
@@ -193,6 +212,20 @@ class MainActivity : AppCompatActivity(),UIController {
         super.onPause()
     }
 
+    override fun setupAlarms(modifiedAlarmsIndex:List<Long>) {
+
+        val data=Data.Builder()
+            .putLongArray(MODIFIED_ALARMS_INDEX,modifiedAlarmsIndex.toLongArray())
+            .putString(ACTION_TYPE, TYPE_NEW_SCHEDULE)
+            .build()
+
+        val alarmWorker=OneTimeWorkRequest.Builder(AlarmWorker::class.java)
+            .setInputData(data)
+            .build()
+
+        Log.d(TAG, "setupAlarms: ")
+        WorkManager.getInstance(applicationContext).enqueueUniqueWork("setAlarms",ExistingWorkPolicy.REPLACE,alarmWorker)
+    }
 
 
 }

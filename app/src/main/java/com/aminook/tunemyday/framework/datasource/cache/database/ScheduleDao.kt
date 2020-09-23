@@ -19,7 +19,7 @@ interface ScheduleDao {
     fun selectDailySchedule(day: Int): Flow<List<FullSchedule>>
 
     @Query("select * from schedules where id= :id")
-    fun selectSchedule(id: Int): Flow<ScheduleEntity?>
+    suspend fun selectSchedule(id: Long): FullSchedule
 
     @Query("delete from schedules")
     fun deleteAllSchedules(): Int
@@ -60,8 +60,14 @@ interface ScheduleDao {
         alarmsToUpdate:List<AlarmEntity>,
         alarmsToInsert:List<AlarmEntity>
     ):Long{
+        val id=insertSchedule(scheduleEntity)
         deleteSchedules(schedulesToDelete)
         updateSchedules(schedulesToUpdate)
-        return insertSchedule(scheduleEntity)
+        updateAlarms(alarmsToUpdate)
+        alarmsToInsert.onEach {
+            it.scheduleId=id
+        }
+        insertAlarms(alarmsToInsert)
+        return id
     }
 }

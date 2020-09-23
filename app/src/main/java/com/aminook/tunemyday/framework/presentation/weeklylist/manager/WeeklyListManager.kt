@@ -21,7 +21,7 @@ class WeeklyListManager {
         //CoroutineScope(Default).launch{
             val tmpList= mutableListOf<Schedule>()
 
-            rawSchedules.forEachIndexed { index, schedule ->
+            rawSchedules.forEachIndexed { _, schedule ->
                 tmpList.add(schedule)
 
                 if(!rawSchedules.any { it.startInSec==schedule.endInSec} && rawSchedules.any { it.startDay==schedule.startDay && it.startInSec>schedule.startInSec }){

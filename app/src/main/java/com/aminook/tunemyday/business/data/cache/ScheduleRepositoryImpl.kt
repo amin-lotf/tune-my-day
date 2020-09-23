@@ -4,18 +4,17 @@ import android.util.Log
 import com.aminook.tunemyday.business.data.util.getConflictedSchedules
 import com.aminook.tunemyday.business.data.util.selectSchedulesToDelete
 import com.aminook.tunemyday.business.data.util.updateSchedules
-import com.aminook.tunemyday.business.domain.model.Day
-import com.aminook.tunemyday.business.domain.model.DayFactory
-import com.aminook.tunemyday.business.domain.model.Program
-import com.aminook.tunemyday.business.domain.model.Schedule
+import com.aminook.tunemyday.business.domain.model.*
+import com.aminook.tunemyday.business.domain.util.DayFactory
 import com.aminook.tunemyday.framework.datasource.cache.database.*
 import com.aminook.tunemyday.framework.datasource.cache.mappers.Mappers
 import com.aminook.tunemyday.framework.datasource.cache.model.AlarmEntity
+import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
-
+//TODO(use try catch for queries)
 @Singleton
 class ScheduleRepositoryImpl @Inject constructor(
     val daoService: DaoService,
@@ -72,10 +71,8 @@ class ScheduleRepositoryImpl @Inject constructor(
     override suspend fun insertSchedule(
         schedule: Schedule,
         conflictedSchedule: List<Schedule>
-    ): Long {
-        val conflictedEntitySchedule = conflictedSchedule.map {
-            mappers.scheduleCacheMapper.mapToEntity(it).schedule
-        }
+    ): Long? {
+
         val schedulesToDelete = selectSchedulesToDelete(
             conflictedSchedule,
             schedule
@@ -115,14 +112,25 @@ class ScheduleRepositoryImpl @Inject constructor(
         schedulesToUpdate.forEach {
             alarmsToUpdate.addAll(mappers.scheduleCacheMapper.mapToEntity(it).alarms)
         }
+
+
+
         val fullSchedule=mappers.scheduleCacheMapper.mapToEntity(schedule)
-        return daoService.scheduleDao.insertTransaction(
-            scheduleEntity = fullSchedule.schedule,
-            schedulesToDelete = scheduleEntitiesToDelete,
-            schedulesToUpdate = scheduleEntitiesToUpdate,
-            alarmsToUpdate =alarmsToUpdate,
-            alarmsToInsert = fullSchedule.alarms
-        )
+        fullSchedule.alarms.forEach {
+            Log.d(TAG, "insertSchedule: alarm: program: ${it.programId} schedule: ${it.scheduleId}")
+        }
+        Log.d(TAG, "insertSchedule: alarm size: ${fullSchedule.alarms.size}")
+        try {
+            return daoService.scheduleDao.insertTransaction(
+                scheduleEntity = fullSchedule.schedule,
+                schedulesToDelete = scheduleEntitiesToDelete,
+                schedulesToUpdate = scheduleEntitiesToUpdate,
+                alarmsToUpdate = alarmsToUpdate,
+                alarmsToInsert = fullSchedule.alarms
+            )
+        }catch(e:Throwable){
+            return  null
+        }
 
     }
 
@@ -145,6 +153,29 @@ class ScheduleRepositoryImpl @Inject constructor(
               mappers.scheduleCacheMapper.mapFromEntity(it)
           }
         }
+    }
+
+    override suspend fun getUpcomingAlarms(startDay:Int,endDay:Int):List<Alarm> {
+        Log.d(TAG, "getUpcomingAlarms: $startDay $endDay")
+        val dayRange= mutableListOf<Int>()
+
+        for (i in startDay..endDay){
+            val day= if (i<7) i else i-7
+            dayRange.add(day)
+
+        }
+
+
+
+        return daoService.alarmDao.selectUpcomingAlarms(dayRange)
+            .map {
+                mappers.alarmCacheMapper.mapFromEntity(it) }
+
+    }
+
+    override suspend fun getSchedule(scheduleId: Long): Schedule {
+        return mappers.scheduleCacheMapper.mapFromEntity(daoService.scheduleDao.selectSchedule(scheduleId))
+
     }
 }
 

@@ -1,7 +1,6 @@
 package com.aminook.tunemyday.framework.presentation.addschedule
 
 import android.app.TimePickerDialog
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -17,8 +16,7 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.*
 import com.aminook.tunemyday.business.domain.state.AreYouSureCallback
-import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule
-import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule.Companion.INSERT_Schedule_SUCCESS
+import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule.Companion.INSERT_SCHEDULE_SUCCESS
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_LIST_ADDED
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_LIST_REMOVED
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_END
@@ -82,7 +80,7 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
 
         val arg = arguments
 
-        arg?.getString("request_type")?.let { request ->
+        arg?.getString(getString(R.string.schedule_request_type))?.let { request ->
 
             viewModel.processRequest(request)
         }
@@ -135,8 +133,10 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
 
         viewModel.stateMessage.observe(viewLifecycleOwner){event->
             event?.getContentIfNotHandled()?.let {stateMessage->
-                uiController.onResponseReceived(stateMessage.response)
-                if (event.peekContent()?.response?.message== INSERT_Schedule_SUCCESS){
+                uiController?.onResponseReceived(stateMessage.response)
+                if (event.peekContent()?.response?.message== INSERT_SCHEDULE_SUCCESS){
+                    Log.d(TAG, "add schedule subscribeObservers: INSERT_SCHEDULE_SUCCESS")
+                    alarmController?.setupAlarms(viewModel.modifiedAlarmIndexes)
                     findNavController().popBackStack()
                 }
             }
@@ -235,7 +235,7 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
             listItemsSingleChoice(
                 items = daysNameList,
                 initialSelection = chosenDayIndex
-            ) { dialog, index, text ->
+            ) { _, index, _ ->
                 viewModel.updateBufferedDays(days[index])
             }
         }

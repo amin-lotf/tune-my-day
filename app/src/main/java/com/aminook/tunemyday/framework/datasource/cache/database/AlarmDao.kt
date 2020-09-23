@@ -3,25 +3,31 @@ package com.aminook.tunemyday.framework.datasource.cache.database
 import androidx.room.*
 import com.aminook.tunemyday.framework.datasource.cache.model.AlarmEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Dao
 interface AlarmDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertAlarm(alarmEntity: AlarmEntity):Long
+//    @Insert(onConflict = OnConflictStrategy.IGNORE)
+//    suspend fun insertAlarm(alarmEntity: AlarmEntity):Long
+//
+//    @Update(onConflict = OnConflictStrategy.IGNORE)
+//    fun updateAlarm(alarmEntity: AlarmEntity):Int
+//
+//    @Delete
+//    fun deleteAlarm(alarmEntity: AlarmEntity):Int
+//
+//    @Query("select * from alarms where day= :day")
+//    fun selectDailyAlarms(day:Int):Flow<List<AlarmEntity>>
+//
+//    @Query("select * from alarms where schedule_id= :scheduleId")
+//    fun selectScheduleAlarm(scheduleId:Int):Flow<AlarmEntity?>
 
-    @Update(onConflict = OnConflictStrategy.IGNORE)
-    fun updateAlarm(alarmEntity: AlarmEntity):Int
+    @Query("select * from alarms where day in(:days)")
+    suspend fun selectUpcomingAlarms(days:List<Int>):List<AlarmEntity>
 
-    @Delete
-    fun deleteAlarm(alarmEntity: AlarmEntity):Int
 
-    @Query("select * from alarms where day= :day")
-    fun selectDailyAlarms(day:Int):Flow<List<AlarmEntity>>
 
-    @Query("select * from alarms where schedule_id= :scheduleId")
-    fun selectScheduleAlarm(scheduleId:Int):Flow<AlarmEntity?>
-
-//    @Query
-//    fun selectThreeDaysAlarms
+//    fun selectUpcomingAlarmsDistinct(startDay:Int,endDay:Int, startInSec:Int)=
+//        selectUpcomingAlarms(startDay,endDay, startInSec).distinctUntilChanged()
 }

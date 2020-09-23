@@ -11,4 +11,7 @@
     <string name="are_you_sure">Are you sure?</string>
     <string name="text_yes">Yes</string>
     <string name="text_undo">Undo</string>
+
+    <string name="schedule_request_type">SCHEDULE_REQUEST_TYPE</string>
+    <string name="chosen_day">CHOSEN_DAY</string>
 </resources>
