@@ -9,5 +9,6 @@ class ScheduleInteractors @Inject constructor(
     val insertSchedule: InsertSchedule,
     val validateSchedule: ValidateSchedule,
     val getDailySchedules: GetDailySchedules,
-    val getSchedule: GetSchedule
+    val getSchedule: GetSchedule,
+    val deleteSchedule: DeleteSchedule
 )

@@ -2,20 +2,29 @@ package com.aminook.tunemyday.framework.presentation
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.FragmentFactory
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.aminook.tunemyday.R
+import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.*
+import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragmentDirections
+import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import com.aminook.tunemyday.util.TodoCallback
 import com.aminook.tunemyday.worker.AlarmWorker
 import com.aminook.tunemyday.worker.AlarmWorker.Companion.ACTION_TYPE
@@ -26,18 +35,20 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_weekly_list.*
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(),UIController, AlarmController {
+class MainActivity : AppCompatActivity(), UIController, AlarmController,OnScheduleDeleteListener {
 
-    private val TAG="aminjoon"
-    private val  mainViewModel:MainViewModel by viewModels()
+    private val TAG = "aminjoon"
+    private val mainViewModel: MainViewModel by viewModels()
+
     @Inject
     lateinit var appFragmentFactory: FragmentFactory
     private var dialogInView: AlertDialog? = null
-    lateinit var navHostFragment:NavHostFragment
+    lateinit var navHostFragment: NavHostFragment
     lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,27 +56,60 @@ class MainActivity : AppCompatActivity(),UIController, AlarmController {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        supportFragmentManager.fragmentFactory=appFragmentFactory
+        supportFragmentManager.fragmentFactory = appFragmentFactory
         setupNavigation()
         subscribeObservers()
     }
 
+
     private fun subscribeObservers() {
-//        mainViewModel.upcomingAlarms.observe(this){alarms->
-//            alarms.forEach {
-//                Log.d(TAG, "subscribeObservers: alarm :schedule id:${it.scheduleId} day:${it.day} start ${it.startInSec}")
-//            }
-//        }
-//        mainViewModel.getUpcomingAlarms()
+        mainViewModel.stateMessage.observe(this){event->
+            event?.getContentIfNotHandled()?.let { stateMessage ->
+                onResponseReceived(stateMessage.response,null)
+            }
+        }
     }
 
-    private fun setupNavigation(){
-        navHostFragment=supportFragmentManager.findFragmentById(R.id.main_nav_host) as NavHostFragment
-        navController=navHostFragment.navController
+    private fun setupNavigation() {
+        navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.main_nav_host) as NavHostFragment
+        val inflater=navHostFragment.navController.navInflater
+        val graph=inflater.inflate(R.navigation.nav_graph)
+        val bundle=Bundle()
+
+        navController = navHostFragment.navController
+        navController.setGraph(R.navigation.nav_graph,bundle)
         bottom_navigation.setupWithNavController(navController)
+
+        navController.addOnDestinationChangedListener{controller, destination, _ ->
+
+            fab_schedule.animate().translationY(0f)
+
+
+            // First page is main menu
+            if(controller.graph.startDestination == destination.id){
+
+                fab_schedule.show()
+
+
+            }else{
+
+
+
+                fab_schedule.hide()
+            }
+        }
+
+        fab_schedule.setOnClickListener {
+            val action = WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
+                scheduleRequestType = SCHEDULE_REQUEST_NEW,
+                chosenDay = weekly_view_pager.currentItem
+            )
+            navController.navigate(action)
+        }
     }
 
-    override fun onResponseReceived(response: Response?) {
+    override fun <T> onResponseReceived(response: Response?, data: T?) {
 
         response?.let {
             when (response.uiComponentType) {
@@ -102,10 +146,12 @@ class MainActivity : AppCompatActivity(),UIController, AlarmController {
                 }
 
 
-                else -> {}
+                else -> {
+                }
             }
         }
     }
+
     private fun areYouSureDialog(
         message: String,
         callback: AreYouSureCallback
@@ -113,17 +159,17 @@ class MainActivity : AppCompatActivity(),UIController, AlarmController {
         return MaterialAlertDialogBuilder(this)
             .setTitle("Are you Sure?")
             .setMessage(message)
-            .setPositiveButton("Confirm"){ _, _->
+            .setPositiveButton("Confirm") { _, _ ->
                 callback.proceed()
             }
-            .setNegativeButton("Cancel"){ _, _->
+            .setNegativeButton("Cancel") { _, _ ->
                 callback.cancel()
             }.show()
 
     }
 
-    private fun displayDialog(response: Response){
-        response.message?.let { message->
+    private fun displayDialog(response: Response) {
+        response.message?.let { message ->
             dialogInView = when (response.messageType) {
 
                 is MessageType.Error -> {
@@ -139,7 +185,6 @@ class MainActivity : AppCompatActivity(),UIController, AlarmController {
                 }
 
 
-
                 else -> null
             }
         }
@@ -153,12 +198,14 @@ class MainActivity : AppCompatActivity(),UIController, AlarmController {
         message: String,
         snackbarUndoCallback: SnackbarUndoCallback?,
         onDismissCallback: TodoCallback?
-    ){
-        val snackbar=Snackbar.make(
+    ) {
+
+        val snackbar = Snackbar.make(
             main_container,
             message,
             Snackbar.LENGTH_LONG
         )
+
 
         snackbar.setAction(
             R.string.text_undo,
@@ -168,17 +215,21 @@ class MainActivity : AppCompatActivity(),UIController, AlarmController {
             override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
                 onDismissCallback?.execute()
                 super.onDismissed(transientBottomBar, event)
+
             }
         })
+        Log.d(TAG, "displaySnackbar: ")
+        snackbar.show()
 
     }
+
     private fun displaySuccessDialog(
         message: String?
     ): AlertDialog {
         return MaterialAlertDialogBuilder(this)
             .setTitle("Success")
             .setMessage(message)
-            .setPositiveButton("Ok"){ _, _->
+            .setPositiveButton("Ok") { _, _ ->
 
             }.show()
 
@@ -190,7 +241,7 @@ class MainActivity : AppCompatActivity(),UIController, AlarmController {
         return MaterialAlertDialogBuilder(this)
             .setTitle("Error")
             .setMessage(message)
-            .setPositiveButton("ok"){ _, _ ->
+            .setPositiveButton("ok") { _, _ ->
             }.show()
 
     }
@@ -201,30 +252,35 @@ class MainActivity : AppCompatActivity(),UIController, AlarmController {
         return MaterialAlertDialogBuilder(this)
             .setTitle("Error")
             .setMessage(message)
-            .setPositiveButton("ok"){ _, _ ->
+            .setPositiveButton("ok") { _, _ ->
             }.show()
     }
 
     override fun onPause() {
-        if(dialogInView != null){
+        if (dialogInView != null) {
             dialogInView = null
         }
         super.onPause()
     }
 
-    override fun setupAlarms(modifiedAlarmsIndex:List<Long>) {
+    override fun setupAlarms(modifiedAlarmsIndex: List<Long>) {
 
-        val data=Data.Builder()
-            .putLongArray(MODIFIED_ALARMS_INDEX,modifiedAlarmsIndex.toLongArray())
+        val data = Data.Builder()
+            .putLongArray(MODIFIED_ALARMS_INDEX, modifiedAlarmsIndex.toLongArray())
             .putString(ACTION_TYPE, TYPE_NEW_SCHEDULE)
             .build()
 
-        val alarmWorker=OneTimeWorkRequest.Builder(AlarmWorker::class.java)
+        val alarmWorker = OneTimeWorkRequest.Builder(AlarmWorker::class.java)
             .setInputData(data)
             .build()
 
         Log.d(TAG, "setupAlarms: ")
-        WorkManager.getInstance(applicationContext).enqueueUniqueWork("setAlarms",ExistingWorkPolicy.REPLACE,alarmWorker)
+        WorkManager.getInstance(applicationContext)
+            .enqueueUniqueWork("setAlarms", ExistingWorkPolicy.REPLACE, alarmWorker)
+    }
+
+    override fun onScheduleDeleted(schedule: Schedule) {
+        mainViewModel.deleteSchedule(schedule)
     }
 
 

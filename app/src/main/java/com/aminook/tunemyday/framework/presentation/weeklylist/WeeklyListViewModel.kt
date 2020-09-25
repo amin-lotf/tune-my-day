@@ -7,14 +7,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aminook.tunemyday.business.domain.model.Day
 import com.aminook.tunemyday.business.domain.model.Schedule
+import com.aminook.tunemyday.business.domain.state.SnackbarUndoCallback
 import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.framework.presentation.weeklylist.manager.WeeklyListManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.aminook.tunemyday.util.TodoCallback
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class WeeklyListViewModel @ViewModelInject constructor(
@@ -34,6 +33,8 @@ class WeeklyListViewModel @ViewModelInject constructor(
 
     val schedules: LiveData<List<Schedule>>
         get() = weeklyListManager.refinedSchedules
+
+
 
     fun getAllSchedules() {
         CoroutineScope(activeScope).launch {

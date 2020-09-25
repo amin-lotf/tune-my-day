@@ -6,27 +6,27 @@ import androidx.lifecycle.*
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aminook.tunemyday.business.domain.model.*
-import com.aminook.tunemyday.business.domain.state.AreYouSureCallback
-import com.aminook.tunemyday.business.domain.state.DataState
+import com.aminook.tunemyday.business.domain.state.*
+import com.aminook.tunemyday.business.domain.util.DayFactory
 import com.aminook.tunemyday.business.interactors.program.ProgramInteractors
-import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule
-import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule.Companion.INSERT_SCHEDULE_SUCCESS
 import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager
+import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_END
+import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_START
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
+import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
+import com.aminook.tunemyday.util.TodoCallback
 import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onCompletion
 
 
 class AddScheduleViewModel @ViewModelInject constructor(
     val programInteractors: ProgramInteractors,
     val scheduleInteractors: ScheduleInteractors,
-
+    val dateUtil:DayFactory
     ) : BaseViewModel() {
     private val TAG = "aminjoon"
     val addScheduleManager = AddScheduleManager()
@@ -35,6 +35,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
     private val activeScope = IO + viewModelScope.coroutineContext
     private var _allPrograms = MutableLiveData<List<Program>>()
     private var job: Job? = null
+    private var _requestType:String= SCHEDULE_REQUEST_NEW
 
 
     val selectedProgram: LiveData<Program>
@@ -44,7 +45,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
         get() = _allPrograms
 
     val daysOfWeek: List<Day>
-        get() = addScheduleManager.getBufferedDays()
+        get() = addScheduleManager.daysOfWeek
 
     val chosenDay: LiveData<Day>
         get() = addScheduleManager.getChosenDay()
@@ -63,6 +64,8 @@ class AddScheduleViewModel @ViewModelInject constructor(
 
     val alarmModifiedPosition: Int
         get() = addScheduleManager.alarmModifiedPosition
+
+
 
 
     fun validateSchedule(areYouSureCallback: AreYouSureCallback) {
@@ -115,7 +118,8 @@ class AddScheduleViewModel @ViewModelInject constructor(
             job = CoroutineScope(activeScope).launch {
                 scheduleInteractors.insertSchedule(
                     addScheduleManager.buffSchedule,
-                    confSchedules
+                    confSchedules,
+                    _requestType
                 )
                     .collect { dataState ->
                         Log.d(TAG, "saveSchedule: ")
@@ -128,10 +132,51 @@ class AddScheduleViewModel @ViewModelInject constructor(
         }
     }
 
-    fun processRequest(request: String) {
-        when (request) {
-            SCHEDULE_REQUEST_NEW -> {
+    fun processRequest(request: String, args: AddEditScheduleFragmentArgs) {
+        _requestType=request
 
+        when(request){
+            SCHEDULE_REQUEST_EDIT->{
+                val scheduleId=args.scheduleId
+                if (scheduleId!= 0L) {
+                    CoroutineScope(activeScope).launch {
+                        scheduleInteractors.getSchedule(scheduleId).collect{dataState->
+                            processResponse(dataState?.stateMessage)
+                            try {
+                                dataState?.data?.let {schedule ->
+                                    addScheduleManager.setScheduleId(scheduleId)
+                                    catchDaysOfWeek(schedule.startDay)
+                                    bufferChosenProgram(schedule.program!!)
+                                    updateBufferedDays(daysOfWeek[schedule.startDay])
+                                    setTime(
+                                        schedule.startTime.hour,
+                                        schedule.startTime.minute,
+                                        TIME_START
+                                    )
+                                    setTime(
+                                        schedule.endTime.hour,
+                                        schedule.endTime.minute,
+                                        TIME_END
+                                    )
+
+                                    schedule.alarms.forEach {
+                                        setAlarm(it)
+                                    }
+
+                                }
+                            }catch (e:Throwable){
+                                //TODO(handle error and popStack)
+                            }
+
+                        }
+                    }
+                }else{
+                    //TODO(handle error)
+                }
+            }
+            SCHEDULE_REQUEST_NEW->{
+                val index=args.chosenDay
+                catchDaysOfWeek(index)
             }
         }
     }
@@ -158,7 +203,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
     }
 
 
-    fun catchDaysOfWeek(chosenDay: Int) {
+    private fun catchDaysOfWeek(chosenDay: Int) {
         CoroutineScope(activeScope).launch {
             scheduleInteractors.getDaysOfWeek(chosenDay).collect { dataState ->
 
@@ -213,18 +258,12 @@ class AddScheduleViewModel @ViewModelInject constructor(
     }
 
 
-    private fun handleJob(job: Job?) {
-        job?.let {
-            CoroutineScope(activeScope).launch {
-                job.cancelAndJoin()
-            }
-        }
-    }
-
     override fun onCleared() {
         Log.d(TAG, "onCleared: viewmodel")
         super.onCleared()
     }
+
+
 
 
 }

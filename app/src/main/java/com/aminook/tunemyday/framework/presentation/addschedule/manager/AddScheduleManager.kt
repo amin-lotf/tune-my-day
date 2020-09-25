@@ -41,14 +41,24 @@ class AddScheduleManager {
     val chosenProgram:LiveData<Program>
     get() = _chosenProgram
 
+    val daysOfWeek: List<Day>
+        get() = _daysOfWeek
+
+    fun setScheduleId(id:Long){
+        _buffSchedule.id=id
+    }
+
     fun removeAlarm(alarm: Alarm){
         _buffSchedule.alarms.remove(alarm)
         _alarmModifiedPosition=alarm.index
-        _listChanged.value= ALARM_LIST_REMOVED
+        _listChanged.value= ALARM_REMOVED
 
     }
 
     fun addAlarm(alarm: Alarm){
+        if (_buffSchedule.alarms.any { it.hourBefore==alarm.hourBefore && it.minuteBefore==alarm.minuteBefore }){
+            return
+        }
         alarm.scheduleId=_buffSchedule.id
         if(!alarm.inEditMode) {
             _buffSchedule.alarms.add(alarm)
@@ -57,7 +67,7 @@ class AddScheduleManager {
             alarm.index=index
 
             _alarmModifiedPosition = index
-            _listChanged.value = ALARM_LIST_ADDED
+            _listChanged.value = ALARM_ADDED
         }else{
             if(alarm.index !=-1){
 
@@ -65,7 +75,7 @@ class AddScheduleManager {
 
                     _buffSchedule.alarms.removeAt(alarm.index)
                     _alarmModifiedPosition=alarm.index
-                    _listChanged.value= ALARM_LIST_REMOVED
+                    _listChanged.value= ALARM_REMOVED
 
                     _buffSchedule.alarms.add(alarm)
 
@@ -73,7 +83,7 @@ class AddScheduleManager {
                     val newIndex=_buffSchedule.alarms.indexOf(alarm)
                     alarm.index=newIndex
                     _alarmModifiedPosition=newIndex
-                    _listChanged.value= ALARM_LIST_ADDED
+                    _listChanged.value= ALARM_ADDED
                 }
 
             }
@@ -88,12 +98,9 @@ class AddScheduleManager {
         Log.d(TAG, "addProgramToBuffer: ${_buffSchedule.program?.id}")
     }
 
-    fun removeProgramFromBuffer() {
-        _buffSchedule.program = null
-    }
 
-    val isValid: Boolean
-        get() = _buffSchedule.program != null
+
+
 
     fun addDaysToBuffer(days: List<Day>) {
         _daysOfWeek.clear()
@@ -123,15 +130,16 @@ class AddScheduleManager {
         }
     }
 
-    fun getBufferedDays(): List<Day> = _daysOfWeek
+
 
 
 
     companion object{
         val TIME_START=0
         val TIME_END=1
-        val ALARM_LIST_ADDED="item added to alarm list"
-        val ALARM_LIST_REMOVED="item removed from alarm list"
+        val ALARM_LIST_ADDED="list of alarms added"
+        val ALARM_ADDED="item added to alarm list"
+        val ALARM_REMOVED="item removed from alarm list"
     }
 
 }

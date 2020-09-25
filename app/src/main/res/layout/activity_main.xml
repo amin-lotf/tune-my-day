@@ -20,6 +20,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
         <fragment
             android:id="@+id/main_nav_host"
@@ -32,9 +33,19 @@
 
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_schedule"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        app:layout_anchor="@id/bottom_navigation"
+        app:layout_anchorGravity="top|end"
+        app:useCompatPadding="true"
+        app:layout_behavior=".util.BottomNavigationFABBehavior"
+        android:src="@drawable/ic_add"/>
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
+
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_gravity="bottom"
@@ -42,6 +53,8 @@
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@drawable/bottom_nav_selector"
         app:itemTextColor="@drawable/bottom_nav_selector"
+        app:layout_behavior=".util.BottomNavigationBehavior"
+
         app:labelVisibilityMode="unlabeled"/>
 
 

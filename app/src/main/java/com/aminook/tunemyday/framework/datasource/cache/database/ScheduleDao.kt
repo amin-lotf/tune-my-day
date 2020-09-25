@@ -34,6 +34,9 @@ interface ScheduleDao {
     @Delete
     suspend fun deleteSchedule(scheduleEntity: ScheduleEntity): Int
 
+    @Query("delete from schedules where  id=:scheduleId")
+    suspend fun deleteScheduleById(scheduleId:Long): Int
+
     @Insert
     suspend fun insertSchedule(scheduleEntity: ScheduleEntity): Long
 
@@ -52,6 +55,9 @@ interface ScheduleDao {
     @Insert
     suspend fun insertAlarms(alarms: List<AlarmEntity>)
 
+    @Query("delete from alarms where schedule_id=:scheduleId")
+    suspend fun deleteScheduleAlarms(scheduleId:Long)
+
     @Transaction
     suspend fun insertTransaction(
         scheduleEntity: ScheduleEntity,
@@ -69,5 +75,25 @@ interface ScheduleDao {
         }
         insertAlarms(alarmsToInsert)
         return id
+    }
+
+    @Transaction
+    suspend fun updateTransaction(
+        scheduleEntity: ScheduleEntity,
+        schedulesToDelete:List<ScheduleEntity>,
+        schedulesToUpdate:List<ScheduleEntity>,
+        alarmsToUpdate:List<AlarmEntity>,
+        alarmsToInsert:List<AlarmEntity>
+    ):Long{
+        val id=updateSchedule(scheduleEntity)
+        deleteScheduleAlarms(scheduleEntity.id)
+        deleteSchedules(schedulesToDelete)
+        updateSchedules(schedulesToUpdate)
+        updateAlarms(alarmsToUpdate)
+        alarmsToInsert.onEach {
+            it.scheduleId=scheduleEntity.id
+        }
+        insertAlarms(alarmsToInsert)
+        return id.toLong()
     }
 }

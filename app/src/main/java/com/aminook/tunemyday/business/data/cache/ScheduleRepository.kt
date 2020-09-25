@@ -18,10 +18,10 @@ interface ScheduleRepository {
 
     fun getDaysOfWeek(chosenDay:Int=1):List<Day>
 
-    suspend fun insertSchedule(schedule: Schedule,conflictedSchedule:List<Schedule>):Long?
+    suspend fun insertModifiySchedule(schedule: Schedule, conflictedSchedule:List<Schedule>,requestType:String):Long?
     suspend fun checkIfOverwrite(schedule: Schedule):List<Schedule>
     fun getDailySchedules():Flow<List<Schedule>>
     suspend fun getUpcomingAlarms(startDay:Int,endDay:Int):List<Alarm>
-
+    suspend fun deleteSchedule(scheduleId:Long):Int
     suspend fun getSchedule(scheduleId:Long):Schedule
 }

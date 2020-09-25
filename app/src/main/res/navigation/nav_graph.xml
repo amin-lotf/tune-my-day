@@ -13,6 +13,14 @@
         <action
             android:id="@+id/action_weeklyListFragment_to_addScheduleFragment"
             app:destination="@id/addScheduleFragment" />
+        <argument
+            android:name="requestType"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="schedule_id"
+            app:argType="long"
+            android:defaultValue="0L" />
     </fragment>
     <fragment
         android:id="@+id/dailyListFragment"
@@ -30,20 +38,29 @@
         tools:layout="@layout/fragment_task_list" />
     <fragment
         android:id="@+id/addScheduleFragment"
-        android:name="com.aminook.tunemyday.framework.presentation.addschedule.AddScheduleFragment"
+        android:name="com.aminook.tunemyday.framework.presentation.addschedule.AddEditScheduleFragment"
         android:label="fragment_add_schedule"
-        tools:layout="@layout/fragment_add_schedule" >
+        tools:layout="@layout/fragment_add_edit_schedule" >
         <action
             android:id="@+id/action_addScheduleFragment_to_addToDoFragment"
             app:destination="@id/addToDoFragment" />
         <argument
-            android:name="@string/schedule_request_type"
+            android:name="schedule_request_type"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="schedule_id"
+            app:argType="long"
+            android:defaultValue="0L" />
+        <argument
+            android:name="chosen_day"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
     <fragment
         android:id="@+id/addToDoFragment"
         android:name="com.aminook.tunemyday.framework.presentation.addtodo.AddToDoFragment"
         android:label="fragment_add_to_do"
         tools:layout="@layout/fragment_add_to_do" />
+
 </navigation>

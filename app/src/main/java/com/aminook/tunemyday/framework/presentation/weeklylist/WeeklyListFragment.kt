@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Day
@@ -12,6 +13,8 @@ import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.util.DayFactory
 import com.aminook.tunemyday.framework.datasource.cache.database.ScheduleDao
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
+import com.aminook.tunemyday.util.SCHEDULE_REQUEST_DELETE
+import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,7 +24,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
-    WeekViewPagerAdapter.WeeklyRecyclerViewListener {
+    WeekViewPagerAdapter.WeeklyRecyclerViewListener, ItemClickListener {
 
     private val TAG = "aminjoon"
 
@@ -44,12 +47,6 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d(TAG, "onViewCreated: weekly list")
-        fab_schedule.setOnClickListener {
-            val action = WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
-                SCHEDULE_REQUEST_NEW
-            )
-            findNavController().navigate(action)
-        }
         weekViewPagerAdapter = WeekViewPagerAdapter().apply {
             setListener(this@WeeklyListFragment)
         }
@@ -61,7 +58,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
         weekViewPagerAdapter?.submitList(days)
         weekly_view_pager.apply {
             this.adapter = weekViewPagerAdapter
-            this.currentItem=arguments?.getInt(getString(R.string.chosen_day))?:dateUtil.curDayIndex
+            this.currentItem=dateUtil.curDayIndex
             this.visibility=View.VISIBLE
         }
 
@@ -118,6 +115,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
 
     override fun setAdapter(itemView: WeekViewPagerAdapter.ViewHolder, position: Int) {
         shortDailyScheduleRecycler = ShortDailyScheduleRecycler()
+        shortDailyScheduleRecycler?.setOnClickListener(this)
         itemView.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             this.adapter = shortDailyScheduleRecycler
@@ -136,8 +134,17 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
 
         //weekly_view_pager.adapter = null
         weekViewPagerAdapter = null
+        shortDailyScheduleRecycler=null
         super.onPause()
 
+    }
+
+    override fun onItemClick(schedule: Schedule) {
+        val action=WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
+            scheduleRequestType = SCHEDULE_REQUEST_EDIT,
+            scheduleId = schedule.id
+            )
+        findNavController().navigate(action)
     }
 
 }

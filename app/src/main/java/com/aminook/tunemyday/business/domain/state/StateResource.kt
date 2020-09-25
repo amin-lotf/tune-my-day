@@ -1,5 +1,6 @@
 package com.aminook.tunemyday.business.domain.state
 
+
 import android.view.View
 import com.aminook.tunemyday.util.TodoCallback
 
@@ -51,7 +52,7 @@ interface AreYouSureCallback {
 
 interface SnackbarUndoCallback {
 
-    fun undo()
+    fun   undo()
 }
 
 class SnackbarUndoListener

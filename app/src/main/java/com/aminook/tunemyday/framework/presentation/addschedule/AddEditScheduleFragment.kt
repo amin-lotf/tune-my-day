@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
@@ -17,12 +18,15 @@ import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.*
 import com.aminook.tunemyday.business.domain.state.AreYouSureCallback
 import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule.Companion.INSERT_SCHEDULE_SUCCESS
+import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_ADDED
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_LIST_ADDED
-import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_LIST_REMOVED
+import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_REMOVED
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_END
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_START
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.framework.presentation.common.DaysAdapter
+import com.aminook.tunemyday.util.SCHEDULE_REQUEST_DELETE
+import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
 import com.aminook.tunemyday.util.TimeTextWatcher
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,19 +34,20 @@ import kotlinx.android.synthetic.main.bottom_sheet_programs.*
 import kotlinx.android.synthetic.main.bottom_sheet_programs.view.*
 import kotlinx.android.synthetic.main.dialog_add_program.*
 import kotlinx.android.synthetic.main.dialog_add_program.view.*
-import kotlinx.android.synthetic.main.fragment_add_schedule.*
+import kotlinx.android.synthetic.main.fragment_add_edit_schedule.*
 import kotlinx.android.synthetic.main.layout_add_alarm.*
 import kotlinx.android.synthetic.main.layout_add_alarm.view.*
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), ProgramClickListener,
+class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule),
+    ProgramClickListener,
     OnColorClickListener, TimePickerDialog.OnTimeSetListener, AlarmListAdapter.AlarmClickListener,
     AreYouSureCallback {
     private val TAG = "aminjoon"
 
-    private var isShowingDialog=false
+    private var isShowingDialog = false
     private var chosenDayIndex = 0
     private var startTime: Time? = null
     private var endTime: Time? = null
@@ -69,8 +74,14 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
-       // (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
-        (activity as AppCompatActivity).setTitle("New Activity")
+        // (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
+        val args: AddEditScheduleFragmentArgs by navArgs()
+        args.scheduleRequestType?.apply {
+            viewModel.processRequest(this, args)
+            val title = if (this == SCHEDULE_REQUEST_EDIT) "Edit Activity" else "New Activity"
+            (activity as AppCompatActivity).title = title
+        }
+
         alarmAdapter = AlarmListAdapter()
         toDoListAdapter = ToDoListAdapter()
         startTime = Time()
@@ -78,12 +89,9 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         //showPrograms()
         setClickListeners()
 
-        val arg = arguments
 
-        arg?.getString(getString(R.string.schedule_request_type))?.let { request ->
 
-            viewModel.processRequest(request)
-        }
+
         subscribeObservers()
         recycler_schedule_todo.apply {
             layoutManager =
@@ -104,8 +112,8 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
 
     private fun setClickListeners() {
         add_schedule_name.setOnClickListener {
-            if (!isShowingDialog){
-                isShowingDialog=true
+            if (!isShowingDialog) {
+                isShowingDialog = true
                 showPrograms()
             }
         }
@@ -121,7 +129,7 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         txt_add_alert.setOnClickListener {
             //openAlarmDialog()
             if (!isShowingDialog) {
-                isShowingDialog=true
+                isShowingDialog = true
                 showAlarmDialog()
             }
         }
@@ -129,12 +137,12 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
 
 
     private fun subscribeObservers() {
-        viewModel.catchDaysOfWeek(-1) //TODO(change the number to the day that opened this fragment
 
-        viewModel.stateMessage.observe(viewLifecycleOwner){event->
-            event?.getContentIfNotHandled()?.let {stateMessage->
-                uiController?.onResponseReceived(stateMessage.response)
-                if (event.peekContent()?.response?.message== INSERT_SCHEDULE_SUCCESS){
+
+        viewModel.stateMessage.observe(viewLifecycleOwner) { event ->
+            event?.getContentIfNotHandled()?.let { stateMessage ->
+                uiController?.onResponseReceived(stateMessage.response,null)
+                if (event.peekContent()?.response?.message == INSERT_SCHEDULE_SUCCESS) {
                     Log.d(TAG, "add schedule subscribeObservers: INSERT_SCHEDULE_SUCCESS")
                     alarmController?.setupAlarms(viewModel.modifiedAlarmIndexes)
                     findNavController().popBackStack()
@@ -154,18 +162,24 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         viewModel.listChanged.observe(viewLifecycleOwner) { modificationType ->
 
             when (modificationType) {
-                ALARM_LIST_ADDED -> {
+                ALARM_ADDED -> {
 
                     val modifiedPos = viewModel.alarmModifiedPosition
-                    alarmAdapter?.notifyListChanged(ALARM_LIST_ADDED, modifiedPos)
+                    alarmAdapter?.notifyListChanged(ALARM_ADDED, modifiedPos)
 
                 }
-                ALARM_LIST_REMOVED -> {
+                ALARM_REMOVED -> {
                     val modifiedPos = viewModel.alarmModifiedPosition
                     viewModel.getAlarms().apply {
                         alarmAdapter?.submitList(this)
                     }
-                    alarmAdapter?.notifyListChanged(ALARM_LIST_REMOVED, modifiedPos)
+                    alarmAdapter?.notifyListChanged(ALARM_REMOVED, modifiedPos)
+                }
+
+                ALARM_LIST_ADDED -> {
+                    viewModel.getAlarms().apply {
+                        alarmAdapter?.submitList(this)
+                    }
                 }
             }
         }
@@ -181,7 +195,7 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         }
 
         viewModel.selectedProgram.observe(viewLifecycleOwner) {
-           // Log.d(TAG, "subscribeObservers: selectedProgram $it")
+            // Log.d(TAG, "subscribeObservers: selectedProgram $it")
             add_schedule_name.text = it.name
 
         }
@@ -253,7 +267,7 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
 
             alarm?.let {
                 if (!it.isAtStart) {
-                    this@apply.setText(it.hourBefore)
+                    this@apply.setText(it.hourBefore.toString())
                 }
             }
 
@@ -279,7 +293,7 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
 
             alarm?.let {
                 if (!it.isAtStart) {
-                    this@apply.setText(it.minuteBefore)
+                    this@apply.setText(it.minuteBefore.toString())
                 }
             }
 
@@ -324,7 +338,7 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         addAlarmBtmSheetDialog.setContentView(view)
         addAlarmBtmSheetDialog.show()
         addAlarmBtmSheetDialog.setOnDismissListener {
-            isShowingDialog=false
+            isShowingDialog = false
         }
     }
 
@@ -358,7 +372,7 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
         chooseProgramBtmSheetDialog.show()
         chooseProgramBtmSheetDialog.setOnDismissListener {
             view.recycler_programs_sheet.adapter = null
-            isShowingDialog=false
+            isShowingDialog = false
             programsAdapter = null
         }
     }
@@ -414,7 +428,8 @@ class AddScheduleFragment : BaseFragment(R.layout.fragment_add_schedule), Progra
                 viewModel.validateSchedule(this)
             }
             R.id.action_delete -> {
-
+                onScheduleDeleteListener?.onScheduleDeleted(viewModel.addScheduleManager.buffSchedule)
+                findNavController().popBackStack()
             }
         }
 

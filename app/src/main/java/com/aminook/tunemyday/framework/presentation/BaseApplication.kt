@@ -31,7 +31,7 @@ class BaseApplication : Application(), Configuration.Provider {
         val channel = NotificationChannel(
             CHANNEL_ID,
             "Tune My Day",
-            NotificationManager.IMPORTANCE_DEFAULT
+            NotificationManager.IMPORTANCE_HIGH
         ).apply {
             description = "Notification channel for TuneMyDay"
             setShowBadge(true)

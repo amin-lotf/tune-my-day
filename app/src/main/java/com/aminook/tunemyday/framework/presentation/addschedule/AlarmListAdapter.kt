@@ -1,17 +1,14 @@
 package com.aminook.tunemyday.framework.presentation.addschedule
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Alarm
-import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_LIST_ADDED
-import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_LIST_REMOVED
-import com.aminook.tunemyday.util.autoNotify
+import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_ADDED
+import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_REMOVED
 import kotlinx.android.synthetic.main.alarm_item.view.*
-import kotlin.properties.Delegates
 
 class AlarmListAdapter() : RecyclerView.Adapter<AlarmListAdapter.ViewHolder>() {
     private val TAG="aminjoon"
@@ -35,8 +32,8 @@ class AlarmListAdapter() : RecyclerView.Adapter<AlarmListAdapter.ViewHolder>() {
     fun notifyListChanged(type: String, position: Int) {
 
         when (type) {
-            ALARM_LIST_ADDED -> notifyItemInserted(position)
-            ALARM_LIST_REMOVED -> notifyItemRemoved(position)
+            ALARM_ADDED -> notifyItemInserted(position)
+            ALARM_REMOVED -> notifyItemRemoved(position)
         }
     }
 
