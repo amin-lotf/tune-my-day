@@ -11,19 +11,29 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <ImageView
+            android:id="@+id/img_remove_todo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_close"
+            app:layout_constraintTop_toTopOf="@id/radio_todo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/radio_todo"
+            android:layout_marginEnd="4dp"/>
 
         <RadioButton
-            android:id="@+id/radio_todo_title"
+            android:id="@+id/radio_todo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="School"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_sub_todo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/radio_todo_title"
+            app:layout_constraintTop_toBottomOf="@id/radio_todo"
             android:layout_marginStart="24dp"
             tools:listitem="@layout/todo_sub_item"
             tools:itemCount="3"/>

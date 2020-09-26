@@ -45,7 +45,7 @@ class InsertSchedule @Inject constructor(
         return cacheResponse.getResult {
             flow {
                 emit(
-                    scheduleRepository.insertModifiySchedule(schedule,conflictedSchedule,requestType)
+                    scheduleRepository.insertModifySchedule(schedule,conflictedSchedule,requestType)
                 )
             }
 

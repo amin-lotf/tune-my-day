@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aminook.tunemyday.business.domain.model.*
 import com.aminook.tunemyday.business.domain.state.*
-import com.aminook.tunemyday.business.domain.util.DayFactory
+import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.business.interactors.program.ProgramInteractors
 import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager
@@ -16,7 +16,6 @@ import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddSched
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
-import com.aminook.tunemyday.util.TodoCallback
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -26,7 +25,7 @@ import kotlinx.coroutines.flow.collect
 class AddScheduleViewModel @ViewModelInject constructor(
     val programInteractors: ProgramInteractors,
     val scheduleInteractors: ScheduleInteractors,
-    val dateUtil:DayFactory
+    val dateUtil:DateUtil
     ) : BaseViewModel() {
     private val TAG = "aminjoon"
     val addScheduleManager = AddScheduleManager()

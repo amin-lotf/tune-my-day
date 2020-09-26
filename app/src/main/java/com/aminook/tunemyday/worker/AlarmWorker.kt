@@ -9,7 +9,7 @@ import androidx.hilt.Assisted
 import androidx.hilt.work.WorkerInject
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.aminook.tunemyday.business.domain.util.DayFactory
+import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.business.interactors.alarm.AlarmInteractors
 import com.aminook.tunemyday.worker.NotificationReceiver.Companion.ALARM_ID
 import com.aminook.tunemyday.worker.NotificationReceiver.Companion.SCHEDULE_ID
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.collect
 class AlarmWorker @WorkerInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
-    val dateUtil: DayFactory,
+    val dateUtil: DateUtil,
     val alarmInteractors: AlarmInteractors
 ) : CoroutineWorker(appContext, params) {
     private val TAG = "aminjoon"

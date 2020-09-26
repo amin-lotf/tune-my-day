@@ -5,17 +5,14 @@ import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Day
 import com.aminook.tunemyday.business.domain.model.Schedule
-import com.aminook.tunemyday.business.domain.util.DayFactory
+import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.framework.datasource.cache.database.ScheduleDao
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
-import com.aminook.tunemyday.util.SCHEDULE_REQUEST_DELETE
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
-import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_weekly_list.*
@@ -34,7 +31,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
     lateinit var days: List<Day>
 
     @Inject
-    lateinit var dateUtil:DayFactory
+    lateinit var dateUtil:DateUtil
 
     var weekViewPagerAdapter: WeekViewPagerAdapter? = null
     var shortDailyScheduleRecycler:ShortDailyScheduleRecycler?=null

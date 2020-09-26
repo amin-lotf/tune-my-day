@@ -21,25 +21,8 @@ class DailyListFragment : BaseFragment(R.layout.fragment_daily_list) {
     private val TAG="aminjoon"
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        btn_test.setOnClickListener {
-            uiController?.onResponseReceived(Response(
-                message = "test snack",
-                uiComponentType = UIComponentType.SnackBar(
-                    undoCallback = object : SnackbarUndoCallback {
-                        override fun undo() {
 
-                        }
-
-                    },
-                    onDismissCallback = object : TodoCallback {
-                        override fun execute() {
-                            Log.d(TAG, "execute: dismiss test")
-                        }
-
-                    }
-                ),
-                messageType = MessageType.Info
-            ),null)
-        }
+        val dailyAdapter=DayViewPagerAdapter(requireActivity())
+        view_pager_daily.adapter=dailyAdapter
     }
 }

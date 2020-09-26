@@ -5,7 +5,7 @@ import com.aminook.tunemyday.business.data.util.getConflictedSchedules
 import com.aminook.tunemyday.business.data.util.selectSchedulesToDelete
 import com.aminook.tunemyday.business.data.util.updateSchedules
 import com.aminook.tunemyday.business.domain.model.*
-import com.aminook.tunemyday.business.domain.util.DayFactory
+import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.framework.datasource.cache.database.*
 import com.aminook.tunemyday.framework.datasource.cache.mappers.Mappers
 import com.aminook.tunemyday.framework.datasource.cache.model.AlarmEntity
@@ -19,7 +19,7 @@ import javax.inject.Singleton
 class ScheduleRepositoryImpl @Inject constructor(
     val daoService: DaoService,
     val mappers: Mappers,
-    val dayFactory: DayFactory,
+    val dateUtil: DateUtil,
     val scheduleDatabase: ScheduleDatabase
 ) : ScheduleRepository {
     private val TAG = "aminjoon"
@@ -65,10 +65,10 @@ class ScheduleRepositoryImpl @Inject constructor(
     }
 
     override fun getDaysOfWeek(chosenDay: Int): List<Day> {
-        return dayFactory.getDaysOfWeek(chosenDay)
+        return dateUtil.getDaysOfWeek(chosenDay)
     }
 
-    override suspend fun insertModifiySchedule(
+    override suspend fun insertModifySchedule(
         schedule: Schedule,
         conflictedSchedule: List<Schedule>,
         requestType:String
@@ -163,7 +163,7 @@ class ScheduleRepositoryImpl @Inject constructor(
 
     }
 
-    override fun getDailySchedules(): Flow<List<Schedule>> {
+    override fun getAllSchedules(): Flow<List<Schedule>> {
         return daoService.scheduleDao.selectSevenDaysSchedule().map {schedules->
           schedules.map {
               mappers.scheduleCacheMapper.mapFromEntity(it)
@@ -196,6 +196,12 @@ class ScheduleRepositoryImpl @Inject constructor(
     override suspend fun getSchedule(scheduleId: Long): Schedule {
         return mappers.scheduleCacheMapper.mapFromEntity(daoService.scheduleDao.selectSchedule(scheduleId))
 
+    }
+
+    override fun getDailySchedules(dayIndex: Int): Flow<List<Schedule>> {
+        return daoService.scheduleDao.selectDailySchedule(dayIndex).map {fullSchedules->
+            fullSchedules.map { mappers.scheduleCacheMapper.mapFromEntity(it) }
+        }
     }
 }
 

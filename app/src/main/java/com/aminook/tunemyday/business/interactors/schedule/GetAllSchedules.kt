@@ -12,17 +12,17 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetDailySchedules @Inject constructor(
+class GetAllSchedules @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-    suspend operator fun invoke(dayIndex:Int):Flow<DataState<List<Schedule>>?>{
+    suspend operator fun invoke(): Flow<DataState<List<Schedule>>?> {
 
-        val cacheResponse=object :CacheResponseHandler<List<Schedule>,List<Schedule>>(){
+        val cacheResult=object :CacheResponseHandler<List<Schedule>,List<Schedule>>(){
             override suspend fun handleSuccess(resultObj: List<Schedule>): DataState<List<Schedule>>? {
                 return DataState.data(
                     response = Response(
-                        message = DAILY_SCHEDULES_RECEIVED,
+                        message = ALL_SCHEDULES_RECEIVED,
                         uiComponentType = UIComponentType.None,
                         messageType = MessageType.Success
                     ),
@@ -32,13 +32,12 @@ class GetDailySchedules @Inject constructor(
 
         }
 
-        return cacheResponse.getResult {
-            scheduleRepository.getDailySchedules(dayIndex)
+        return  cacheResult.getResult {
+            scheduleRepository.getAllSchedules()
         }
-
     }
 
     companion object{
-        val DAILY_SCHEDULES_RECEIVED="Successfully received daily schedules"
+        val ALL_SCHEDULES_RECEIVED="Successfully received all schedules"
     }
 }

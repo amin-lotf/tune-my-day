@@ -13,7 +13,7 @@ import androidx.work.WorkManager
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Alarm
 import com.aminook.tunemyday.business.domain.model.Schedule
-import com.aminook.tunemyday.business.domain.util.DayFactory
+import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
 import com.aminook.tunemyday.framework.presentation.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,7 +34,7 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
     lateinit var scheduleInteractors: ScheduleInteractors
 
     @Inject
-    lateinit var dateUtil:DayFactory
+    lateinit var dateUtil:DateUtil
 
 
     override fun onReceive(context: Context?, intent: Intent?) {

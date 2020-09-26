@@ -1,13 +1,12 @@
 package com.aminook.tunemyday.di
 
 import com.aminook.tunemyday.business.domain.model.Day
-import com.aminook.tunemyday.business.domain.util.DayFactory
+import com.aminook.tunemyday.business.domain.util.DateUtil
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.FragmentComponent
 import dagger.hilt.android.scopes.FragmentScoped
-import java.util.*
 
 
 @InstallIn(FragmentComponent::class)
@@ -18,8 +17,8 @@ class FragmentModule {
 
     @FragmentScoped
     @Provides
-    fun provideNextSevenDays(dayFactory: DayFactory):List<Day>{
-        return  dayFactory.getDaysOfWeek()
+    fun provideNextSevenDays(dateUtil: DateUtil):List<Day>{
+        return  dateUtil.getDaysOfWeek()
     }
 
 }

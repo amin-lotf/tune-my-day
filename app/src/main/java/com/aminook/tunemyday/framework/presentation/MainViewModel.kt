@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.aminook.tunemyday.business.domain.model.Alarm
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.SnackbarUndoCallback
-import com.aminook.tunemyday.business.domain.util.DayFactory
+import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.business.interactors.alarm.AlarmInteractors
 import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 
 
 class MainViewModel @ViewModelInject constructor(
-    val dateUtil: DayFactory,
+    val dateUtil: DateUtil,
     val alarmInteractors: AlarmInteractors,
     val scheduleInteractors: ScheduleInteractors
 ) : BaseViewModel() {
