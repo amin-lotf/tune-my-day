@@ -1,6 +1,5 @@
 package com.aminook.tunemyday.framework.presentation.addschedule
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,7 +7,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
-import com.aminook.tunemyday.business.domain.model.ToDo
+import com.aminook.tunemyday.business.domain.model.Todo
 
 class ToDoListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -16,12 +15,12 @@ class ToDoListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val TYPE_ITEM = 1
     private val TYPE_ADD = 2
 
-    private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<ToDo>() {
-        override fun areItemsTheSame(oldItem: ToDo, newItem: ToDo): Boolean {
+    private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Todo>() {
+        override fun areItemsTheSame(oldItem: Todo, newItem: Todo): Boolean {
             return oldItem == newItem
         }
 
-        override fun areContentsTheSame(oldItem: ToDo, newItem: ToDo): Boolean {
+        override fun areContentsTheSame(oldItem: Todo, newItem: Todo): Boolean {
             return oldItem == newItem
         }
 
@@ -55,7 +54,7 @@ class ToDoListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    fun submitList(todos:List<ToDo>){
+    fun submitList(todos:List<Todo>){
         differ.submitList(todos)
 
     }
@@ -67,7 +66,7 @@ class ToDoListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     inner class ToDoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
 
-        fun bind(item: ToDo) {
+        fun bind(item: Todo) {
 
         }
     }

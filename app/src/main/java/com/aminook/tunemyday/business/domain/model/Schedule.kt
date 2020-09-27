@@ -14,7 +14,8 @@ data class Schedule(
     var endTime: Time = Time(),
     var hasToDo: Boolean = false,
     var hasAlarm: Boolean = false,
-    var alarms: MutableList<Alarm> = mutableListOf()
+    var alarms: MutableList<Alarm> = mutableListOf(),
+    var todos:MutableList<Todo> = mutableListOf()
 ) : Parcelable {
     val startInSec: Int
         get() = 86400 * startDay + startTime.hour * 60 * 60 + startTime.minute * 60

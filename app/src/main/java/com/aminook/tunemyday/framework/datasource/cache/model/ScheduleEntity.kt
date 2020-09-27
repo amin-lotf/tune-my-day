@@ -40,11 +40,13 @@ data class FullSchedule(
     @Relation(
         parentColumn = "id",
         entityColumn = "schedule_id")
-    val alarms:List<AlarmEntity>
+    val alarms:List<AlarmEntity>,
 
-)
+    @Relation(
+        entity=ToDoEntity::class,
+        parentColumn = "id",
+        entityColumn = "schedule_id"
+    )
+    val todos:List<FullTodo>
 
-data class SchedulesPerDay(
-    val day: Int,
-    val schedules: List<FullSchedule>
 )

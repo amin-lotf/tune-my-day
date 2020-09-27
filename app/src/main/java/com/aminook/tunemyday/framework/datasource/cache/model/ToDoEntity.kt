@@ -1,19 +1,11 @@
 package com.aminook.tunemyday.framework.datasource.cache.model
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.*
 
 @Entity(
     tableName = "todos",
     foreignKeys = [
         ForeignKey(
-            entity = ProgramEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["program_id"],
-            onDelete = ForeignKey.CASCADE,
-            ), ForeignKey(
             entity = ScheduleEntity::class,
             parentColumns = ["id"],
             childColumns = ["schedule_id"],
@@ -22,16 +14,28 @@ import androidx.room.PrimaryKey
     ]
 )
 data class ToDoEntity(
-    @ColumnInfo(name = "program_id", index = true)
-    val programId: Int,
     @ColumnInfo(name = "schedule_id",index = true)
-    val scheduleId:Int,
+    val scheduleId:Long,
     val title: String,
-    val priority: Int,
+    val priorityIndex: Int,
     @ColumnInfo(name = "is_done")
     val isDone: Boolean,
-    val date: String
+    val dateAdded: Int,
+    var isOneTime:Boolean,
+    var lastChecked:Int
 ) {
     @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
+    var id: Long = 0
 }
+
+data class FullTodo(
+    @Embedded
+    val todo: ToDoEntity,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "todo_id"
+    )
+    val subTodos:List<SubTodoEntity>
+)
+
+

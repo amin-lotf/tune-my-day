@@ -9,7 +9,7 @@ import com.aminook.tunemyday.business.domain.model.Schedule
 import kotlinx.android.synthetic.main.daily_schedule_item.view.*
 
 class DailyScheduleAdapter: RecyclerView.Adapter<DailyScheduleAdapter.ViewHolder>() {
-    private var schedules= mutableListOf<Schedule>()
+    private var schedules= listOf<Schedule>()
     private var listener:DailyScheduleAdapterListener?=null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -29,6 +29,11 @@ class DailyScheduleAdapter: RecyclerView.Adapter<DailyScheduleAdapter.ViewHolder
         this.listener=listener
     }
 
+    fun submitList(schedules:List<Schedule>){
+        this.schedules=schedules
+        notifyDataSetChanged()
+    }
+
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val todoRecyclerView=itemView.recycler_schedule_todo
         fun bind(schedule: Schedule){
@@ -38,7 +43,7 @@ class DailyScheduleAdapter: RecyclerView.Adapter<DailyScheduleAdapter.ViewHolder
             itemView.img_add_todo.setOnClickListener {
               listener?.onAddNoteClick(schedule.id)
             }
-            itemView.setOnClickListener {
+            itemView.txt_daily_program_name.setOnClickListener {
                 listener?.onScheduleClick(schedule.id)
             }
         }

@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.aminook.tunemyday.business.domain.model.SubTodo
 import com.aminook.tunemyday.framework.datasource.cache.model.*
-
 
 
 @Database(
@@ -14,19 +14,21 @@ import com.aminook.tunemyday.framework.datasource.cache.model.*
         AlarmEntity::class,
         ProgramEntity::class,
         ScheduleEntity::class,
-        ToDoScheduleMapper::class
+        ToDoScheduleMapper::class,
+        SubTodoEntity::class
     ],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 
 abstract class ScheduleDatabase : RoomDatabase() {
 
     abstract fun scheduleDao(): ScheduleDao
-    abstract fun programDao():ProgramDao
-    abstract fun alarmDao():AlarmDao
-    abstract fun todoDao():ToDoDao
-    abstract fun todoScheduleDao():ToDoScheduleDao
+    abstract fun programDao(): ProgramDao
+    abstract fun alarmDao(): AlarmDao
+    abstract fun todoDao(): ToDoDao
+    abstract fun subTodoDao():SubTodoDao
+    abstract fun todoScheduleDao(): ToDoScheduleDao
 
 
     companion object {

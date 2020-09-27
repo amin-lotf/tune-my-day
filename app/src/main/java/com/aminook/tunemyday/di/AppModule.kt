@@ -53,6 +53,11 @@ abstract class AppModule {
 
         @Singleton
         @Provides
+        fun provideSubToDoDao(scheduleDatabase: ScheduleDatabase) =
+            scheduleDatabase.subTodoDao()
+
+        @Singleton
+        @Provides
         fun provideScheduleDao(scheduleDatabase: ScheduleDatabase) =
             scheduleDatabase.scheduleDao()
 

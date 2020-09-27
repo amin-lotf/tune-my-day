@@ -203,6 +203,10 @@ class ScheduleRepositoryImpl @Inject constructor(
             fullSchedules.map { mappers.scheduleCacheMapper.mapFromEntity(it) }
         }
     }
+
+    override suspend fun insertTodo(todo: Todo) {
+
+    }
 }
 
 

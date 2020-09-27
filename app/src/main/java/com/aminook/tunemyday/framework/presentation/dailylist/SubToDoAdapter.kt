@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
-import com.aminook.tunemyday.business.domain.model.SubToDo
+import com.aminook.tunemyday.business.domain.model.SubTodo
 import kotlinx.android.synthetic.main.todo_sub_item.view.*
 
 class SubToDoAdapter : RecyclerView.Adapter<SubToDoAdapter.ViewHolder>() {
-    private val subTodos = mutableListOf<SubToDo>()
+    private val subTodos = mutableListOf<SubTodo>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view =
@@ -26,7 +26,7 @@ class SubToDoAdapter : RecyclerView.Adapter<SubToDoAdapter.ViewHolder>() {
     override fun getItemCount()=subTodos.size
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(subTodo:SubToDo){
+        fun bind(subTodo:SubTodo){
             itemView.radio_sub_todo.text=subTodo.title
             if (subTodo.isDone){
                 itemView.radio_sub_todo.apply {

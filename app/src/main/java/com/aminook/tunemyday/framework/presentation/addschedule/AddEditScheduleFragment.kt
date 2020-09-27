@@ -25,7 +25,6 @@ import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddSched
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_START
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.framework.presentation.common.DaysAdapter
-import com.aminook.tunemyday.util.SCHEDULE_REQUEST_DELETE
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
 import com.aminook.tunemyday.util.TimeTextWatcher
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -379,7 +378,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
     private fun showAddProgramDialog() {
         addProgramBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.DialogStyle)
-        val view = layoutInflater.inflate(R.layout.dialog_add_program, btn_sheet_add_program)
+        val view = layoutInflater.inflate(R.layout.dialog_add_program, btm_sheet_add_program)
 
 
         addProgramBtmSheetDialog.setContentView(view)

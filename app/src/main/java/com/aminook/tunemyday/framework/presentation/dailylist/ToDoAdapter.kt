@@ -6,12 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
-import com.aminook.tunemyday.business.domain.model.ToDo
+import com.aminook.tunemyday.business.domain.model.Todo
 import kotlinx.android.synthetic.main.todo_item.view.*
 
 class ToDoAdapter: RecyclerView.Adapter<ToDoAdapter.ViewHolder>(){
 
-    private val todos = mutableListOf<ToDo>()
+    private val todos = mutableListOf<Todo>()
     private var listener:ToDoRecyclerViewListener?=null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,7 +34,7 @@ class ToDoAdapter: RecyclerView.Adapter<ToDoAdapter.ViewHolder>(){
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val subTodoRecycler:RecyclerView=itemView.recycler_sub_todo
-        fun bind(todo: ToDo){
+        fun bind(todo: Todo){
             itemView.radio_todo.text=todo.title
             if (todo.isDone){
                 itemView.radio_todo.apply {
@@ -52,7 +52,7 @@ class ToDoAdapter: RecyclerView.Adapter<ToDoAdapter.ViewHolder>(){
     }
 
     interface ToDoRecyclerViewListener{
-        fun setSubTodoAdapter(itemView: ToDoAdapter.ViewHolder, todo:ToDo)
+        fun setSubTodoAdapter(itemView: ToDoAdapter.ViewHolder, todo:Todo)
 
     }
 }
