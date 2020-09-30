@@ -5,6 +5,7 @@ import com.aminook.tunemyday.framework.datasource.cache.model.AlarmEntity
 import com.aminook.tunemyday.framework.datasource.cache.model.FullSchedule
 import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 
 @Dao
@@ -17,6 +18,10 @@ interface ScheduleDao {
     @Transaction
     @Query("select * from schedules where startDay= :day order by start")
     fun selectDailySchedule(day: Int): Flow<List<FullSchedule>>
+
+    fun selectDailyScheduleDistinct(day: Int): Flow<List<FullSchedule>>{
+        return selectDailySchedule(day).distinctUntilChanged()
+    }
 
     @Transaction
     @Query("select * from schedules where id= :id")

@@ -39,7 +39,14 @@ class DateUtil @Inject constructor() {
             return (86400 * curDayIndex + hour * 60 * 60 + minute * 60+second)*1000+mills
         }
 
-
+    val curDateInInt:Int
+    get() {
+        val today = Date()
+        val year=SimpleDateFormat("yy", Locale.US).format(today.time)
+        val month=SimpleDateFormat("MM", Locale.US).format(today.time)
+        val day=SimpleDateFormat("dd", Locale.US).format(today.time)
+        return (year+month+day).toInt()
+    }
 
     fun getDaysOfWeek(chosenDay: Int = curDayIndex): List<Day> {
         val calendar = Calendar.getInstance(Locale.US)

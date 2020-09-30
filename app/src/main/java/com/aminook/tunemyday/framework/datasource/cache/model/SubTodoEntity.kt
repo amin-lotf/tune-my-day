@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
     tableName = "subtodo",
     foreignKeys = [
     ForeignKey(
-        entity = ToDoEntity::class,
+        entity = TodoEntity::class,
         parentColumns = ["id"],
         childColumns = ["todo_id"],
         onDelete = ForeignKey.CASCADE

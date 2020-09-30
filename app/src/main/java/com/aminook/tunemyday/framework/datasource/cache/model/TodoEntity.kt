@@ -13,7 +13,7 @@ import androidx.room.*
         )
     ]
 )
-data class ToDoEntity(
+data class TodoEntity(
     @ColumnInfo(name = "schedule_id",index = true)
     val scheduleId:Long,
     val title: String,
@@ -30,7 +30,7 @@ data class ToDoEntity(
 
 data class FullTodo(
     @Embedded
-    val todo: ToDoEntity,
+    val todo: TodoEntity,
     @Relation(
         parentColumn = "id",
         entityColumn = "todo_id"

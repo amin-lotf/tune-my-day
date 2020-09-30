@@ -19,10 +19,19 @@ import kotlinx.android.synthetic.main.fragment_daily_list.*
 
 class DailyListFragment : BaseFragment(R.layout.fragment_daily_list) {
     private val TAG="aminjoon"
+    var dailyAdapter:DayViewPagerAdapter?=null
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val dailyAdapter=DayViewPagerAdapter(requireActivity())
+        dailyAdapter=DayViewPagerAdapter(requireActivity())
         view_pager_daily.adapter=dailyAdapter
     }
+
+    override fun onDestroy() {
+        dailyAdapter=null
+        super.onDestroy()
+    }
+
+
+
 }

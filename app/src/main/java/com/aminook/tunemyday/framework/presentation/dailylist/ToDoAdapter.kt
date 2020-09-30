@@ -1,17 +1,20 @@
 package com.aminook.tunemyday.framework.presentation.dailylist
 
 import android.graphics.Paint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Todo
 import kotlinx.android.synthetic.main.todo_item.view.*
 
-class ToDoAdapter: RecyclerView.Adapter<ToDoAdapter.ViewHolder>(){
+class ToDoAdapter: ListAdapter<Todo,ToDoAdapter.ViewHolder>(DIFF_CALLBACK){
 
-    private val todos = mutableListOf<Todo>()
+    private val TAG="aminjoon"
     private var listener:ToDoRecyclerViewListener?=null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -21,16 +24,17 @@ class ToDoAdapter: RecyclerView.Adapter<ToDoAdapter.ViewHolder>(){
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val todo=todos[position]
+        val todo=getItem(position)
         holder.bind(todo)
         listener?.setSubTodoAdapter(holder,todo)
     }
 
-    override fun getItemCount()=todos.size
 
     fun setListener(listener: ToDoRecyclerViewListener){
         this.listener=listener
     }
+
+
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val subTodoRecycler:RecyclerView=itemView.recycler_sub_todo
@@ -48,11 +52,31 @@ class ToDoAdapter: RecyclerView.Adapter<ToDoAdapter.ViewHolder>(){
                 }
             }
 
+            itemView.img_remove_todo.setOnClickListener {
+                Log.d(TAG, "bind: delete todo adapter ")
+                listener?.onDeleteTodoClick(todo)
+            }
+
+        }
+    }
+
+    companion object{
+        private val DIFF_CALLBACK= object :DiffUtil.ItemCallback<Todo>(){
+            override fun areItemsTheSame(oldItem: Todo, newItem: Todo): Boolean {
+               return oldItem.id==newItem.id
+            }
+
+            override fun areContentsTheSame(oldItem: Todo, newItem: Todo): Boolean {
+                return oldItem.dateAdded==newItem.dateAdded &&
+                        oldItem.isDone==newItem.isDone &&
+                        oldItem.priorityIndex==newItem.priorityIndex
+            }
+
         }
     }
 
     interface ToDoRecyclerViewListener{
         fun setSubTodoAdapter(itemView: ToDoAdapter.ViewHolder, todo:Todo)
-
+        fun onDeleteTodoClick(todo:Todo)
     }
 }

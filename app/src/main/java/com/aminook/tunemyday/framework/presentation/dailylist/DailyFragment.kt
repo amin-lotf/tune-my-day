@@ -1,12 +1,15 @@
 package com.aminook.tunemyday.framework.presentation.dailylist
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.model.Todo
+import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,7 +25,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoRec
     private val dailyViewModel:DailyViewModel by viewModels()
     private lateinit var addTodoBtmSheetDialog:BottomSheetDialog
 
-    private var toDoAdapter:ToDoAdapter?=null
+
     private var subToDoAdapter:SubToDoAdapter?=null
     private var dailyScheduleAdapter:DailyScheduleAdapter?=null
 
@@ -44,6 +47,17 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoRec
         super.onViewCreated(view, savedInstanceState)
 
         initializeAdapters()
+        subscribeObservers()
+    }
+
+    private fun subscribeObservers() {
+        dailyViewModel.stateMessage.observe(viewLifecycleOwner) { event ->
+            event?.getContentIfNotHandled()?.let { stateMessage ->
+                uiController?.onResponseReceived(stateMessage.response,null)
+            }
+        }
+
+
     }
 
     private fun initializeAdapters() {
@@ -52,10 +66,10 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoRec
 
 
 
-
-
         dailyViewModel.schedules.observe(viewLifecycleOwner){
             dailyScheduleAdapter?.submitList(it)
+
+
         }
         recycler_day_schedule.apply {
             layoutManager=LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
@@ -74,24 +88,27 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoRec
         }
     }
 
+    override fun onDeleteTodoClick(todo: Todo) {
+        dailyViewModel.deleteTodo(todo)
+    }
 
 
     override fun setTodoAdapter(holder: DailyScheduleAdapter.ViewHolder, schedule: Schedule) {
-        toDoAdapter=ToDoAdapter()
-        toDoAdapter?.setListener(this)
+        val todoAdapter=ToDoAdapter()
+        todoAdapter.setListener(this)
+        Log.d(TAG, "setTodoAdapter: ${schedule.id}")
+//        dailyViewModel.getTodos(schedule.id).observe(viewLifecycleOwner){allTodos->
+//            val todos=allTodos.filter { it.scheduleId==schedule.id }
+//            todoAdapter?.submitList(todos)
+//        }
+        todoAdapter.submitList(schedule.todos)
         holder.todoRecyclerView.apply {
             layoutManager=LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
-            adapter=toDoAdapter
+            adapter=todoAdapter
         }
     }
 
-    override fun onDestroy() {
-        toDoAdapter=null
-        subToDoAdapter=null
-        dailyScheduleAdapter=null
-        super.onDestroy()
 
-    }
 
     override fun onAddNoteClick(scheduleId: Long) {
         showAddTodo(scheduleId)
@@ -106,7 +123,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoRec
         view.btn_save_todo.setOnClickListener {
             if(!view.txt_add_todo.text.isNullOrBlank()){
                 val task=view.txt_add_todo.text
-                dailyViewModel.addTodo(scheduleId,task.toString())
+                dailyViewModel.createTodo(scheduleId,task.toString())
                 view.txt_add_todo.setText("")
             }else{
                 //TODO(HANDLE BLANK
@@ -127,5 +144,12 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoRec
                     putInt(DAY_INDEX, dayIndex)
                 }
             }
+    }
+
+    override fun onDestroy() {
+        subToDoAdapter=null
+        dailyScheduleAdapter=null
+        super.onDestroy()
+
     }
 }

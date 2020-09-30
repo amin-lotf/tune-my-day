@@ -8,6 +8,6 @@ class DaoService @Inject constructor(
     val scheduleDao: ScheduleDao,
     val programDao: ProgramDao,
     val alarmDao: AlarmDao,
-    val toDoDao: ToDoDao,
+    val todoDao: TodoDao,
     val toDoScheduleDao: ToDoScheduleDao
 )

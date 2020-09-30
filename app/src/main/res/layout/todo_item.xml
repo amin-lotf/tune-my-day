@@ -23,11 +23,13 @@
 
         <RadioButton
             android:id="@+id/radio_todo"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="School"
             app:layout_constraintTop_toTopOf="parent"
-            tools:layout_editor_absoluteX="0dp" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/img_remove_todo"
+            />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_sub_todo"

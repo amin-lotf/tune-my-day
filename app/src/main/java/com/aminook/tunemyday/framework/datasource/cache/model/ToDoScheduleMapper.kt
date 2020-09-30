@@ -15,7 +15,7 @@ import androidx.room.ForeignKey
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = ToDoEntity::class,
+            entity = TodoEntity::class,
             parentColumns = ["id"],
             childColumns = ["todo_id"],
             onDelete = ForeignKey.CASCADE

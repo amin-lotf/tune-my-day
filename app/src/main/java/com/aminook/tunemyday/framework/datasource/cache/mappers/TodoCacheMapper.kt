@@ -3,7 +3,7 @@ package com.aminook.tunemyday.framework.datasource.cache.mappers
 import com.aminook.tunemyday.business.domain.model.Todo
 import com.aminook.tunemyday.business.domain.util.EntityMapper
 import com.aminook.tunemyday.framework.datasource.cache.model.FullTodo
-import com.aminook.tunemyday.framework.datasource.cache.model.ToDoEntity
+import com.aminook.tunemyday.framework.datasource.cache.model.TodoEntity
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,7 +27,7 @@ class TodoCacheMapper @Inject constructor(
     }
 
     override fun mapToEntity(domainModel: Todo): FullTodo {
-        val todoEntity=ToDoEntity(
+        val todoEntity=TodoEntity(
             scheduleId = domainModel.scheduleId,
             title = domainModel.title,
             priorityIndex = domainModel.priorityIndex,
@@ -35,7 +35,9 @@ class TodoCacheMapper @Inject constructor(
             dateAdded = domainModel.dateAdded,
             isOneTime = domainModel.isOneTime,
             lastChecked = domainModel.lastChecked
-        )
+        ).apply {
+            id=domainModel.id
+        }
 
         val subTodoEntities=domainModel.subTodos.map { subTodoCacheMapper.mapToEntity(it) }
 

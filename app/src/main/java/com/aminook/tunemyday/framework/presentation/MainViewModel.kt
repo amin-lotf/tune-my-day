@@ -37,7 +37,7 @@ class MainViewModel @ViewModelInject constructor(
 
     fun deleteSchedule(schedule:Schedule){
         CoroutineScope(activeScope).launch {
-            delay(100)
+            delay(300) //delay added so the snackbar goes under the FAB
             scheduleInteractors.deleteSchedule(
                 schedule.id,
                 object : SnackbarUndoCallback {

@@ -8,7 +8,7 @@ data class DetailedSchedule(
     val scheduleEntity: ScheduleEntity,
 
     @Relation(parentColumn = "id", entityColumn = "schedule_id")
-    val  toDos:List<ToDoEntity>,
+    val  todos:List<TodoEntity>,
 
     @Relation(parentColumn = "program_id",entityColumn = "id")
     val program: ProgramEntity
