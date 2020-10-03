@@ -16,10 +16,10 @@ class GetDailySchedules @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-    suspend operator fun invoke(dayIndex:Int):Flow<DataState<List<Schedule>>?>{
+     operator fun invoke(dayIndex:Int):Flow<DataState<List<Schedule>>?>{
 
         val cacheResponse=object :CacheResponseHandler<List<Schedule>,List<Schedule>>(){
-            override suspend fun handleSuccess(resultObj: List<Schedule>): DataState<List<Schedule>>? {
+            override  fun handleSuccess(resultObj: List<Schedule>): DataState<List<Schedule>>? {
                 return DataState.data(
                     response = Response(
                         message = DAILY_SCHEDULES_RECEIVED,

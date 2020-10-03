@@ -16,9 +16,9 @@ class GetAllPrograms @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-    suspend operator fun invoke(): Flow<DataState<List<Program>>?> {
+     operator fun invoke(): Flow<DataState<List<Program>>?> {
         val cacheResponse = object : CacheResponseHandler<List<Program>,List<Program>>() {
-            override suspend fun handleSuccess(resultObj: List<Program>): DataState<List<Program>>? {
+            override  fun handleSuccess(resultObj: List<Program>): DataState<List<Program>>? {
                 return DataState.data(
                     response = Response(
                         message = GET_PROGRAMS_SUCCESS,

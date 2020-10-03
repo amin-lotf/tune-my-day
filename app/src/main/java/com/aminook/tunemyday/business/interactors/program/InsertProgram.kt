@@ -18,9 +18,9 @@ class InsertProgram @Inject constructor(
 ) {
 
     private val TAG="aminjoon"
-    suspend  operator fun invoke(program: Program): Flow<DataState<Program>?> {
+      operator fun invoke(program: Program): Flow<DataState<Program>?> {
         val cacheResponse = object : CacheResponseHandler<Long, Program>() {
-            override suspend fun handleSuccess(resultObj: Long): DataState<Program>? {
+            override  fun handleSuccess(resultObj: Long): DataState<Program>? {
                 return if (resultObj > 0) {
 
                     DataState.data(

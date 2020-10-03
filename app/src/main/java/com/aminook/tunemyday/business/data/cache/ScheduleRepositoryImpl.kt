@@ -118,6 +118,10 @@ class ScheduleRepositoryImpl @Inject constructor(
 
 
         val fullSchedule=mappers.fullScheduleCacheMapper.mapToEntity(schedule)
+
+
+
+
         val alarmsToInsert=fullSchedule.alarms.onEach { it.id=0L }
         Log.d(TAG, "insertSchedule: alarm size: ${fullSchedule.alarms.size}")
         if (requestType== SCHEDULE_REQUEST_EDIT) {
@@ -141,7 +145,8 @@ class ScheduleRepositoryImpl @Inject constructor(
                     schedulesToDelete = scheduleEntitiesToDelete,
                     schedulesToUpdate = scheduleEntitiesToUpdate,
                     alarmsToUpdate = alarmsToUpdate,
-                    alarmsToInsert = fullSchedule.alarms
+                    alarmsToInsert = fullSchedule.alarms,
+                    todoEntities = fullSchedule.todos.map { it.todo }
                 )
             } catch (e: Throwable) {
                 null
@@ -218,9 +223,45 @@ class ScheduleRepositoryImpl @Inject constructor(
         )
     }
 
-    override  fun getScheduleTodos(scheduleId: Long): Flow<List<Todo>> {
-        return daoService.todoDao.getScheduleToDo(scheduleId).map { fullTodos->
-            fullTodos.map { mappers.todoCacheMapper.mapFromEntity(it) }
+    override  suspend fun getScheduleTodos(scheduleId: Long): List<Todo> {
+        return daoService.todoDao.getScheduleToDo(scheduleId).map { fullTodo->
+            mappers.todoCacheMapper.mapFromEntity(fullTodo)
+        }
+    }
+
+    override suspend fun deleteAndRetrieveTodos(todo: Todo): List<Todo> {
+        return daoService.todoDao.deleteAndRetrieveTodos(
+            mappers.todoCacheMapper.mapToEntity(todo).todo
+        ).map {
+            mappers.todoCacheMapper.mapFromEntity(it)
+        }
+    }
+
+    override suspend fun insertAndRetrieveTodos(todo: Todo): List<Todo> {
+        return daoService.todoDao.insertAndRetrieveTodos(
+            mappers.todoCacheMapper.mapToEntity(todo).todo
+        ).map {
+            mappers.todoCacheMapper.mapFromEntity(it)
+        }
+    }
+
+    override suspend fun updateAndRetrieveTodos(todo: Todo): List<Todo> {
+        return daoService.todoDao.updateAndRetrieveTodos(
+            mappers.todoCacheMapper.mapToEntity(todo).todo
+        ).map {
+            mappers.todoCacheMapper.mapFromEntity(it)
+        }
+    }
+
+    override suspend fun updateListAndRetrieveTodos(
+        todos: List<Todo>,
+        scheduleId: Long
+    ): List<Todo> {
+        return daoService.todoDao.updateListAndRetrieveTodos(
+           todos.map { mappers.todoCacheMapper.mapToEntity(it).todo },
+            scheduleId
+        ).map {
+            mappers.todoCacheMapper.mapFromEntity(it)
         }
     }
 }

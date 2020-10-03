@@ -1,6 +1,5 @@
 package com.aminook.tunemyday.business.interactors.todo
 
-import android.service.autofill.Dataset
 import com.aminook.tunemyday.business.data.cache.CacheResponseHandler
 import com.aminook.tunemyday.business.data.cache.ScheduleRepository
 import com.aminook.tunemyday.business.domain.model.Todo
@@ -15,32 +14,20 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class InsertTodo @Inject constructor(
+class UpdateTodos @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
-     operator fun invoke(todo:Todo): Flow<DataState<String>?> {
-        val cacheResponse=object :CacheResponseHandler<Long,String>(){
-            override  fun handleSuccess(resultObj: Long): DataState<String>? {
-                return if (resultObj>0){
-                    DataState.data(
+     operator fun invoke(todos:List<Todo>,scheduleId:Long): Flow<DataState<List<Todo>>?> {
+        val cacheResponse=object :CacheResponseHandler<List<Todo>,List<Todo>>(){
+            override  fun handleSuccess(resultObj: List<Todo>): DataState<List<Todo>>? {
+                return DataState.data(
                         response = Response(
-                            message = INSERT_TODO_SUCCESS,
+                            message = UPDATE_TODO_SUCCESS,
                             uiComponentType = UIComponentType.None,
                             messageType = MessageType.Success
                         ),
-                        data = INSERT_TODO_SUCCESS
+                        data = resultObj
                     )
-                }else{
-                    DataState.data(
-                        response = Response(
-                            message = INSERT_TODO_FAIL,
-                            uiComponentType = UIComponentType.Toast,
-                            messageType = MessageType.Error
-                        ),
-                        data = INSERT_TODO_FAIL
-                    )
-
-                }
             }
 
         }
@@ -48,7 +35,7 @@ class InsertTodo @Inject constructor(
         return  cacheResponse.getResult {
             flow {
                 emit(
-                    scheduleRepository.insertTodo(todo)
+                    scheduleRepository.updateListAndRetrieveTodos(todos,scheduleId)
                 )
             }
         }
@@ -56,7 +43,7 @@ class InsertTodo @Inject constructor(
     }
 
     companion object{
-        const val INSERT_TODO_SUCCESS="todo inserted successfully"
-        const val INSERT_TODO_FAIL="failed to insert todo"
+        const val UPDATE_TODO_SUCCESS="todo updated"
+        const val UPDATE_TODO_FAIL="failed to update todo"
     }
 }

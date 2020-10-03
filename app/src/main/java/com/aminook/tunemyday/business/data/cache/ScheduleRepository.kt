@@ -26,5 +26,9 @@ interface ScheduleRepository {
 
     suspend fun insertTodo(todo:Todo):Long
     suspend fun deleteTodo(todo: Todo):Int
-    fun getScheduleTodos(scheduleId: Long):Flow<List<Todo>>
+    suspend fun getScheduleTodos(scheduleId: Long):List<Todo>
+    suspend fun deleteAndRetrieveTodos(todo: Todo):List<Todo>
+    suspend fun insertAndRetrieveTodos(todo: Todo):List<Todo>
+    suspend fun updateAndRetrieveTodos(todo: Todo):List<Todo>
+    suspend fun updateListAndRetrieveTodos(todos: List<Todo>,scheduleId: Long):List<Todo>
 }

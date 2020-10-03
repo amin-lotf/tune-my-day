@@ -18,7 +18,7 @@ import kotlinx.coroutines.withTimeout
 abstract class CacheResponseHandler<CacheDataType,OutputType>(
 ) {
 
-    suspend fun getResult(cacheCall: () -> Flow<CacheDataType?>): Flow<DataState<OutputType>?> {
+     fun getResult(cacheCall: () -> Flow<CacheDataType?>): Flow<DataState<OutputType>?> {
         return try {
             cacheCall().map {data->
                 if (data==null){
@@ -53,6 +53,6 @@ abstract class CacheResponseHandler<CacheDataType,OutputType>(
         val INSERT_PROGRAM_FAILED = "Failed to insert new program."
     }
 
-    abstract suspend fun handleSuccess(resultObj: CacheDataType): DataState<OutputType>?
+    abstract  fun handleSuccess(resultObj: CacheDataType): DataState<OutputType>?
 
 }

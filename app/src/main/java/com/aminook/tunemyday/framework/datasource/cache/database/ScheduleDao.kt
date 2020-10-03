@@ -4,6 +4,7 @@ import androidx.room.*
 import com.aminook.tunemyday.framework.datasource.cache.model.AlarmEntity
 import com.aminook.tunemyday.framework.datasource.cache.model.FullSchedule
 import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
+import com.aminook.tunemyday.framework.datasource.cache.model.TodoEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -66,17 +67,25 @@ interface ScheduleDao {
     suspend fun deleteScheduleAlarms(scheduleId:Long)
 
     @Transaction
+    @Insert
+    suspend fun insertTodos(todoEntities: List<TodoEntity>)
+
+    @Transaction
     suspend fun insertTransaction(
         scheduleEntity: ScheduleEntity,
         schedulesToDelete:List<ScheduleEntity>,
         schedulesToUpdate:List<ScheduleEntity>,
         alarmsToUpdate:List<AlarmEntity>,
-        alarmsToInsert:List<AlarmEntity>
+        alarmsToInsert:List<AlarmEntity>,
+        todoEntities: List<TodoEntity>
     ):Long{
         val id=insertSchedule(scheduleEntity)
         deleteSchedules(schedulesToDelete)
         updateSchedules(schedulesToUpdate)
         updateAlarms(alarmsToUpdate)
+        if(todoEntities.size>0){
+            insertTodos(todoEntities)
+        }
         alarmsToInsert.onEach {
             it.scheduleId=id
         }

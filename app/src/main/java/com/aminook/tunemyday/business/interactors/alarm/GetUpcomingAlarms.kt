@@ -17,9 +17,9 @@ class GetUpcomingAlarms @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-    suspend operator fun invoke(startDay: Int, endDay: Int): Flow<DataState<List<Alarm>>?> {
+     operator fun invoke(startDay: Int, endDay: Int): Flow<DataState<List<Alarm>>?> {
         val cacheResponse = object : CacheResponseHandler<List<Alarm>, List<Alarm>>() {
-            override suspend fun handleSuccess(resultObj: List<Alarm>): DataState<List<Alarm>>? {
+            override  fun handleSuccess(resultObj: List<Alarm>): DataState<List<Alarm>>? {
                 return DataState.data(
                     response = Response(
                         message = ALARM_GET_SUCCESS,

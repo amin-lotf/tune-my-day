@@ -13,7 +13,8 @@ import kotlin.math.abs
 @Singleton
 class FullScheduleCacheMapper @Inject constructor(
     val programCacheMapper: ProgramCacheMapper,
-    val alarmCacheMapper: AlarmCacheMapper
+    val alarmCacheMapper: AlarmCacheMapper,
+    val todoCacheMapper: TodoCacheMapper
 ) : EntityMapper<FullSchedule, Schedule> {
     override fun mapFromEntity(entity: FullSchedule): Schedule {
         val program = programCacheMapper.mapFromEntity(entity.program)
@@ -31,7 +32,7 @@ class FullScheduleCacheMapper @Inject constructor(
             this.endTime = Time(endHour, endMinute)
 
             this.alarms.addAll(entity.alarms.map { alarmCacheMapper.mapFromEntity(it) })
-
+            this.todos.addAll(entity.todos.map { todoCacheMapper.mapFromEntity(it) })
         }
     }
 
@@ -69,12 +70,13 @@ class FullScheduleCacheMapper @Inject constructor(
             }
         }
 
-
+        val todos=domainModel.todos.map { todoCacheMapper.mapToEntity(it) }
 
         return FullSchedule(
             scheduleEntity,
             programCacheMapper.mapToEntity(domainModel = domainModel.program!!),
-            alarms
+            alarms,
+            todos
         )
     }
 

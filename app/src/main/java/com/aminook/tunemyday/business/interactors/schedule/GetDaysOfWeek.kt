@@ -18,9 +18,9 @@ class GetDaysOfWeek @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-    suspend operator fun invoke(chosenDay:Int= -1): Flow<DataState<List<Day>>?>{
+     operator fun invoke(chosenDay:Int= -1): Flow<DataState<List<Day>>?>{
         val cacheResponse=object :CacheResponseHandler<List<Day>,List<Day>>() {
-            override suspend fun handleSuccess(resultObj: List<Day>): DataState<List<Day>>? {
+            override  fun handleSuccess(resultObj: List<Day>): DataState<List<Day>>? {
                 return DataState.data(
                     response = Response(
                         message = GET_DAYS_SUCCESS,

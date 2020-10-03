@@ -48,6 +48,21 @@ class DateUtil @Inject constructor() {
         return (year+month+day).toInt()
     }
 
+    fun getDay(dayIndex:Int):Day{
+        val calendar = Calendar.getInstance(Locale.US)
+        val today = Date()
+        calendar.firstDayOfWeek = Calendar.MONDAY
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
+        calendar.add(Calendar.DATE, dayIndex)
+        val d = calendar.time
+        return  Day(
+            shortName = SimpleDateFormat("EE", Locale.US).format(d.time),
+            fullName = SimpleDateFormat("EEEE", Locale.US).format(d.time),
+            date = SimpleDateFormat("MM/dd", Locale.US).format(d.time),
+            dayIndex = dayIndex
+        )
+    }
+
     fun getDaysOfWeek(chosenDay: Int = curDayIndex): List<Day> {
         val calendar = Calendar.getInstance(Locale.US)
         val today = Date()

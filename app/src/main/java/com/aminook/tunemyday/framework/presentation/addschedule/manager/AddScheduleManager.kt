@@ -55,6 +55,13 @@ class AddScheduleManager {
 
     }
 
+    fun addTodos(todos: List<Todo>?=null){
+        buffSchedule.todos.apply {
+            clear()
+            addAll(todos?: emptyList())
+        }
+    }
+
     fun addAlarm(alarm: Alarm){
         if (_buffSchedule.alarms.any { it.hourBefore==alarm.hourBefore && it.minuteBefore==alarm.minuteBefore }){
             return

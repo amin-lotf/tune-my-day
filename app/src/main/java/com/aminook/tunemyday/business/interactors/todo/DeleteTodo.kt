@@ -14,9 +14,9 @@ import javax.inject.Singleton
 class DeleteTodo @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
-    suspend operator fun invoke(todo:Todo,undoCallback: SnackbarUndoCallback,onDismissCallback:TodoCallback):Flow<DataState<Nothing>?>{
+     operator fun invoke(todo:Todo,undoCallback: SnackbarUndoCallback,onDismissCallback:TodoCallback):Flow<DataState<Nothing>?>{
         val cacheResponse=object :CacheResponseHandler<Int,Nothing>(){
-            override suspend fun handleSuccess(resultObj: Int): DataState<Nothing>? {
+            override  fun handleSuccess(resultObj: Int): DataState<Nothing>? {
                return if(resultObj>0){
                     DataState.data(
                         response = Response(

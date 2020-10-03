@@ -13,9 +13,9 @@ import javax.inject.Singleton
 class ValidateSchedule @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
-    suspend  operator fun invoke(schedule:Schedule,areYouSureCallback: AreYouSureCallback):Flow<DataState<List<Schedule>>?>{
+      operator fun invoke(schedule:Schedule,areYouSureCallback: AreYouSureCallback):Flow<DataState<List<Schedule>>?>{
         val cacheResponse=object :CacheResponseHandler<List<Schedule>,List<Schedule>>(){
-            override suspend fun handleSuccess(resultObj: List<Schedule>): DataState<List<Schedule>>? {
+            override  fun handleSuccess(resultObj: List<Schedule>): DataState<List<Schedule>>? {
 
                 return if(resultObj.size==0){
                     DataState.data(

@@ -15,13 +15,13 @@ class DeleteSchedule @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-    suspend operator fun invoke(
+     operator fun invoke(
         scheduleId: Long,
         snackbarUndoCallback: SnackbarUndoCallback?=null,
         onDismissCallback:TodoCallback?=null
     ): Flow<DataState<Nothing>?> {
         val cacheResponse=object:CacheResponseHandler<Int,Nothing>(){
-            override suspend fun handleSuccess(resultObj: Int): DataState<Nothing>? {
+            override  fun handleSuccess(resultObj: Int): DataState<Nothing>? {
                if (resultObj>0){
                    return DataState.data(
                        response = Response(

@@ -2,10 +2,8 @@ package com.aminook.tunemyday.framework.presentation.dailylist
 
 import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import com.aminook.tunemyday.business.domain.model.Day
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.model.Todo
 import com.aminook.tunemyday.business.domain.state.SnackbarUndoCallback
@@ -16,107 +14,123 @@ import com.aminook.tunemyday.business.interactors.todo.TodoInteractors
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.framework.presentation.dailylist.manager.DailyScheduleManager
 import com.aminook.tunemyday.util.TodoCallback
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.*
 
 class DailyViewModel @ViewModelInject constructor(
     val dateUtil: DateUtil,
     val scheduleInteractors: ScheduleInteractors,
     val todoInteractors: TodoInteractors,
 
-) : BaseViewModel() {
+    ) : BaseViewModel() {
 
-    private val TAG="aminjoon"
+    private val TAG = "aminjoon"
     val activeScope = Dispatchers.IO + viewModelScope.coroutineContext
 
-    var dailyScheduleManager:DailyScheduleManager?= DailyScheduleManager(dateUtil)
+
     private val _schedules = MutableLiveData<List<Schedule>>()
-
-
+    private val _curScheduleTodos = MutableLiveData<List<Todo>>()
+    private var dayIndex=0
 
     val schedules: LiveData<List<Schedule>>
         get() = _schedules
 
 
+
+    fun getDay():Day{
+        return dateUtil.getDay(dayIndex)
+    }
+
     fun getDailySchedules(fragmentIndex: Int) {
-        var dayIndex = dateUtil.curDayIndex + fragmentIndex
+        dayIndex = dateUtil.curDayIndex + fragmentIndex
         dayIndex = if (dayIndex > 6) dayIndex - 7 else dayIndex
         CoroutineScope(activeScope).launch {
             scheduleInteractors.getDailySchedules(dayIndex).collect { dataState ->
                 processResponse(dataState?.stateMessage)
-
                 dataState?.data?.let { schedules ->
-
                     _schedules.value = schedules
-                    dailyScheduleManager?.bufferSchedules(schedules)
                 }
             }
         }
     }
 
-    fun createTodo(scheduleId: Long, task: String, isOneTime: Boolean = false) {
-        val todo = dailyScheduleManager?.createTodo(scheduleId, task, isOneTime)
-        todo?.let {
-            addTodo(it)
-        }
-
+    fun createTodo(scheduleId: Long, task: String, isOneTime: Boolean = false):LiveData<List<Todo>> {
+            val todo=Todo(
+                title = task,
+                scheduleId = scheduleId,
+                isOneTime = isOneTime,
+                priorityIndex = dateUtil.curTimeInMillis,
+                dateAdded = dateUtil.curTimeInMillis
+            )
+            return addTodo(todo)
     }
 
-    fun addTodo(todo: Todo) {
-        CoroutineScope(activeScope).launch {
-            todoInteractors.insertTodo(todo).collect { dataState ->
-                processResponse(dataState?.stateMessage)
+    fun addTodo(todo: Todo):LiveData<List<Todo>> {
 
-                dataState?.data?.let { result->
-                    if(result==INSERT_TODO_SUCCESS){
-                        delay(200)
-                   //     _todoChanged.value=todo.scheduleId
-                    }
-                }
+        return todoInteractors.insertAndRetrieveTodos(todo)
+            .map {
+                processResponse(it?.stateMessage)
+                it?.data?: emptyList()
             }
-        }
+            .flowOn(Default)
+            .asLiveData()
     }
 
-    fun getTodos(scheduleId:Long):LiveData<List<Todo>>{
-        CoroutineScope(activeScope).launch {
-            todoInteractors.getScheduleTodos(scheduleId).collect {dataState->
-                processResponse(dataState?.stateMessage)
-
-                dataState?.data?.let {
-                  dailyScheduleManager?.bufferTodos(it)
-                }
+    fun updateTodo(todo: Todo):LiveData<List<Todo>>{
+        return todoInteractors.updateTodo(todo)
+            .map {
+                processResponse(it?.stateMessage)
+                it?.data?: emptyList()
             }
-        }
-
-      return dailyScheduleManager?.buffTodo?: MutableLiveData()
+            .flowOn(Default)
+            .asLiveData()
     }
 
-    fun deleteTodo(todo: Todo) {
-        CoroutineScope(activeScope).launch {
-            todoInteractors.deleteTodo(
+    fun updateTodos(todos: List<Todo>,scheduleId: Long):LiveData<List<Todo>>{
+        return todoInteractors.updateTodos(todos,scheduleId)
+            .map {
+                processResponse(it?.stateMessage)
+                it?.data?: emptyList()
+            }
+            .flowOn(Default)
+            .asLiveData()
+    }
+
+    fun getTodos(scheduleId: Long): LiveData<List<Todo>> {
+
+        return todoInteractors.getScheduleTodos(scheduleId)
+            .flowOn(Default)
+            .map {
+                processResponse(it?.stateMessage)
+                it?.data ?: emptyList()
+            }
+            .flowOn(IO)
+            .asLiveData()
+
+    }
+
+    fun deleteTodo(todo: Todo,undoCallback: SnackbarUndoCallback,onDismissCallback: TodoCallback):LiveData<List<Todo>> {
+
+           return todoInteractors.deleteAndRetrieveTodos(
                 todo = todo,
-                undoCallback = object : SnackbarUndoCallback {
-                    override fun undo() {
-                        addTodo(todo)
-                    }
-                },
-                onDismissCallback = object : TodoCallback {
-                    override fun execute() {
-                        Log.d(TAG, "todo snackbar dismissed")
-                    }
-                }
-            ).collect {dataState->
+                undoCallback = undoCallback,
+                onDismissCallback = onDismissCallback
+            )
+                .map {
+                    processResponse(it?.stateMessage)
+                    it?.data?: emptyList()
 
-                processResponse(dataState?.stateMessage)
-            }
-        }
+                }
+
+                .flowOn(Default)
+                .asLiveData()
+
     }
 
     override fun onCleared() {
-        dailyScheduleManager=null
         super.onCleared()
     }
 }

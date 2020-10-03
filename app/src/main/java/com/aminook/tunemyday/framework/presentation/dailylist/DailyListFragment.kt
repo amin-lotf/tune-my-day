@@ -12,6 +12,7 @@ import com.aminook.tunemyday.business.domain.state.MessageType
 import com.aminook.tunemyday.business.domain.state.Response
 import com.aminook.tunemyday.business.domain.state.SnackbarUndoCallback
 import com.aminook.tunemyday.business.domain.state.UIComponentType
+import com.aminook.tunemyday.framework.presentation.MainActivity
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.util.TodoCallback
 import kotlinx.android.synthetic.main.fragment_daily_list.*
@@ -22,16 +23,22 @@ class DailyListFragment : BaseFragment(R.layout.fragment_daily_list) {
     var dailyAdapter:DayViewPagerAdapter?=null
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+      //  (activity as MainActivity).supportActionBar?.hide()
 
+    }
+
+    override fun onResume() {
+        super.onResume()
         dailyAdapter=DayViewPagerAdapter(requireActivity())
         view_pager_daily.adapter=dailyAdapter
     }
 
-    override fun onDestroy() {
+    override fun onPause() {
         dailyAdapter=null
-        super.onDestroy()
-    }
+        view_pager_daily.adapter=null
+        super.onPause()
 
+    }
 
 
 }

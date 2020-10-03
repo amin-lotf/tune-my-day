@@ -55,8 +55,8 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
-        supportFragmentManager.fragmentFactory = appFragmentFactory
+        //setSupportActionBar(toolbar)
+        //supportFragmentManager.fragmentFactory = appFragmentFactory
         setupNavigation()
         subscribeObservers()
     }
