@@ -57,10 +57,11 @@ class DailyViewModel @ViewModelInject constructor(
         }
     }
 
-    fun createTodo(scheduleId: Long, task: String, isOneTime: Boolean = false):LiveData<List<Todo>> {
+    fun createTodo(scheduleId: Long,programId:Long, task: String, isOneTime: Boolean = false):LiveData<List<Todo>> {
             val todo=Todo(
                 title = task,
                 scheduleId = scheduleId,
+                programId = programId,
                 isOneTime = isOneTime,
                 priorityIndex = dateUtil.curTimeInMillis,
                 dateAdded = dateUtil.curTimeInMillis

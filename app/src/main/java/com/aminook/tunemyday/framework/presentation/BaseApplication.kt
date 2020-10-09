@@ -5,21 +5,37 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.util.Log
+import androidx.datastore.DataStore
+import androidx.datastore.preferences.Preferences
+import androidx.datastore.preferences.edit
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.*
+import com.aminook.tunemyday.business.domain.util.DateUtil
+import com.aminook.tunemyday.util.DAY_INDEX
 import com.aminook.tunemyday.worker.AlarmWorker
 import com.aminook.tunemyday.worker.NotificationReceiver.Companion.CHANNEL_ID
 
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltAndroidApp
 class BaseApplication : Application(), Configuration.Provider {
-    private val TAG="aminjoon"
+    private val TAG = "aminjoon"
+
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
+
+    @Inject
+    lateinit var dataStore: DataStore<Preferences>
+
+    @Inject
+    lateinit var dateUtil: DateUtil
+
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder()
             .setWorkerFactory(workerFactory)
@@ -40,6 +56,19 @@ class BaseApplication : Application(), Configuration.Provider {
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager?.createNotificationChannel(channel)
         setPeriodicSchedule()
+
+        updayeDayIndex()
+    }
+
+    private fun updayeDayIndex() {
+        CoroutineScope(Dispatchers.IO).launch {
+
+            dataStore.edit { settings ->
+                settings[DAY_INDEX] = dateUtil.curDayIndex
+            }
+
+        }
+
     }
 
 
@@ -55,7 +84,7 @@ class BaseApplication : Application(), Configuration.Provider {
         }
         val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
         Log.d(TAG, "setPeriodicSchedule: timediff: $timeDiff")
-        val data= Data.Builder()
+        val data = Data.Builder()
             .putString(AlarmWorker.ACTION_TYPE, AlarmWorker.TYPE_PERIODIC_SCHEDULE)
             .build()
         val periodicAlarmWorker = PeriodicWorkRequestBuilder<AlarmWorker>(
@@ -71,5 +100,6 @@ class BaseApplication : Application(), Configuration.Provider {
             ExistingPeriodicWorkPolicy.REPLACE,
             periodicAlarmWorker
         )
+
     }
 }

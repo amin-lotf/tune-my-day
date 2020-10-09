@@ -96,7 +96,7 @@ class DailyFragment() : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoR
     }
 
     override fun onEditTodoClick(todo: Todo, todoAdapter: ToDoAdapter) {
-        showAddTodo(todo.scheduleId,todoAdapter,todo)
+        showAddTodo(todo.scheduleId,todo.programId,todoAdapter,todo)
     }
 
     override fun onCheckChanged(todo: Todo, todoAdapter: ToDoAdapter) {
@@ -180,11 +180,11 @@ class DailyFragment() : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoR
 
 
 
-    override fun onAddNoteClick(scheduleId: Long, dailyScheduleAdapter: ToDoAdapter) {
-        showAddTodo(scheduleId,dailyScheduleAdapter)
+    override fun onAddNoteClick(scheduleId: Long,programId:Long, dailyScheduleAdapter: ToDoAdapter) {
+        showAddTodo(scheduleId,programId,dailyScheduleAdapter)
     }
 
-    private fun showAddTodo(scheduleId: Long, toDoAdapter: ToDoAdapter, todo:Todo?=null) {
+    private fun showAddTodo(scheduleId: Long,programId: Long, toDoAdapter: ToDoAdapter, todo:Todo?=null) {
         addTodoBtmSheetDialog= BottomSheetDialog(requireContext(),R.style.DialogStyle)
         val view=layoutInflater.inflate(R.layout.bottom_sheet_add_todo,btn_sheet_add_todo)
         addTodoBtmSheetDialog.setContentView(view)
@@ -197,7 +197,7 @@ class DailyFragment() : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoR
             if(!view.txt_add_todo.text.isNullOrBlank()){
                 val task=view.txt_add_todo.text
                 if (todo==null) {
-                    dailyViewModel.createTodo(scheduleId, task.toString(),false)
+                    dailyViewModel.createTodo(scheduleId,programId, task.toString(),false)
                         .observeOnce(viewLifecycleOwner) {
                             toDoAdapter.submitList(it)
                         }

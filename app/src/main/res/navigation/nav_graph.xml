@@ -33,9 +33,9 @@
     </fragment>
     <fragment
         android:id="@+id/taskListFragment"
-        android:name="com.aminook.tunemyday.framework.presentation.tasklist.TaskListFragment"
+        android:name="com.aminook.tunemyday.framework.presentation.ProgramList.ProgramListFragment"
         android:label="fragment_task_list"
-        tools:layout="@layout/fragment_task_list" />
+        tools:layout="@layout/fragment_program_list" />
     <fragment
         android:id="@+id/addScheduleFragment"
         android:name="com.aminook.tunemyday.framework.presentation.addschedule.AddEditScheduleFragment"

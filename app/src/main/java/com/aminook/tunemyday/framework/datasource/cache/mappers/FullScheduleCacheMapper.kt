@@ -33,6 +33,13 @@ class FullScheduleCacheMapper @Inject constructor(
 
             this.alarms.addAll(entity.alarms.map { alarmCacheMapper.mapFromEntity(it) })
             this.todos.addAll(entity.todos.map { todoCacheMapper.mapFromEntity(it) })
+
+            if (this.alarms.size>0){
+                this.hasAlarm=true
+            }
+            if (this.todos.size>0){
+                this.hasToDo=true
+            }
         }
     }
 
@@ -42,7 +49,7 @@ class FullScheduleCacheMapper @Inject constructor(
             end = domainModel.endInSec,
             startDay = domainModel.startDay,
             endDay = domainModel.endDay,
-            programId = domainModel.program?.id ?: 1
+            programId = domainModel.program.id
         ).apply {
             if (domainModel.id!=0L){
                 this.id = domainModel.id
@@ -53,7 +60,7 @@ class FullScheduleCacheMapper @Inject constructor(
             alarmCacheMapper.mapToEntity(alarm).apply {
                 this.scheduleId = domainModel.id
 
-                domainModel.program?.let { program ->
+                domainModel.program.let { program ->
                     this.programId = program.id
                     this.programName=program.name
                 }
@@ -74,7 +81,7 @@ class FullScheduleCacheMapper @Inject constructor(
 
         return FullSchedule(
             scheduleEntity,
-            programCacheMapper.mapToEntity(domainModel = domainModel.program!!),
+            programCacheMapper.mapToEntity(domainModel = domainModel.program),
             alarms,
             todos
         )

@@ -50,7 +50,7 @@ class DateUtil @Inject constructor() {
 
     fun getDay(dayIndex:Int):Day{
         val calendar = Calendar.getInstance(Locale.US)
-        val today = Date()
+
         calendar.firstDayOfWeek = Calendar.MONDAY
         calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
         calendar.add(Calendar.DATE, dayIndex)
@@ -93,12 +93,13 @@ class DateUtil @Inject constructor() {
         return days
     }
 
-    fun getNextNDays(date: Date, n: Int = 7): List<Day> {
-        val calendar = Calendar.getInstance()
-        calendar.time = date
+    fun getNextNDays(chosenDay: Int = curDayIndex): List<Day> {
+        val calendar = Calendar.getInstance(Locale.US)
+        val today=Date()
+
         val days = mutableListOf<Day>()
 
-        for (i in 1..n) {
+        for (i in 1..7) {
             val d = calendar.time
 
             days.add(
@@ -107,7 +108,15 @@ class DateUtil @Inject constructor() {
                     fullName = SimpleDateFormat("EEEE", Locale.getDefault()).format(d.time),
                     date = SimpleDateFormat("MM/dd", Locale.getDefault()).format(d.time),
                     dayIndex = calendar.get(Calendar.DAY_OF_WEEK)
-                )
+                ).apply {
+                        if (chosenDay != -1) {
+                            isChosen = i == chosenDay
+                        } else {
+                            if (d == today) {
+                                isChosen = true
+                            }
+                        }
+                    }
             )
             calendar.add(Calendar.DATE, 1)
         }

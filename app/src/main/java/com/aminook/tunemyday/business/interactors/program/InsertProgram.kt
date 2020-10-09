@@ -55,7 +55,7 @@ class InsertProgram @Inject constructor(
     }
 
     companion object {
-        val INSERT_PROGRAM_SUCCESS = "Successfully inserted new program."
-        val INSERT_PROGRAM_FAILED = "Failed to insert new program."
+        val INSERT_PROGRAM_SUCCESS = "Successfully inserted new program"
+        val INSERT_PROGRAM_FAILED = "Failed to insert new program"
     }
 }

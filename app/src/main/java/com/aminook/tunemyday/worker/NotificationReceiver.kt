@@ -56,7 +56,7 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
                     scheduleInteractors.getSchedule(scheduleId).collect { dataState->
 
                        dataState?.data?.let {
-                           Log.d(TAG, "onReceive broadcast: schedule id:${it.id}  program: ${it.program?.name}")
+                           Log.d(TAG, "onReceive broadcast: schedule id:${it.id}  program: ${it.program.name}")
 
                            showNotification(context,it,it.alarms.filter { it.id==alarmId }[0])
                        }
@@ -93,7 +93,7 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
 
         val notification=NotificationCompat.Builder(context.applicationContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(schedule.program?.name)
+            .setContentTitle(schedule.program.name)
             .setContentText(getNotificationSmallFormat(alarm))
             .setStyle(
                 NotificationCompat.BigTextStyle()

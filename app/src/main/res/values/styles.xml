@@ -7,6 +7,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="ToolbarTheme" parent="ThemeOverlay.MaterialComponents.Toolbar.Primary">
+        <item name="android:background">@color/colorWhite</item>
+    </style>
+
     <style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
     </style>
@@ -22,7 +26,7 @@
     </style>
 
     <style name="weeklyTabText" parent="TextAppearance.Design.Tab">
-        <item name="android:textSize">9sp</item>
+        <item name="android:textSize">12sp</item>
     </style>
 
 </resources>

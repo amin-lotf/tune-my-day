@@ -42,6 +42,9 @@ class AddScheduleViewModel @ViewModelInject constructor(
     private var _requestType:String= SCHEDULE_REQUEST_NEW
 
 
+    val requestType:String
+    get() = _requestType
+
     val selectedProgram: LiveData<Program>
         get() = addScheduleManager.chosenProgram
 
@@ -87,6 +90,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
         val todo=Todo(
             title = task,
             scheduleId = scheduleId,
+            programId = addScheduleManager.buffSchedule.program.id,
             isOneTime = isOneTime,
             priorityIndex = dateUtil.curTimeInMillis,
             dateAdded = dateUtil.curTimeInMillis
@@ -151,7 +155,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
 
     fun validateSchedule(areYouSureCallback: AreYouSureCallback) {
 
-        if (addScheduleManager.buffSchedule.program == null) {
+        if (addScheduleManager.buffSchedule.program.name.isEmpty()) {
             handleLocalError("Please choose an activity")
         } else {
             job = CoroutineScope(activeScope).launch {
@@ -187,7 +191,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
     }
 
     fun saveSchedule(confSchedules: List<Schedule> = conflictedSchedules) {
-        if (addScheduleManager.buffSchedule.program == null) {
+        if (addScheduleManager.buffSchedule.program.name.isEmpty()) {
             handleLocalError("Please choose an activity")
         } else {
 
@@ -219,7 +223,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
                                 dataState?.data?.let { schedule ->
 
                                     catchDaysOfWeek(schedule.startDay)
-                                    bufferChosenProgram(schedule.program!!)
+                                    bufferChosenProgram(schedule.program)
                                     updateBufferedDays(daysOfWeek[schedule.startDay])
                                     setTime(
                                         schedule.startTime.hour,

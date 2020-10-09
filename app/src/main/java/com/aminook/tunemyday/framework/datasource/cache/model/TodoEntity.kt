@@ -10,12 +10,20 @@ import androidx.room.*
             parentColumns = ["id"],
             childColumns = ["schedule_id"],
             onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = ProgramEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["program_id"],
+            onDelete = ForeignKey.CASCADE
         )
     ]
 )
 data class TodoEntity(
     @ColumnInfo(name = "schedule_id",index = true)
     val scheduleId:Long,
+    @ColumnInfo(name = "program_id",index = true)
+    val programId:Long,
     val title: String,
     val priorityIndex: Int,
     @ColumnInfo(name = "is_done")

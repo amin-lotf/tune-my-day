@@ -102,7 +102,7 @@ class AddScheduleManager {
     fun addProgramToBuffer(program: Program) {
         _buffSchedule.program = program
         _chosenProgram.value=program
-        Log.d(TAG, "addProgramToBuffer: ${_buffSchedule.program?.id}")
+        Log.d(TAG, "addProgramToBuffer: ${_buffSchedule.program.id}")
     }
 
 

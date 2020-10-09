@@ -16,6 +16,7 @@ class TodoCacheMapper @Inject constructor(
             id = entity.todo.id,
             title = entity.todo.title,
             scheduleId = entity.todo.scheduleId,
+            programId = entity.todo.programId,
             isDone = entity.todo.isDone,
             dateAdded = entity.todo.dateAdded,
             priorityIndex = entity.todo.priorityIndex,
@@ -29,6 +30,7 @@ class TodoCacheMapper @Inject constructor(
     override fun mapToEntity(domainModel: Todo): FullTodo {
         val todoEntity=TodoEntity(
             scheduleId = domainModel.scheduleId,
+            programId = domainModel.programId,
             title = domainModel.title,
             priorityIndex = domainModel.priorityIndex,
             isDone = domainModel.isDone,

@@ -17,7 +17,7 @@
           android:layout_width="match_parent"
           android:layout_height="?attr/actionBarSize"
           app:title="Saturday"
-          style="@style/Widget.MaterialComponents.Toolbar.Primary"/>
+          style="@style/ToolbarTheme"/>
    </com.google.android.material.appbar.AppBarLayout>
    <androidx.recyclerview.widget.RecyclerView
        android:id="@+id/recycler_day_schedule"

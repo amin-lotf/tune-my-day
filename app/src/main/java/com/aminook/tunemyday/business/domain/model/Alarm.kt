@@ -21,21 +21,21 @@ class Alarm(
     get() = (hourBefore == 0 && minuteBefore == 0)
 
     override fun toString(): String {
-        val h = if (hourBefore == 1) " hour" else " hours "
+        val h = if (hourBefore == 1) " hour " else " hours "
         val m = if (minuteBefore == 1) " minute" else " minutes"
         return if (hourBefore == 0 && minuteBefore == 0) {
-            "Remind me at the start of the activity"
+            "At the start of the activity"
         } else if (hourBefore == 0) {
             minuteBefore.toString() + m +
-                    " before activity starts"
+                    " before start"
         }else if(minuteBefore==0){
             hourBefore.toString() + h +
-                    " before activity starts"
+                    " before start"
         } else {
 
             hourBefore.toString() + h +
                     minuteBefore.toString() + m +
-                    " before activity starts"
+                    " before start"
         }
     }
 

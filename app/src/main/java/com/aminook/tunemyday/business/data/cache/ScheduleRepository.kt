@@ -1,6 +1,7 @@
 package com.aminook.tunemyday.business.data.cache
 
 import com.aminook.tunemyday.business.domain.model.*
+import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -9,9 +10,11 @@ interface ScheduleRepository {
     suspend fun updateProgram(program: Program):Int
     suspend fun insertProgram(program: Program):Long
     fun getAllPrograms(): Flow<List<Program>>
+    fun getAllProgramsDetail(): Flow<List<ProgramDetail>>
     fun selectProgram(id:Int):Flow<Program?>
     suspend fun deleteAllPrograms(): Int
-    suspend fun deleteProgram(program: Program): Int
+    suspend fun deleteProgram(program: ProgramDetail): Int
+    suspend fun undoDeletedProgram(program: ProgramDetail):Long?
 
     fun getDaysOfWeek(chosenDay:Int=1):List<Day>
 

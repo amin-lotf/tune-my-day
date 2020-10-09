@@ -98,7 +98,7 @@ dependencies {
 
     // Leak Canary
     def leak_canary_version = "2.4"
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leak_canary_version"
+    //debugImplementation "com.squareup.leakcanary:leakcanary-android:$leak_canary_version"
 
     // Easy Permissions
     implementation 'pub.devrel:easypermissions:3.0.0'
@@ -125,4 +125,5 @@ dependencies {
     // Kotlin + coroutines
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
+    implementation "androidx.datastore:datastore-preferences:1.0.0-alpha01"
 }

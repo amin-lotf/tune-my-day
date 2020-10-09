@@ -2,6 +2,9 @@ package com.aminook.tunemyday.di
 
 import android.content.Context
 import androidx.core.content.ContextCompat
+import androidx.datastore.DataStore
+import androidx.datastore.preferences.Preferences
+import androidx.datastore.preferences.createDataStore
 import androidx.fragment.app.FragmentFactory
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.data.cache.ScheduleRepository
@@ -68,17 +71,28 @@ abstract class AppModule {
 
         @Singleton
         @Provides
-        fun provideLabelColor(@ApplicationContext context: Context)=mutableListOf(
-            Color(ContextCompat.getColor(context, R.color.label1),true),
-            Color(ContextCompat.getColor(context, R.color.label2),false),
-            Color(ContextCompat.getColor(context, R.color.label3),false),
-            Color(ContextCompat.getColor(context, R.color.label4),false),
-            Color(ContextCompat.getColor(context, R.color.label5),false),
-            Color(ContextCompat.getColor(context, R.color.label6),false),
-            Color(ContextCompat.getColor(context, R.color.label7),false),
-            Color(ContextCompat.getColor(context, R.color.label8),false),
-            Color(ContextCompat.getColor(context, R.color.label9),false)
-        )
+        fun provideLabelColor(@ApplicationContext context: Context):List<Color> {
+            val white=ContextCompat.getColor(context, R.color.colorWhite)
+            val black=ContextCompat.getColor(context, R.color.colorDark)
+            return mutableListOf(
+                Color(ContextCompat.getColor(context, R.color.label1), true,black),
+                Color(ContextCompat.getColor(context, R.color.label2), false,black),
+                Color(ContextCompat.getColor(context, R.color.label3), false,black),
+                Color(ContextCompat.getColor(context, R.color.label4), false,black),
+                Color(ContextCompat.getColor(context, R.color.label5), false,black),
+                Color(ContextCompat.getColor(context, R.color.label6), false,black),
+                Color(ContextCompat.getColor(context, R.color.label7), false,black),
+                Color(ContextCompat.getColor(context, R.color.label8), false,white),
+                Color(ContextCompat.getColor(context, R.color.label9), false,white)
+            )
+        }
+        @Singleton
+        @Provides
+        fun getDayIndexDataStore(@ApplicationContext context: Context):DataStore<Preferences>{
+            return context.createDataStore(
+                "settings"
+            )
+        }
 
     }
 

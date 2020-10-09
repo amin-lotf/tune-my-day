@@ -9,7 +9,9 @@ import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.framework.datasource.cache.database.*
 import com.aminook.tunemyday.framework.datasource.cache.mappers.Mappers
 import com.aminook.tunemyday.framework.datasource.cache.model.AlarmEntity
+import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
+import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -46,6 +48,10 @@ class ScheduleRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getAllProgramsDetail(): Flow<List<ProgramDetail>> {
+        return daoService.programDao.getProgramsSummary()
+    }
+
     override fun selectProgram(id: Int): Flow<Program?> {
         return daoService.programDao.selectProgram(id).map { entity ->
             entity?.let {
@@ -58,10 +64,29 @@ class ScheduleRepositoryImpl @Inject constructor(
         return daoService.programDao.deleteAllPrograms()
     }
 
-    override suspend fun deleteProgram(program: Program): Int {
-        return daoService.programDao.deleteProgram(
-            mappers.programCacheMapper.mapToEntity(program)
-        )
+    override suspend fun deleteProgram(program: ProgramDetail): Int {
+        return daoService.programDao.deleteProgram(program.program)
+    }
+
+    override suspend fun undoDeletedProgram(program: ProgramDetail): Long? {
+
+        try {
+            val res=daoService.programDao.insertProgram(program.program)
+
+            program.schedules.forEach {
+                insertModifySchedule(
+                    mappers.fullScheduleCacheMapper.mapFromEntity(it),
+                    emptyList(),
+                    SCHEDULE_REQUEST_NEW
+                )
+            }
+
+            return res
+        }catch (e:Throwable){
+            Log.d(TAG, "undoDeletedProgram: ${e.message}")
+            return null
+        }
+
     }
 
     override fun getDaysOfWeek(chosenDay: Int): List<Day> {

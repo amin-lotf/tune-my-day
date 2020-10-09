@@ -42,9 +42,9 @@ class DailyScheduleAdapter : ListAdapter<Schedule,DailyScheduleAdapter.ViewHolde
         fun bind(schedule: Schedule) {
             itemView.txt_daily_start_time.text = schedule.startTime.toString()
             itemView.txt_daily_end_time.text = schedule.endTime.toString()
-            itemView.txt_daily_program_name.text = schedule.program?.name
+            itemView.txt_daily_program_name.text = schedule.program.name
             itemView.img_add_todo.setOnClickListener {
-                listener?.onAddNoteClick(schedule.id,todoRecyclerView.adapter as ToDoAdapter)
+                listener?.onAddNoteClick(schedule.id,schedule.program.id,todoRecyclerView.adapter as ToDoAdapter)
             }
             itemView.txt_daily_program_name.setOnClickListener {
                 listener?.onScheduleClick(schedule.id)
@@ -71,7 +71,7 @@ class DailyScheduleAdapter : ListAdapter<Schedule,DailyScheduleAdapter.ViewHolde
 
     interface DailyScheduleAdapterListener {
         fun setTodoAdapter(holder: ViewHolder, schedule: Schedule)
-        fun onAddNoteClick(scheduleId: Long, dailyScheduleAdapter: ToDoAdapter)
+        fun onAddNoteClick(scheduleId: Long,programId:Long, dailyScheduleAdapter: ToDoAdapter)
         fun onScheduleClick(scheduleId: Long)
     }
 }

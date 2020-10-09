@@ -2,19 +2,16 @@ package com.aminook.tunemyday.framework.presentation
 
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.datastore.DataStore
+import androidx.datastore.preferences.Preferences
+import androidx.datastore.preferences.edit
 import androidx.fragment.app.FragmentFactory
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
@@ -23,7 +20,9 @@ import androidx.work.WorkManager
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.*
+import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragmentDirections
+import com.aminook.tunemyday.util.DAY_INDEX
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import com.aminook.tunemyday.util.TodoCallback
 import com.aminook.tunemyday.worker.AlarmWorker
@@ -35,7 +34,11 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_weekly_list.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+
 import javax.inject.Inject
 
 
@@ -47,6 +50,12 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
 
     @Inject
     lateinit var appFragmentFactory: FragmentFactory
+
+    @Inject
+    lateinit var dateUtil:DateUtil
+
+    @Inject
+    lateinit var dataStore: DataStore<Preferences>
     private var dialogInView: AlertDialog? = null
     lateinit var navHostFragment: NavHostFragment
     lateinit var navController: NavController
@@ -74,13 +83,13 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.main_nav_host) as NavHostFragment
         val inflater=navHostFragment.navController.navInflater
-        val graph=inflater.inflate(R.navigation.nav_graph)
+
         val bundle=Bundle()
 
         navController = navHostFragment.navController
         navController.setGraph(R.navigation.nav_graph,bundle)
         bottom_navigation.setupWithNavController(navController)
-
+        
         navController.addOnDestinationChangedListener{controller, destination, _ ->
 
             fab_schedule.animate().translationY(0f)
@@ -92,6 +101,8 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
                 fab_schedule.show()
 
 
+
+
             }else{
 
 
@@ -101,12 +112,14 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
         }
 
         fab_schedule.setOnClickListener {
+            val dayIndex= runBlocking { dataStore.data.map { it[DAY_INDEX] }.first() }?: dateUtil.curDayIndex
             val action = WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
                 scheduleRequestType = SCHEDULE_REQUEST_NEW,
-                chosenDay = weekly_view_pager.currentItem
+                chosenDay =dayIndex
             )
             navController.navigate(action)
         }
+
     }
 
     override fun <T> onResponseReceived(response: Response?, data: T?) {

@@ -21,7 +21,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_scrollFlags="scroll|enterAlways|snap"
-                style="@style/Widget.MaterialComponents.Toolbar.Primary"
+                style="@style/ToolbarTheme"
+                app:navigationIcon="@drawable/ic_back"
                 app:menu="@menu/save_delete_menu"
                 app:title="Add Schedule"/>
         </com.google.android.material.appbar.AppBarLayout>
@@ -34,14 +35,22 @@
         app:layout_constraintTop_toBottomOf="@id/app_bar_add_schdule" />
 
     <TextView
+        android:id="@+id/txt_upper_label"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#c0c0c0"
+        app:layout_constraintTop_toBottomOf="@id/add_schedule_name"/>
+    <TextView
         android:id="@+id/add_schedule_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:text="Choose an activity"
+        android:gravity="center"
+        android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/blackline"
         android:textSize="20sp"
         android:textAlignment="center"
-        android:textColor="#9FA3A5"
+        android:textColor="#8D9091"
         android:layout_marginTop="20dp"
         />
 
@@ -132,6 +141,24 @@
         android:background="#c0c0c0"
         app:layout_constraintTop_toBottomOf="@id/add_schedule_day"
         android:layout_marginTop="20dp"/>
+        <TextView
+            android:id="@+id/txt_alarm_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reminders"
+            android:layout_marginStart="12dp"
+            app:layout_constraintTop_toBottomOf="@id/blackline_notification"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:paddingTop="2dp"
+            android:layout_marginTop="8dp"
+            />
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_ring"
+            app:layout_constraintTop_toTopOf="@id/txt_alarm_label"
+            app:layout_constraintEnd_toStartOf="@id/txt_alarm_label"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_alarms"
@@ -140,37 +167,60 @@
             android:layout_marginTop="32dp"
             app:layout_constraintTop_toBottomOf="@id/blackline_notification"
             tools:listitem="@layout/alarm_item"
-            tools:itemCount="2"/>
+            tools:itemCount="2"
+            android:layout_marginBottom="2dp"/>
 
-        <TextView
-        android:id="@+id/txt_add_alert"
+        <ImageView
+        android:id="@+id/img_add_alert"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_add_alert"
+        app:layout_constraintTop_toBottomOf="@id/recycler_alarms"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="8dp"
+        />
+        <View
+            android:id="@+id/blackline_todos"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#c0c0c0"
+            app:layout_constraintTop_toBottomOf="@id/img_add_alert"
+            android:layout_marginTop="8dp"/>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_todo_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_add_alert"
-        app:layout_constraintTop_toBottomOf="@id/recycler_alarms"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="8dp"
-        android:text="   Remind me"/>
+        app:layout_constraintTop_toBottomOf="@id/blackline_todos">
 
-    <View
-        android:id="@+id/blackline_todos"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="#c0c0c0"
-        app:layout_constraintTop_toBottomOf="@id/txt_add_alert"
-        android:layout_marginTop="8dp"/>
-
-
+        <TextView
+            android:id="@+id/txt_todo_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Checklist"
+            android:layout_marginStart="12dp"
+           app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:paddingTop="2dp"
+            android:layout_marginTop="8dp"
+            />
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/icon_todo"
+            app:layout_constraintTop_toTopOf="@id/txt_todo_label"
+            app:layout_constraintEnd_toStartOf="@id/txt_todo_label"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_schedule_todo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="8dp"
 
-            app:layout_constraintTop_toBottomOf="@id/blackline_todos"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txt_todo_label"
             tools:listitem="@layout/todo_item"
             tools:itemCount="1"/>
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

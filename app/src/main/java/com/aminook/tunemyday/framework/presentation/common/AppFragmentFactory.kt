@@ -6,7 +6,7 @@ import com.aminook.tunemyday.framework.presentation.addschedule.AddEditScheduleF
 import com.aminook.tunemyday.framework.presentation.addschedule.AlarmDialog
 import com.aminook.tunemyday.framework.presentation.addtodo.AddToDoFragment
 import com.aminook.tunemyday.framework.presentation.dailylist.DailyListFragment
-import com.aminook.tunemyday.framework.presentation.tasklist.TaskListFragment
+import com.aminook.tunemyday.framework.presentation.ProgramList.ProgramListFragment
 import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragment
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,7 +21,7 @@ class AppFragmentFactory @Inject constructor() : FragmentFactory() {
 
             DailyListFragment::class.java.name->DailyListFragment()
 
-            TaskListFragment::class.java.name->TaskListFragment()
+            ProgramListFragment::class.java.name->ProgramListFragment()
 
             AddEditScheduleFragment::class.java.name->AddEditScheduleFragment()
 

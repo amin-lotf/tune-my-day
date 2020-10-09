@@ -1,18 +1,21 @@
 package com.aminook.tunemyday.framework.presentation.weeklylist
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
+import kotlinx.android.synthetic.main.program_item.view.*
 import kotlinx.android.synthetic.main.schedule_item.view.*
 import java.util.zip.Inflater
 
-class ShortDailyScheduleRecycler : RecyclerView.Adapter<ShortDailyScheduleRecycler.ViewHolder>() {
+class ShortDailyScheduleRecycler(val context:Context) : RecyclerView.Adapter<ShortDailyScheduleRecycler.ViewHolder>() {
 
     private var listener:ItemClickListener?=null
     private val TYPE_BUSY=1
@@ -75,20 +78,24 @@ class ShortDailyScheduleRecycler : RecyclerView.Adapter<ShortDailyScheduleRecycl
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(schedule: Schedule) {
-            itemView.schedule_program.text=schedule.program?.name
+            itemView.schedule_program.text=schedule.program.name
+            val label=ContextCompat.getDrawable(context,R.drawable.program_label)
+            label?.setTint(schedule.program.color)
+            itemView.program_color.background=label
+          //  itemView.program_color.
             itemView.schedule_hour_start.text=schedule.startTime.toString()
             itemView.schedule_hour_end.text=schedule.endTime.toString()
             itemView.schedule_duration.text=schedule.duration
             if (schedule.hasToDo){
                 itemView.schedule_todo_icon.visibility=View.VISIBLE
             }else{
-             itemView.schedule_todo_icon.visibility=View.GONE
+             itemView.schedule_todo_icon.visibility=View.INVISIBLE
             }
 
             if (schedule.hasAlarm){
                 itemView.schedule_alarm_icon.visibility=View.VISIBLE
             }else{
-                itemView.schedule_alarm_icon.visibility=View.GONE
+                itemView.schedule_alarm_icon.visibility=View.INVISIBLE
             }
             if(schedule.startDay!=schedule.endDay){
                 itemView.txt_next_day.visibility=View.VISIBLE

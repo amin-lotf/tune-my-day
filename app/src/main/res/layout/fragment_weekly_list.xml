@@ -12,17 +12,19 @@
         app:layout_constraintTop_toTopOf="parent"
         >
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar_add_schedule"
+            android:id="@+id/toolbar_weekly_schedule"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways|snap"
-            style="@style/Widget.MaterialComponents.Toolbar.Primary"
-            app:title="Saturday"/>
+            style="@style/ToolbarTheme"
+            app:title="Weekly Schedule"/>
     </com.google.android.material.appbar.AppBarLayout>
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/weekly_tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:tabPaddingStart="0dp"
+        app:tabPaddingEnd="0dp"
         app:tabTextAppearance="@style/weeklyTabText"
         app:layout_constraintTop_toBottomOf="@id/app_bar_weekly_list" />
 

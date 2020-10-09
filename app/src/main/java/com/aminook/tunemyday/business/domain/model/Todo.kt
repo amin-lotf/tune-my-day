@@ -8,6 +8,7 @@ data class Todo(
     var id: Long=0L,
     var title: String="",
     var scheduleId:Long=0L,
+    var programId:Long=0L,
     var isDone: Boolean=false,
     var dateAdded:Int,
     var priorityIndex: Int=0,

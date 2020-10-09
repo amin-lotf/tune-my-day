@@ -74,10 +74,9 @@ class ToDoAdapter : ListAdapter<Todo, ToDoAdapter.ViewHolder>(DIFF_CALLBACK), It
                 Log.d(TAG, "bind: delete todo adapter ")
                 listener?.onDeleteTodoClick(todo, toDoAdapter)
             }
-            itemView.img_edit_todo.setOnClickListener {
+            itemView.txt_todo_title.setOnClickListener {
                 listener?.onEditTodoClick(todo, toDoAdapter)
             }
-
 
         }
     }

@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.TimePicker
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -86,11 +86,21 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         val args: AddEditScheduleFragmentArgs by navArgs()
         args.scheduleRequestType?.apply {
             viewModel.processRequest(this, args)
-            val title = if (this == SCHEDULE_REQUEST_EDIT) "Edit Activity" else "New Activity"
-            //(activity as AppCompatActivity).title = title
-            toolbar_add_schedule.title = title
+            if (this == SCHEDULE_REQUEST_EDIT){
+                toolbar_add_schedule.title = "Edit Activity"
+                toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible=true
+            }else{
+                toolbar_add_schedule.title = "New Activity"
+                toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible=false
+                layout_todo_group.isVisible=false
+            }
         }
 
+
+
+        toolbar_add_schedule.setNavigationOnClickListener {
+            findNavController().popBackStack()
+        }
         alarmAdapter = AlarmListAdapter()
 
         startTime = Time()
@@ -116,6 +126,8 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         alarmAdapter?.setOnClickListener(this)
 
     }
+
+
 
     private fun setTodoAdapter() {
         toDoListAdapter = ToDoAdapter()
@@ -182,7 +194,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         add_schedule_end.setOnClickListener { timeView ->
             openTimeDialog(timeView)
         }
-        txt_add_alert.setOnClickListener {
+        img_add_alert.setOnClickListener {
             //openAlarmDialog()
             if (!isShowingDialog) {
                 isShowingDialog = true
@@ -250,9 +262,12 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
             add_schedule_end.text = endTime.toString()
         }
 
-        viewModel.selectedProgram.observe(viewLifecycleOwner) {
+        viewModel.selectedProgram.observe(viewLifecycleOwner) {program->
             // Log.d(TAG, "subscribeObservers: selectedProgram $it")
-            add_schedule_name.text = it.name
+            add_schedule_name.text = program.name
+            val chosenColor=colors.filter { it.value== program.color}
+           // add_schedule_name.setTextColor(chosenColor.first().matchedFontColor)
+            txt_upper_label.setBackgroundColor(chosenColor.first().value)
 
         }
 

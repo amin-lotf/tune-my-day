@@ -1,6 +1,8 @@
 package com.aminook.tunemyday.framework.datasource.cache.database
 
 import androidx.room.*
+import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
+
 import com.aminook.tunemyday.framework.datasource.cache.model.ProgramEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -28,4 +30,13 @@ interface ProgramDao {
     suspend fun updateProgram(programEntity: ProgramEntity): Int
 
     fun getAllProgramsDistinctUntilChanged()=selectAllPrograms().distinctUntilChanged()
+
+
+    @Transaction
+    @Query("select * from programs order by name")
+    fun getProgramsSummary():Flow<List<ProgramDetail>>
+
+
+
+
 }
