@@ -13,10 +13,9 @@ import com.aminook.tunemyday.framework.datasource.cache.model.*
         AlarmEntity::class,
         ProgramEntity::class,
         ScheduleEntity::class,
-        ToDoScheduleMapper::class,
-        SubTodoEntity::class
+        ToDoScheduleMapper::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 
@@ -26,7 +25,6 @@ abstract class ScheduleDatabase : RoomDatabase() {
     abstract fun programDao(): ProgramDao
     abstract fun alarmDao(): AlarmDao
     abstract fun todoDao(): TodoDao
-    abstract fun subTodoDao():SubTodoDao
     abstract fun todoScheduleDao(): ToDoScheduleDao
 
 

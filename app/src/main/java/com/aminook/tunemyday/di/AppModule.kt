@@ -54,10 +54,10 @@ abstract class AppModule {
         fun provideToDoDao(scheduleDatabase: ScheduleDatabase) =
             scheduleDatabase.todoDao()
 
-        @Singleton
-        @Provides
-        fun provideSubToDoDao(scheduleDatabase: ScheduleDatabase) =
-            scheduleDatabase.subTodoDao()
+//        @Singleton
+//        @Provides
+//        fun provideSubToDoDao(scheduleDatabase: ScheduleDatabase) =
+//            scheduleDatabase.subTodoDao()
 
         @Singleton
         @Provides
@@ -83,7 +83,12 @@ abstract class AppModule {
                 Color(ContextCompat.getColor(context, R.color.label6), false,black),
                 Color(ContextCompat.getColor(context, R.color.label7), false,black),
                 Color(ContextCompat.getColor(context, R.color.label8), false,white),
-                Color(ContextCompat.getColor(context, R.color.label9), false,white)
+                Color(ContextCompat.getColor(context, R.color.label9), false,white),
+                Color(ContextCompat.getColor(context, R.color.label10), false,black),
+                Color(ContextCompat.getColor(context, R.color.label11), false,black),
+                Color(ContextCompat.getColor(context, R.color.label12), false,black),
+                Color(ContextCompat.getColor(context, R.color.label13), false,white),
+                Color(ContextCompat.getColor(context, R.color.label14), false,white)
             )
         }
         @Singleton

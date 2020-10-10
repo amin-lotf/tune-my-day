@@ -36,14 +36,14 @@ data class TodoEntity(
     var id: Long = 0
 }
 
-data class FullTodo(
-    @Embedded
-    val todo: TodoEntity,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "todo_id"
-    )
-    val subTodos:List<SubTodoEntity>
-)
+//data class FullTodo(
+//    @Embedded
+//    val todo: TodoEntity,
+//    @Relation(
+//        parentColumn = "id",
+//        entityColumn = "todo_id"
+//    )
+//    val subTodos:List<SubTodoEntity>
+//)
 
 

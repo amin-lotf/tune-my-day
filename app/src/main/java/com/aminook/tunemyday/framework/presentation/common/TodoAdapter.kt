@@ -13,7 +13,7 @@ import com.aminook.tunemyday.business.domain.model.Todo
 import com.aminook.tunemyday.util.ItemMoveCallback
 import kotlinx.android.synthetic.main.todo_item.view.*
 
-class ToDoAdapter : ListAdapter<Todo, ToDoAdapter.ViewHolder>(DIFF_CALLBACK), ItemMoveCallback {
+class TodoAdapter : ListAdapter<Todo, TodoAdapter.ViewHolder>(DIFF_CALLBACK), ItemMoveCallback {
 
     private val TAG = "aminjoon"
     private var listener: ToDoRecyclerViewListener? = null
@@ -21,13 +21,12 @@ class ToDoAdapter : ListAdapter<Todo, ToDoAdapter.ViewHolder>(DIFF_CALLBACK), It
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.todo_item, parent, false)
-        return ViewHolder(view, this)
+        return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val todo = getItem(position)
         holder.bind(todo)
-        listener?.setSubTodoAdapter(holder, todo)
     }
 
 
@@ -37,16 +36,15 @@ class ToDoAdapter : ListAdapter<Todo, ToDoAdapter.ViewHolder>(DIFF_CALLBACK), It
 
 
     override fun onItemSwap(fromPosition: Int, toPosition: Int) {
-        listener?.swapItems(fromPosition, toPosition,this)
+        listener?.swapItems(fromPosition, toPosition)
     }
 
     override fun onItemSwipe(itemPosition: Int, direction: Int) {
 
     }
 
-    inner class ViewHolder(itemView: View, val toDoAdapter: ToDoAdapter) :
+    inner class ViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
-        val subTodoRecycler: RecyclerView = itemView.recycler_sub_todo
         fun bind(todo: Todo) {
 
             itemView.txt_todo_title.text = todo.title
@@ -65,17 +63,16 @@ class ToDoAdapter : ListAdapter<Todo, ToDoAdapter.ViewHolder>(DIFF_CALLBACK), It
 
             itemView.chk_todo.setOnClickListener {
                 listener?.onCheckChanged(
-                    todo.copy(isDone = itemView.chk_todo.isChecked),
-                    toDoAdapter
+                    todo.copy(isDone = itemView.chk_todo.isChecked)
                 )
             }
 
             itemView.img_remove_todo.setOnClickListener {
                 Log.d(TAG, "bind: delete todo adapter ")
-                listener?.onDeleteTodoClick(todo, toDoAdapter)
+                listener?.onDeleteTodoClick(todo)
             }
             itemView.txt_todo_title.setOnClickListener {
-                listener?.onEditTodoClick(todo, toDoAdapter)
+                listener?.onEditTodoClick(todo)
             }
 
         }
@@ -99,11 +96,10 @@ class ToDoAdapter : ListAdapter<Todo, ToDoAdapter.ViewHolder>(DIFF_CALLBACK), It
     }
 
     interface ToDoRecyclerViewListener {
-        fun setSubTodoAdapter(itemView: ViewHolder, todo: Todo)
-        fun onDeleteTodoClick(todo: Todo, todoAdapter: ToDoAdapter)
-        fun onEditTodoClick(todo: Todo, todoAdapter: ToDoAdapter)
-        fun onCheckChanged(todo: Todo, todoAdapter: ToDoAdapter)
-        fun swapItems(fromPosition: Int, toPosition: Int, toDoAdapter: ToDoAdapter)
+        fun onDeleteTodoClick(todo: Todo)
+        fun onEditTodoClick(todo: Todo)
+        fun onCheckChanged(todo: Todo)
+        fun swapItems(fromPosition: Int, toPosition: Int)
     }
 
 

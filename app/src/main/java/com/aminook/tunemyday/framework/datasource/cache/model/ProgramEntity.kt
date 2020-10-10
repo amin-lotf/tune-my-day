@@ -28,10 +28,9 @@ data class ProgramDetail(
     val schedules:List<FullSchedule>,
 
     @Relation(
-        entity = TodoEntity::class,
         parentColumn = "id",
         entityColumn = "program_id"
     )
-    val todos:List<FullTodo>
+    val todos:List<TodoEntity>
 
 )

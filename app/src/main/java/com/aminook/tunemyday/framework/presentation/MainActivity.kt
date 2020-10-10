@@ -2,10 +2,15 @@ package com.aminook.tunemyday.framework.presentation
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MarginLayoutParamsCompat
+import androidx.core.view.isVisible
+import androidx.core.view.marginBottom
 import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
 import androidx.datastore.preferences.edit
@@ -82,7 +87,6 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
     private fun setupNavigation() {
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.main_nav_host) as NavHostFragment
-        val inflater=navHostFragment.navController.navInflater
 
         val bundle=Bundle()
 
@@ -97,17 +101,15 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
 
             // First page is main menu
             if(controller.graph.startDestination == destination.id){
-
                 fab_schedule.show()
-
-
-
-
             }else{
-
-
-
                 fab_schedule.hide()
+            }
+
+            if (destination.id==R.id.addScheduleFragment){
+                bottom_navigation.visibility=View.GONE
+            }else{
+                bottom_navigation.visibility=View.VISIBLE
             }
         }
 

@@ -102,13 +102,13 @@ class DailyViewModel @ViewModelInject constructor(
 
     fun getTodos(scheduleId: Long): LiveData<List<Todo>> {
 
+
         return todoInteractors.getScheduleTodos(scheduleId)
             .flowOn(Default)
             .map {
                 processResponse(it?.stateMessage)
                 it?.data ?: emptyList()
             }
-            .flowOn(IO)
             .asLiveData()
 
     }

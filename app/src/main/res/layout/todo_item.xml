@@ -41,15 +41,6 @@
             app:layout_constraintBottom_toBottomOf="@id/chk_todo"
             android:text="Gym"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_sub_todo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/chk_todo"
-            android:layout_marginStart="24dp"
-            tools:listitem="@layout/todo_sub_item"
-            tools:itemCount="3"/>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

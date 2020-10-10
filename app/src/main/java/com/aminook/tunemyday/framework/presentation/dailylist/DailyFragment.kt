@@ -12,7 +12,7 @@ import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.model.Todo
 import com.aminook.tunemyday.business.domain.state.SnackbarUndoCallback
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
-import com.aminook.tunemyday.framework.presentation.common.ToDoAdapter
+import com.aminook.tunemyday.framework.presentation.common.TodoAdapter
 import com.aminook.tunemyday.util.DragManageAdapter
 import com.aminook.tunemyday.util.TodoCallback
 import com.aminook.tunemyday.util.observeOnce
@@ -23,17 +23,13 @@ import kotlinx.android.synthetic.main.bottom_sheet_add_todo.view.*
 import kotlinx.android.synthetic.main.fragment_daily.*
 
 @AndroidEntryPoint
-class DailyFragment() : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoRecyclerViewListener,
+class DailyFragment : BaseFragment(R.layout.fragment_daily),
     DailyScheduleAdapter.DailyScheduleAdapterListener {
     private val TAG="aminjoon"
     private var fragmentIndex:Int?=null
     private val dailyViewModel:DailyViewModel by viewModels()
 
     private lateinit var addTodoBtmSheetDialog:BottomSheetDialog
-
-
-    private var subToDoAdapter:SubToDoAdapter?=null
-    private var dailyScheduleAdapter:DailyScheduleAdapter?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,13 +64,13 @@ class DailyFragment() : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoR
     }
 
     private fun initializeAdapters() {
-        dailyScheduleAdapter=DailyScheduleAdapter()
-        dailyScheduleAdapter?.setListener(this)
+        val dailyScheduleAdapter=DailyScheduleAdapter(requireContext())
+        dailyScheduleAdapter.setListener(this)
 
 
-
-        dailyViewModel.schedules.observe(viewLifecycleOwner){
-            dailyScheduleAdapter?.submitList(it)
+        dailyViewModel.schedules.observeOnce(viewLifecycleOwner){
+            Log.d(TAG, "initializeAdapters: ")
+            dailyScheduleAdapter.submitList(it)
 
 
         }
@@ -87,50 +83,45 @@ class DailyFragment() : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoR
 
 
 
-    override fun setSubTodoAdapter(itemView: ToDoAdapter.ViewHolder, todo: Todo) {
-        subToDoAdapter= SubToDoAdapter()
-        itemView.subTodoRecycler.apply {
-            layoutManager=LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
-            adapter=subToDoAdapter
-        }
-    }
-
-    override fun onEditTodoClick(todo: Todo, todoAdapter: ToDoAdapter) {
+    override fun onEditTodoClick(todo: Todo, todoAdapter: TodoAdapter?) {
         showAddTodo(todo.scheduleId,todo.programId,todoAdapter,todo)
     }
 
-    override fun onCheckChanged(todo: Todo, todoAdapter: ToDoAdapter) {
+    override fun onCheckChanged(todo: Todo, todoAdapter: TodoAdapter?) {
         dailyViewModel.updateTodo(todo).observeOnce(viewLifecycleOwner){
-            todoAdapter.submitList(it)
+            todoAdapter?.submitList(it)
         }
     }
 
-    override fun swapItems(fromPosition: Int, toPosition: Int, toDoAdapter: ToDoAdapter) {
-        val destTodo=toDoAdapter.currentList[toPosition].copy()
-        val sourceTodo=toDoAdapter.currentList[fromPosition].copy()
+    override fun swapItems(fromPosition: Int, toPosition: Int, todoAdapter: TodoAdapter?) {
+        todoAdapter?.let {
+            val destTodo=todoAdapter.currentList[toPosition].copy()
+            val sourceTodo=todoAdapter.currentList[fromPosition].copy()
 
-        val destPriorityIndex=destTodo.priorityIndex
-        val sourcePriorityIndex=sourceTodo.priorityIndex
-        destTodo.priorityIndex=sourcePriorityIndex
-        sourceTodo.priorityIndex=destPriorityIndex
+            val destPriorityIndex=destTodo.priorityIndex
+            val sourcePriorityIndex=sourceTodo.priorityIndex
+            destTodo.priorityIndex=sourcePriorityIndex
+            sourceTodo.priorityIndex=destPriorityIndex
 
-        dailyViewModel.updateTodos(
-            listOf(destTodo,sourceTodo),
-            destTodo.scheduleId
-        ).observeOnce(viewLifecycleOwner){
+            dailyViewModel.updateTodos(
+                listOf(destTodo,sourceTodo),
+                destTodo.scheduleId
+            ).observeOnce(viewLifecycleOwner){
 
-            toDoAdapter.submitList(it)
+                todoAdapter.submitList(it)
+            }
         }
+
 
     }
 
-    override fun onDeleteTodoClick(todo: Todo, todoAdapter: ToDoAdapter) {
+    override fun onDeleteTodoClick(todo: Todo, todoAdapter: TodoAdapter?) {
         dailyViewModel.deleteTodo(
             todo,
             undoCallback = object : SnackbarUndoCallback {
                 override fun undo() {
                     dailyViewModel.addTodo(todo).observeOnce(viewLifecycleOwner) {
-                        todoAdapter.submitList(it)
+                        todoAdapter?.submitList(it)
                     }
                 }
 
@@ -142,49 +133,20 @@ class DailyFragment() : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoR
 
             }
         ).observeOnce(viewLifecycleOwner){
-            todoAdapter.submitList(it)
+            todoAdapter?.submitList(it)
         }
 
     }
 
 
-    override fun setTodoAdapter(holder: DailyScheduleAdapter.ViewHolder, schedule: Schedule) {
-        val todoAdapter= ToDoAdapter()
-        todoAdapter.setListener(this)
-        Log.d(TAG, "setTodoAdapter: ${schedule.id}")
-        dailyViewModel.getTodos(schedule.id).observeOnce(viewLifecycleOwner){
-            todoAdapter.submitList(it)
-        }
-        val layoutManager=LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
-
-        val dividerItemDecoration=DividerItemDecoration(requireContext(),layoutManager.orientation)
-        //todoAdapter.submitList(schedule.todos)
-        holder.todoRecyclerView.apply {
-            this.layoutManager=layoutManager
-            adapter=todoAdapter
-            addItemDecoration(dividerItemDecoration)
-        }
-
-        val callback= DragManageAdapter(
-            todoAdapter,
-            requireContext(),
-            ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
-           0
-        )
-
-        val helper=ItemTouchHelper(callback)
-
-        helper.attachToRecyclerView(holder.todoRecyclerView)
-
-    }
 
 
 
-    override fun onAddNoteClick(scheduleId: Long,programId:Long, dailyScheduleAdapter: ToDoAdapter) {
+    override fun onAddNoteClick(scheduleId: Long,programId:Long, dailyScheduleAdapter: TodoAdapter) {
         showAddTodo(scheduleId,programId,dailyScheduleAdapter)
     }
 
-    private fun showAddTodo(scheduleId: Long,programId: Long, toDoAdapter: ToDoAdapter, todo:Todo?=null) {
+    private fun showAddTodo(scheduleId: Long, programId: Long, todoAdapter: TodoAdapter?, todo:Todo?=null) {
         addTodoBtmSheetDialog= BottomSheetDialog(requireContext(),R.style.DialogStyle)
         val view=layoutInflater.inflate(R.layout.bottom_sheet_add_todo,btn_sheet_add_todo)
         addTodoBtmSheetDialog.setContentView(view)
@@ -199,12 +161,12 @@ class DailyFragment() : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoR
                 if (todo==null) {
                     dailyViewModel.createTodo(scheduleId,programId, task.toString(),false)
                         .observeOnce(viewLifecycleOwner) {
-                            toDoAdapter.submitList(it)
+                            todoAdapter?.submitList(it)
                         }
                 }
                 else{
                     dailyViewModel.updateTodo(todo.copy(title = task.toString())).observeOnce(viewLifecycleOwner){
-                        toDoAdapter.submitList(it)
+                        todoAdapter?.submitList(it)
                         addTodoBtmSheetDialog.dismiss()
                     }
                 }
@@ -230,10 +192,5 @@ class DailyFragment() : BaseFragment(R.layout.fragment_daily), ToDoAdapter.ToDoR
             }
     }
 
-    override fun onDestroy() {
-        subToDoAdapter=null
-        dailyScheduleAdapter=null
-        super.onDestroy()
 
-    }
 }
