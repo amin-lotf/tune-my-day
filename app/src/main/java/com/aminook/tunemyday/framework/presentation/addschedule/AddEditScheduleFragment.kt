@@ -81,25 +81,22 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
     private lateinit var addTodoBtmSheetDialog: BottomSheetDialog
 
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        subscribeObservers()
+
         // (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
         val args: AddEditScheduleFragmentArgs by navArgs()
         args.scheduleRequestType?.apply {
             viewModel.processRequest(this, args)
-            if (this == SCHEDULE_REQUEST_EDIT){
+            if (this == SCHEDULE_REQUEST_EDIT) {
                 toolbar_add_schedule.title = "Edit Activity"
-                toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible=true
-            }else{
+
+                toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = true
+            } else {
                 toolbar_add_schedule.title = "New Activity"
-                toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible=false
-                layout_todo_group.isVisible=false
+                add_schedule_name.text = "Choose an activity"
+                toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = false
+                layout_todo_group.isVisible = false
             }
         }
 
@@ -113,16 +110,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         endTime = Time()
         //showPrograms()
         setClickListeners()
-
-
-
-
-
-
         setTodoAdapter()
-
-
-
         recycler_alarms.apply {
             this.layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -130,9 +118,8 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
             adapter = alarmAdapter
         }
         alarmAdapter?.setOnClickListener(this)
-
+        subscribeObservers()
     }
-
 
 
     private fun setTodoAdapter() {
@@ -159,8 +146,8 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
             val helper= ItemTouchHelper(callback)
 
             helper.attachToRecyclerView(recycler_schedule_todo)
-            viewModel.getTodos().observeOnce(viewLifecycleOwner) {
-                todoListAdapter?.submitList(it)
+            viewModel.scheduleTodos.observe(viewLifecycleOwner){todos->
+                todoListAdapter?.submitList(todos)
             }
         }
 
@@ -170,7 +157,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
     private fun setClickListeners() {
 
         img_add_todo_schedule.setOnClickListener {
-            todoListAdapter?.let { adapter->
+            todoListAdapter?.let { adapter ->
                 Log.d(TAG, "setClickListeners: ${viewModel.scheduleId}")
                 showAddTodo(viewModel.scheduleId)
             }
@@ -217,6 +204,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
 
     private fun subscribeObservers() {
+
 
         viewModel.stateMessage.observe(viewLifecycleOwner) { event ->
             event?.getContentIfNotHandled()?.let { stateMessage ->
@@ -274,7 +262,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
             add_schedule_end.text = endTime.toString()
         }
 
-        viewModel.selectedProgram.observe(viewLifecycleOwner) { program->
+        viewModel.selectedProgram.observe(viewLifecycleOwner) { program ->
             // Log.d(TAG, "subscribeObservers: selectedProgram $it")
             add_schedule_name.text = program.name
 
@@ -373,7 +361,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
     private fun showAlarmDialog(alarm: Alarm? = null) {
         addAlarmBtmSheetDialog =
             BottomSheetDialog(requireContext(), R.style.DialogStyle)
-        addAlarmBtmSheetDialog.behavior.state=BottomSheetBehavior.STATE_EXPANDED
+        addAlarmBtmSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
         val view = LayoutInflater.from(requireContext())
             .inflate(R.layout.layout_add_alarm, bottom_sheet_add_alarm)
 
@@ -387,96 +375,95 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         view.chk_at_start.isChecked = alarm?.isAtStart ?: true
 
         view.chk_at_start.setOnClickListener {
-            if (view.chk_at_start.isChecked ){
+            if (view.chk_at_start.isChecked) {
                 requireActivity().hideKeyboard()
                 view.edt_alarm_hour.apply {
                     setText("00")
-                    isEnabled=false
+                    isEnabled = false
                 }
                 view.edt_alarm_minute.apply {
                     setText("00")
-                    isEnabled=false
+                    isEnabled = false
                 }
 
-            }
-            else{
-                view.layout_custom_alarm_time.visibility=View.VISIBLE
-                view.edt_alarm_hour.isEnabled=true
-                view.edt_alarm_minute.isEnabled=true
+            } else {
+                view.layout_custom_alarm_time.visibility = View.VISIBLE
+                view.edt_alarm_hour.isEnabled = true
+                view.edt_alarm_minute.isEnabled = true
                 view.edt_alarm_hour.showKeyboard()
             }
         }
-            view.edt_alarm_hour.apply {
+        view.edt_alarm_hour.apply {
 
-                alarm?.let {
-                    if (!it.isAtStart) {
-                        this@apply.setText(it.hourBefore.toString())
-                    }
-                }
-
-                this.addTextChangedListener(object : TimeTextWatcher(23) {
-                    override fun setText(input: String) {
-                        this@apply.setText(input)
-                    }
-
-                    override fun setSelection(index: Int) {
-                        this@apply.setSelection(index)
-                    }
-
-                })
-
-                this.setOnFocusChangeListener { _, hasFocus ->
-                    if (hasFocus) {
-                        this@apply.setText("")
-                    }
+            alarm?.let {
+                if (!it.isAtStart) {
+                    this@apply.setText(it.hourBefore.toString())
                 }
             }
 
-            view.edt_alarm_minute.apply {
-
-                alarm?.let {
-                    if (!it.isAtStart) {
-                        this@apply.setText(it.minuteBefore.toString())
-                    }
+            this.addTextChangedListener(object : TimeTextWatcher(23) {
+                override fun setText(input: String) {
+                    this@apply.setText(input)
                 }
 
-                this.addTextChangedListener(object : TimeTextWatcher(59) {
-                    override fun setText(input: String) {
-                        this@apply.setText(input)
-                    }
+                override fun setSelection(index: Int) {
+                    this@apply.setSelection(index)
+                }
 
-                    override fun setSelection(index: Int) {
-                        this@apply.setSelection(index)
-                    }
+            })
 
-                })
-
-                this.setOnFocusChangeListener { _, hasFocus ->
-                    if (hasFocus) {
-                        this.setText("")
-                    }
+            this.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    this@apply.setText("")
                 }
             }
-            view.btn_add_alarm.setOnClickListener {
-                var hour = 0
-                var minute = 0
-                if (!view.chk_at_start.isChecked) {
+        }
 
-                    hour = view.edt_alarm_hour.text.toString().toIntOrNull() ?: 0
-                    minute = view.edt_alarm_minute.text.toString().toIntOrNull() ?: 0
-                }
-                val alarmInEdit = if (alarm == null) {
-                    Alarm(hourBefore = hour, minuteBefore = minute)
-                } else {
-                    alarm.apply {
-                        this.hourBefore = hour
-                        this.minuteBefore = minute
-                    }
-                }
+        view.edt_alarm_minute.apply {
 
-                viewModel.setAlarm(alarmInEdit)
-                addAlarmBtmSheetDialog.dismiss()
+            alarm?.let {
+                if (!it.isAtStart) {
+                    this@apply.setText(it.minuteBefore.toString())
+                }
             }
+
+            this.addTextChangedListener(object : TimeTextWatcher(59) {
+                override fun setText(input: String) {
+                    this@apply.setText(input)
+                }
+
+                override fun setSelection(index: Int) {
+                    this@apply.setSelection(index)
+                }
+
+            })
+
+            this.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    this.setText("")
+                }
+            }
+        }
+        view.btn_add_alarm.setOnClickListener {
+            var hour = 0
+            var minute = 0
+            if (!view.chk_at_start.isChecked) {
+
+                hour = view.edt_alarm_hour.text.toString().toIntOrNull() ?: 0
+                minute = view.edt_alarm_minute.text.toString().toIntOrNull() ?: 0
+            }
+            val alarmInEdit = if (alarm == null) {
+                Alarm(hourBefore = hour, minuteBefore = minute)
+            } else {
+                alarm.apply {
+                    this.hourBefore = hour
+                    this.minuteBefore = minute
+                }
+            }
+
+            viewModel.setAlarm(alarmInEdit)
+            addAlarmBtmSheetDialog.dismiss()
+        }
     }
 
     private fun showPrograms() {
@@ -516,7 +503,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
     private fun showAddProgramDialog() {
         addProgramBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.DialogStyle)
-        addProgramBtmSheetDialog.behavior.state=BottomSheetBehavior.STATE_EXPANDED
+        addProgramBtmSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
         val view = layoutInflater.inflate(R.layout.dialog_add_program, btm_sheet_add_program)
 
 
@@ -611,7 +598,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
                 }
 
             }
-        ).observeOnce(viewLifecycleOwner){
+        ).observeOnce(viewLifecycleOwner) {
             todoListAdapter?.submitList(it)
         }
     }
@@ -621,25 +608,25 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
     }
 
     override fun onCheckChanged(todo: Todo) {
-        viewModel.updateTodo(todo).observeOnce(viewLifecycleOwner){
+        viewModel.updateTodo(todo).observeOnce(viewLifecycleOwner) {
             todoListAdapter?.submitList(it)
         }
     }
 
     override fun swapItems(fromPosition: Int, toPosition: Int) {
         todoListAdapter?.let {
-            val destTodo=it.currentList[toPosition].copy()
-            val sourceTodo=it.currentList[fromPosition].copy()
-            if(!sourceTodo.isDone){
-                val destPriorityIndex=destTodo.priorityIndex
-                val sourcePriorityIndex=sourceTodo.priorityIndex
-                destTodo.priorityIndex=sourcePriorityIndex
-                sourceTodo.priorityIndex=destPriorityIndex
+            val destTodo = it.currentList[toPosition].copy()
+            val sourceTodo = it.currentList[fromPosition].copy()
+            if (!sourceTodo.isDone) {
+                val destPriorityIndex = destTodo.priorityIndex
+                val sourcePriorityIndex = sourceTodo.priorityIndex
+                destTodo.priorityIndex = sourcePriorityIndex
+                sourceTodo.priorityIndex = destPriorityIndex
 
                 viewModel.updateTodos(
                     listOf(destTodo, sourceTodo),
                     destTodo.scheduleId
-                ).observeOnce(viewLifecycleOwner){
+                ).observeOnce(viewLifecycleOwner) {
 
                     todoListAdapter?.submitList(it)
                 }

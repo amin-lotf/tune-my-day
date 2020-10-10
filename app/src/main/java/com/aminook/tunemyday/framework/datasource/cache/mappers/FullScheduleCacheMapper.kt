@@ -32,7 +32,9 @@ class FullScheduleCacheMapper @Inject constructor(
             this.endTime = Time(endHour, endMinute)
 
             this.alarms.addAll(entity.alarms.map { alarmCacheMapper.mapFromEntity(it) })
-            this.todos.addAll(entity.todos.map { todoCacheMapper.mapFromEntity(it) })
+            this.todos.addAll(entity.todos.map { todoCacheMapper.mapFromEntity(it) }.sortedWith(
+                compareBy({it.isDone},{it.priorityIndex}))
+            )
 
             if (this.alarms.size>0){
                 this.hasAlarm=true

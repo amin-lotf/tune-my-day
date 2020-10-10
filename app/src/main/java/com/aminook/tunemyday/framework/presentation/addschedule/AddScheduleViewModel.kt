@@ -42,10 +42,13 @@ class AddScheduleViewModel @ViewModelInject constructor(
     private var _allPrograms = MutableLiveData<List<Program>>()
     private var job: Job? = null
     private var _requestType: String = SCHEDULE_REQUEST_NEW
-
+    private val _todos = MutableLiveData<List<Todo>>()
 
     val requestType: String
         get() = _requestType
+
+    val scheduleTodos:LiveData<List<Todo>>
+        get() = _todos
 
     val selectedProgram: LiveData<Program>
         get() = addScheduleManager.chosenProgram
@@ -122,22 +125,11 @@ class AddScheduleViewModel @ViewModelInject constructor(
                 addScheduleManager.addTodos(it?.data)
                 it?.data ?: emptyList()
             }
-            .flowOn(Dispatchers.Default)
+            .flowOn(Default)
             .asLiveData()
     }
 
-    fun getTodos(): LiveData<List<Todo>> {
-        return todoInteractors.getScheduleTodos(addScheduleManager.buffSchedule.id)
-            .flowOn(Dispatchers.Default)
-            .map {
-                processResponse(it?.stateMessage)
-                addScheduleManager.addTodos(it?.data)
-                it?.data ?: emptyList()
-            }
-            .flowOn(IO)
-            .asLiveData()
 
-    }
 
     fun deleteTodo(
         todo: Todo,
@@ -157,7 +149,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
 
             }
 
-            .flowOn(Dispatchers.Default)
+            .flowOn(Default)
             .asLiveData()
 
     }
@@ -231,34 +223,34 @@ class AddScheduleViewModel @ViewModelInject constructor(
                             .map {
                                 processResponse(it?.stateMessage)
                                 try {
-                                    withContext(Main){
-                                    it?.data?.let { schedule ->
-                                        catchDaysOfWeek(schedule.startDay)
-                                        bufferChosenProgram(schedule.program)
-                                        updateBufferedDays(daysOfWeek[schedule.startDay])
-                                        setTime(
-                                            schedule.startTime.hour,
-                                            schedule.startTime.minute,
-                                            TIME_START
-                                        )
-                                        setTime(
-                                            schedule.endTime.hour,
-                                            schedule.endTime.minute,
-                                            TIME_END
-                                        )
-                                        schedule.alarms.forEach {
-                                            setAlarm(it)
+                                    withContext(Main) {
+                                        it?.data?.let { schedule ->
+                                            bufferChosenProgram(schedule.program)
+                                            catchDaysOfWeek(schedule.startDay)
+                                            updateBufferedDays(daysOfWeek[schedule.startDay])
+                                            setTime(
+                                                schedule.startTime.hour,
+                                                schedule.startTime.minute,
+                                                TIME_START
+                                            )
+                                            setTime(
+                                                schedule.endTime.hour,
+                                                schedule.endTime.minute,
+                                                TIME_END
+                                            )
+                                            schedule.alarms.forEach {
+                                                setAlarm(it)
+                                            }
+                                            _todos.value=schedule.todos
+                                            addScheduleManager.addTodos(schedule.todos)
                                         }
-                                    }
                                     }
                                 } catch (e: Throwable) {
                                     Log.d(TAG, "processRequest: error ${e.message}")
                                     print(e.stackTraceToString())
                                     addScheduleManager.setScheduleId(0)
                                 }
-                            }
-
-                            .single()
+                            }.single()
 
                     }
                 } else {
@@ -296,7 +288,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
 
 
     private fun catchDaysOfWeek(chosenDay: Int) {
-        val daysList=dateUtil.getDaysOfWeek(chosenDay)
+        val daysList = dateUtil.getDaysOfWeek(chosenDay)
         addScheduleManager.addDaysToBuffer(daysList)
         daysList.forEach { day ->
             if (day.isChosen) {

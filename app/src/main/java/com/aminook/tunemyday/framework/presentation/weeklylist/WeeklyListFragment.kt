@@ -21,6 +21,7 @@ import com.aminook.tunemyday.business.domain.model.Color
 import com.aminook.tunemyday.business.domain.model.Day
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.util.DateUtil
+import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule
 import com.aminook.tunemyday.framework.datasource.cache.database.ScheduleDao
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.util.DAY_INDEX
@@ -67,6 +68,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
         setupTabLayout()
         subscribeObservers()
 
+
     }
 
     private fun setupWeeklyViewPager() {
@@ -85,6 +87,8 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
         TabLayoutMediator(weekly_tab_layout, weekly_view_pager) { tab, position ->
             val day = days[position]
             tab.text = day.shortName
+
+
         }.attach()
 
         weekly_tab_layout.apply {
@@ -101,6 +105,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
                 override fun onTabSelected(tab: TabLayout.Tab?) {
                     viewModel.savedDayIndex=tab?.position?:0
                     viewModel.setSavedDayIndex()
+
                 }
 
                 override fun onTabUnselected(tab: TabLayout.Tab?) {
@@ -118,6 +123,12 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
 
 
     private fun subscribeObservers() {
+        viewModel.stateMessage.observe(viewLifecycleOwner) { event ->
+            event?.getContentIfNotHandled()?.let { stateMessage ->
+                uiController?.onResponseReceived(stateMessage.response, null)
+            }
+        }
+
         viewModel.getAllSchedules()
     }
 
@@ -133,6 +144,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
             this.adapter = shortDailyScheduleRecycler
             viewModel.schedules.observe(viewLifecycleOwner) { schedules ->
                 shortDailyScheduleRecycler?.submitList(schedules.filter { it.startDay == position })
+
             }
 
         }
@@ -140,7 +152,9 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list),
             viewModel.isFirstLoad=false
             viewModel.getSavedDayIndex().observeOnce(viewLifecycleOwner){dayIndex->
                 weekly_tab_layout.getTabAt(dayIndex)?.select()
+                Log.d(TAG, "setAdapter: first")
             }
+
         }
 
     }

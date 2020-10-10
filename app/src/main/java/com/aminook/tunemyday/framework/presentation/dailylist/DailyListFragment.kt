@@ -29,7 +29,7 @@ class DailyListFragment : BaseFragment(R.layout.fragment_daily_list) {
 
     override fun onResume() {
         super.onResume()
-        dailyAdapter=DayViewPagerAdapter(requireActivity())
+        dailyAdapter=DayViewPagerAdapter(childFragmentManager,lifecycle)
         view_pager_daily.adapter=dailyAdapter
     }
 
