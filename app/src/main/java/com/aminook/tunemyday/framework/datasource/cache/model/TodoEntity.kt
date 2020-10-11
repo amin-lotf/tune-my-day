@@ -23,7 +23,7 @@ data class TodoEntity(
     @ColumnInfo(name = "schedule_id",index = true)
     val scheduleId:Long,
     @ColumnInfo(name = "program_id",index = true)
-    val programId:Long,
+    var programId:Long,
     val title: String,
     val priorityIndex: Int,
     @ColumnInfo(name = "is_done")
