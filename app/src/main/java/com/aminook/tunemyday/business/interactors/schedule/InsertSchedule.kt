@@ -24,7 +24,7 @@ class InsertSchedule @Inject constructor(
                     DataState.data(
                         response = Response(
                             message = INSERT_SCHEDULE_SUCCESS,
-                            uiComponentType = UIComponentType.Toast,
+                            uiComponentType = UIComponentType.None,
                             messageType = MessageType.Success
                         ),
                         data = INSERT_SCHEDULE_SUCCESS

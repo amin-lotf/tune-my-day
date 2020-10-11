@@ -38,8 +38,8 @@ class AlarmWorker @WorkerInject constructor(
                     )
                 }
             }
-            
-            if(type== TYPE_PERIODIC_SCHEDULE){
+
+            if (type == TYPE_PERIODIC_SCHEDULE) {
                 Log.d(TAG, "doWork: periodic work")
             }
 
@@ -76,14 +76,23 @@ class AlarmWorker @WorkerInject constructor(
                                 TAG,
                                 "doWork: now: future:$timeDiff"
                             )
-                            alarmManager.setExactAndAllowWhileIdle(
-                                AlarmManager.RTC_WAKEUP,
+
+                            val ac = AlarmManager.AlarmClockInfo(
                                 System.currentTimeMillis() + dateUtil.getTimeDifferenceInMills(
                                     it.day,
                                     it.startInSec
                                 ),
                                 pendingIntent
                             )
+                            alarmManager.setAlarmClock(ac,pendingIntent)
+//                            alarmManager.setExactAndAllowWhileIdle(
+//                                AlarmManager.RTC_WAKEUP,
+//                                System.currentTimeMillis() + dateUtil.getTimeDifferenceInMills(
+//                                    it.day,
+//                                    it.startInSec
+//                                ),
+//                                pendingIntent
+//                            )
                             Log.d(
                                 TAG,
                                 "doWork: alarm set id:${it.id} schedule id:${it.scheduleId} day: ${it.day} start:${it.startInSec}"
@@ -94,7 +103,7 @@ class AlarmWorker @WorkerInject constructor(
 
                     }
 
-                    if (modifiedAlarmIndexes.isNotEmpty()){
+                    if (modifiedAlarmIndexes.isNotEmpty()) {
                         modifiedAlarmIndexes.forEach {
                             val intent =
                                 Intent(applicationContext, NotificationReceiver::class.java)
