@@ -238,7 +238,7 @@ class ScheduleRepositoryImpl @Inject constructor(
     }
 
     override fun getDailySchedules(dayIndex: Int): Flow<List<Schedule>> {
-        return daoService.scheduleDao.selectDailyScheduleDistinct(dayIndex).map { fullSchedules ->
+        return daoService.scheduleDao.selectDailyScheduleDistinct(dayIndex,dateUtil.curTimeInSec).map { fullSchedules ->
             fullSchedules.map { mappers.fullScheduleCacheMapper.mapFromEntity(it) }
         }
     }

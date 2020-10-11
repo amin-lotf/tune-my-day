@@ -40,6 +40,8 @@ class ProgramListAdapter :
             itemView.txt_program_detail_title.text=programDetail.program.name
             itemView.txt_lower_label_program.setBackgroundColor(programDetail.program.color)
             itemView.card_program.strokeColor = programDetail.program.color
+            itemView.layout_child_program.setBackgroundColor(programDetail.program.color)
+            itemView.layout_child_program.background.alpha=10
             itemView.txt_num_schedules.text=programDetail.schedules.size.toString()
             itemView.txt_num_todos.text=programDetail.todos.size.toString()
 

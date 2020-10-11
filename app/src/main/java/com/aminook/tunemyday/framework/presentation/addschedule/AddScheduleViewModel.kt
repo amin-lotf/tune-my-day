@@ -218,40 +218,47 @@ class AddScheduleViewModel @ViewModelInject constructor(
                 val scheduleId = args.scheduleId
                 addScheduleManager.setScheduleId(scheduleId)
                 if (scheduleId != 0L) {
-                    CoroutineScope(Default).launch {
-                        scheduleInteractors.getSchedule(scheduleId)
-                            .map {
-                                processResponse(it?.stateMessage)
-                                try {
-                                    withContext(Main) {
-                                        it?.data?.let { schedule ->
-                                            bufferChosenProgram(schedule.program)
-                                            catchDaysOfWeek(schedule.startDay)
-                                            updateBufferedDays(daysOfWeek[schedule.startDay])
-                                            setTime(
-                                                schedule.startTime.hour,
-                                                schedule.startTime.minute,
-                                                TIME_START
-                                            )
-                                            setTime(
-                                                schedule.endTime.hour,
-                                                schedule.endTime.minute,
-                                                TIME_END
-                                            )
-                                            schedule.alarms.forEach {
-                                                setAlarm(it)
-                                            }
-                                            _todos.value=schedule.todos
-                                            addScheduleManager.addTodos(schedule.todos)
-                                        }
-                                    }
-                                } catch (e: Throwable) {
-                                    Log.d(TAG, "processRequest: error ${e.message}")
-                                    print(e.stackTraceToString())
-                                    addScheduleManager.setScheduleId(0)
-                                }
-                            }.single()
+                    try {
 
+
+                        CoroutineScope(Default).launch {
+                            scheduleInteractors.getSchedule(scheduleId)
+                                .map {
+                                    processResponse(it?.stateMessage)
+                                    try {
+                                        withContext(Main) {
+                                            it?.data?.let { schedule ->
+                                                bufferChosenProgram(schedule.program)
+                                                catchDaysOfWeek(schedule.startDay)
+                                                updateBufferedDays(daysOfWeek[schedule.startDay])
+                                                setTime(
+                                                    schedule.startTime.hour,
+                                                    schedule.startTime.minute,
+                                                    TIME_START
+                                                )
+                                                setTime(
+                                                    schedule.endTime.hour,
+                                                    schedule.endTime.minute,
+                                                    TIME_END
+                                                )
+                                                schedule.alarms.forEach {
+                                                    setAlarm(it)
+                                                }
+                                                _todos.value = schedule.todos
+                                                addScheduleManager.addTodos(schedule.todos)
+                                            }
+                                        }
+                                    } catch (e: Throwable) {
+                                        Log.d(TAG, "processRequest: error ${e.message}")
+                                        print(e.stackTraceToString())
+                                        addScheduleManager.setScheduleId(0)
+                                    }
+                                }.single()
+
+                        }
+                    } catch (e: Throwable) {
+                        Log.d(TAG, "processRequest: error getting schedule add-edit ${e.message}")
+                        println(e.stackTrace)
                     }
                 } else {
 

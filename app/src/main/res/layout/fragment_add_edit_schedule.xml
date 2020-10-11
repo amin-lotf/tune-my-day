@@ -192,7 +192,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_todo_group"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         app:layout_constraintTop_toBottomOf="@id/blackline_todos">
 
         <ImageView
