@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowManager
 import android.widget.TimePicker
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -307,11 +308,17 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
     }
 
     private fun showAddTodo(scheduleId: Long, todo: Todo? = null) {
-        Log.d(TAG, "showAddTodo: s id:$scheduleId")
+//        recycler_schedule_todo.scrollToPosition(todoListAdapter?.itemCount?.minus(1)?:0)
+
+        Log.d(TAG, "showAddTodo: pos:${todoListAdapter?.itemCount?.minus(1)}")
         addTodoBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.DialogStyle)
+        addTodoBtmSheetDialog.behavior.state=BottomSheetBehavior.STATE_EXPANDED
         val view = layoutInflater.inflate(R.layout.bottom_sheet_add_todo, btn_sheet_add_todo)
         addTodoBtmSheetDialog.setContentView(view)
         addTodoBtmSheetDialog.show()
+
+        val curPad=scroll_view_add_schedule.paddingBottom
+
         view.txt_add_todo.requestFocus()
         todo?.let {
             view.txt_add_todo.setText(todo.title)
@@ -633,6 +640,14 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
             }
 
         }
+
+    }
+
+    override fun onEmptyList() {
+
+    }
+
+    override fun onNonEmptyList() {
 
     }
 

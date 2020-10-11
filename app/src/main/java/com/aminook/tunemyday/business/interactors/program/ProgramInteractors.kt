@@ -11,5 +11,6 @@ class ProgramInteractors @Inject constructor(
     val getAllPrograms: GetAllPrograms,
     val getAllDetailedPrograms: GetAllDetailedPrograms,
     val deleteProgram: DeleteProgram,
-    val undoDeletedProgram: UndoDeletedProgram
+    val undoDeletedProgram: UndoDeletedProgram,
+    val updateProgram: UpdateProgram
 )

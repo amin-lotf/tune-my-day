@@ -53,6 +53,7 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
     private val TAG = "aminjoon"
     private val mainViewModel: MainViewModel by viewModels()
 
+
     @Inject
     lateinit var appFragmentFactory: FragmentFactory
 
@@ -64,6 +65,7 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
     private var dialogInView: AlertDialog? = null
     lateinit var navHostFragment: NavHostFragment
     lateinit var navController: NavController
+    private var listener:MainActivityListener?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -84,6 +86,10 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
         }
     }
 
+    fun setListener(listener: MainActivityListener?){
+        this.listener=listener
+    }
+
     private fun setupNavigation() {
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.main_nav_host) as NavHostFragment
@@ -100,8 +106,25 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
 
 
             // First page is main menu
-            if(controller.graph.startDestination == destination.id){
+            if( destination.id==R.id.weeklyListFragment || destination.id==R.id.taskListFragment){
                 fab_schedule.show()
+                fab_schedule.setOnClickListener {
+                    when(destination.id){
+                        R.id.weeklyListFragment->{
+                            val dayIndex= runBlocking { dataStore.data.map { it[DAY_INDEX] }.first() }?: dateUtil.curDayIndex
+                            val action = WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
+                                scheduleRequestType = SCHEDULE_REQUEST_NEW,
+                                chosenDay =dayIndex
+                            )
+                            navController.navigate(action)
+                        }
+
+                        R.id.taskListFragment->{
+                            listener?.onFabClick()
+                        }
+                    }
+
+                }
             }else{
                 fab_schedule.hide()
             }
@@ -113,14 +136,7 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
             }
         }
 
-        fab_schedule.setOnClickListener {
-            val dayIndex= runBlocking { dataStore.data.map { it[DAY_INDEX] }.first() }?: dateUtil.curDayIndex
-            val action = WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
-                scheduleRequestType = SCHEDULE_REQUEST_NEW,
-                chosenDay =dayIndex
-            )
-            navController.navigate(action)
-        }
+
 
     }
 
@@ -296,6 +312,10 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
 
     override fun onScheduleDeleted(schedule: Schedule) {
         mainViewModel.deleteSchedule(schedule)
+    }
+
+    interface MainActivityListener{
+        fun onFabClick()
     }
 
 

@@ -8,8 +8,8 @@ import androidx.room.Relation
 
 @Entity(tableName = "programs")
 data class ProgramEntity(
-    val name: String,
-    val color: Int,
+    var name: String,
+    var color: Int,
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0L

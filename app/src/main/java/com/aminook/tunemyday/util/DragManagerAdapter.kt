@@ -41,7 +41,7 @@ class DragManageAdapter<T>(adapter: T, val context: Context, dragDirs: Int, swip
             val itemView = viewHolder.itemView
             val itemHeight = itemView.bottom - itemView.top
 
-            val background = ColorDrawable(Color.RED)
+            val background = ColorDrawable(ContextCompat.getColor(context, R.color.colorDelete))
             background.setBounds(
                 itemView.right + dX.toInt(),
                 itemView.top,

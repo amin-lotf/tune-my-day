@@ -29,6 +29,14 @@ class TodoAdapter : ListAdapter<Todo, TodoAdapter.ViewHolder>(DIFF_CALLBACK), It
         holder.bind(todo)
     }
 
+    override fun submitList(list: List<Todo>?) {
+        if (list.isNullOrEmpty()){
+            listener?.onEmptyList()
+        }else{
+            listener?.onNonEmptyList()
+        }
+        super.submitList(list)
+    }
 
     fun setListener(listener: ToDoRecyclerViewListener) {
         this.listener = listener
@@ -100,6 +108,8 @@ class TodoAdapter : ListAdapter<Todo, TodoAdapter.ViewHolder>(DIFF_CALLBACK), It
         fun onEditTodoClick(todo: Todo)
         fun onCheckChanged(todo: Todo)
         fun swapItems(fromPosition: Int, toPosition: Int)
+        fun onEmptyList()
+        fun onNonEmptyList()
     }
 
 

@@ -1,54 +1,52 @@
-package com.aminook.tunemyday.business.interactors.todo
+package com.aminook.tunemyday.business.interactors.program
 
-import android.service.autofill.Dataset
 import com.aminook.tunemyday.business.data.cache.CacheResponseHandler
 import com.aminook.tunemyday.business.data.cache.ScheduleRepository
-import com.aminook.tunemyday.business.domain.model.Todo
+import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.state.DataState
 import com.aminook.tunemyday.business.domain.state.MessageType
 import com.aminook.tunemyday.business.domain.state.Response
 import com.aminook.tunemyday.business.domain.state.UIComponentType
+import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class InsertTodo @Inject constructor(
+class UpdateProgram @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
-     operator fun invoke(todo:Todo): Flow<DataState<String>?> {
-        val cacheResponse=object :CacheResponseHandler<Long,String>(){
-            override  fun handleSuccess(resultObj: Long): DataState<String>? {
-                return if (resultObj>0){
+
+    suspend operator  fun invoke(program:Program):Flow<DataState<Nothing>?>{
+
+        val cacheResponse=object :CacheResponseHandler<Int,Nothing>(){
+            override fun handleSuccess(resultObj: Int): DataState<Nothing>? {
+                return  if (resultObj>0){
                     DataState.data(
                         response = Response(
-                            message = INSERT_TODO_SUCCESS,
-                            uiComponentType = UIComponentType.Toast,
+                            message = PROGRAM_UPDATE_SUCCESS,
+                            uiComponentType = UIComponentType.None,
                             messageType = MessageType.Success
                         ),
-                        data = INSERT_TODO_SUCCESS
+                        data = null
                     )
                 }else{
-                    DataState.data(
+                    DataState.error(
                         response = Response(
-                            message = INSERT_TODO_FAIL,
+                            message = PROGRAM_UPDATE_FAIL,
                             uiComponentType = UIComponentType.Toast,
                             messageType = MessageType.Error
-                        ),
-                        data = INSERT_TODO_FAIL
+                        )
                     )
-
                 }
             }
-
         }
 
-        return  cacheResponse.getResult {
+        return cacheResponse.getResult {
             flow {
                 emit(
-                    scheduleRepository.insertTodo(todo)
+                    scheduleRepository.updateProgram(program)
                 )
             }
         }
@@ -56,7 +54,7 @@ class InsertTodo @Inject constructor(
     }
 
     companion object{
-        const val INSERT_TODO_SUCCESS="Task added to the checklist"
-        const val INSERT_TODO_FAIL="Failed to add the task"
+        const val PROGRAM_UPDATE_SUCCESS="activity updated successfully"
+        const val PROGRAM_UPDATE_FAIL="Failed to update the activity"
     }
 }

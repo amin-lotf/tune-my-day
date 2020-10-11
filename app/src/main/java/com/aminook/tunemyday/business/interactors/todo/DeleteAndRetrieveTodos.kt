@@ -43,7 +43,7 @@ class DeleteAndRetrieveTodos @Inject constructor(
     }
 
     companion object{
-        const val DELETE_AND_RETRIEVE_TODO_SUCCESS="task deleted successfully"
-        const val DELETE_AND_RETRIEVE_TODO_FAIL="Failed to delete task"
+        const val DELETE_AND_RETRIEVE_TODO_SUCCESS="Task Removed from checklist"
+        const val DELETE_AND_RETRIEVE_TODO_FAIL="Failed to delete the task"
     }
 }

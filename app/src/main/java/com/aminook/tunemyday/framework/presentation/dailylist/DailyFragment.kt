@@ -16,6 +16,7 @@ import com.aminook.tunemyday.framework.presentation.common.TodoAdapter
 import com.aminook.tunemyday.util.DragManageAdapter
 import com.aminook.tunemyday.util.TodoCallback
 import com.aminook.tunemyday.util.observeOnce
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.bottom_sheet_add_todo.*
@@ -142,7 +143,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
 
 
-    override fun onAddNoteClick(scheduleId: Long,programId:Long, dailyScheduleAdapter: TodoAdapter) {
+    override fun onAddNoteClick(scheduleId: Long,programId:Long, dailyScheduleAdapter: TodoAdapter?) {
         showAddTodo(scheduleId,programId,dailyScheduleAdapter)
     }
 
@@ -150,6 +151,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
         addTodoBtmSheetDialog= BottomSheetDialog(requireContext(),R.style.DialogStyle)
         val view=layoutInflater.inflate(R.layout.bottom_sheet_add_todo,btn_sheet_add_todo)
         addTodoBtmSheetDialog.setContentView(view)
+        addTodoBtmSheetDialog.behavior.state=BottomSheetBehavior.STATE_EXPANDED
         addTodoBtmSheetDialog.show()
         view.txt_add_todo.requestFocus()
         todo?.let {

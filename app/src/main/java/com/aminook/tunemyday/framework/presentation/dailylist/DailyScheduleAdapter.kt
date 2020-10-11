@@ -34,10 +34,13 @@ class DailyScheduleAdapter(val context: Context) : ListAdapter<Schedule,DailySch
 
     }
 
+    fun submitTodoList(todos:List<Todo>){
 
+    }
 
     fun setListener(listener: DailyScheduleAdapterListener) {
         this.listener = listener
+
     }
 
 
@@ -45,16 +48,18 @@ class DailyScheduleAdapter(val context: Context) : ListAdapter<Schedule,DailySch
 
         val todoRecyclerView = itemView.recycler_schedule_todo
         fun bind(schedule: Schedule) {
+            val todoAdapter:TodoAdapter?=TodoAdapter()
             itemView.txt_daily_start_time.text = schedule.startTime.toString()
             itemView.txt_daily_end_time.text = schedule.endTime.toString()
             itemView.txt_daily_program_name.text = schedule.program.name
+            itemView.txt_upper_label_daily.setBackgroundColor(schedule.program.color)
             itemView.img_add_todo.setOnClickListener {
-                listener?.onAddNoteClick(schedule.id,schedule.program.id,todoRecyclerView.adapter as TodoAdapter)
+                listener?.onAddNoteClick(schedule.id,schedule.program.id,todoAdapter)
             }
             itemView.txt_daily_program_name.setOnClickListener {
                 listener?.onScheduleClick(schedule.id)
             }
-            val todoAdapter:TodoAdapter?=TodoAdapter()
+
             todoAdapter?.setListener(object :TodoAdapter.ToDoRecyclerViewListener{
                 override fun onDeleteTodoClick(todo: Todo) {
                     listener?.onDeleteTodoClick(todo,todoAdapter)
@@ -72,20 +77,31 @@ class DailyScheduleAdapter(val context: Context) : ListAdapter<Schedule,DailySch
                     listener?.swapItems(fromPosition, toPosition,todoAdapter)
                 }
 
+                override fun onEmptyList() {
+                    itemView.txt_empty_todo.visibility=View.VISIBLE
+                    todoRecyclerView.visibility=View.GONE
+                }
+
+                override fun onNonEmptyList() {
+                    itemView.txt_empty_todo.visibility=View.GONE
+                    todoRecyclerView.visibility=View.VISIBLE
+                }
+
             })
             val layoutManager=
                 LinearLayoutManager(context, LinearLayoutManager.VERTICAL,false)
 
-            val dividerItemDecoration= DividerItemDecoration(context,layoutManager.orientation)
+           // val dividerItemDecoration= DividerItemDecoration(context,layoutManager.orientation)
             todoAdapter?.submitList(schedule.todos)
 
             todoAdapter?.let {
+
                 it.submitList(schedule.todos)
 
                 todoRecyclerView.apply {
                     this.layoutManager=layoutManager
                     adapter=todoAdapter
-                    addItemDecoration(dividerItemDecoration)
+                   // addItemDecoration(dividerItemDecoration)
                 }
                 val callback= DragManageAdapter(
                     it,
@@ -121,7 +137,7 @@ class DailyScheduleAdapter(val context: Context) : ListAdapter<Schedule,DailySch
 
 
     interface DailyScheduleAdapterListener {
-        fun onAddNoteClick(scheduleId: Long,programId:Long, dailyScheduleAdapter: TodoAdapter)
+        fun onAddNoteClick(scheduleId: Long,programId:Long, dailyScheduleAdapter: TodoAdapter?)
         fun onScheduleClick(scheduleId: Long)
         fun onDeleteTodoClick(todo: Todo, todoAdapter: TodoAdapter?)
         fun onEditTodoClick(todo: Todo, todoAdapter: TodoAdapter?)

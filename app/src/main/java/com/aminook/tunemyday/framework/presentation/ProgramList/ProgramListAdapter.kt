@@ -1,5 +1,6 @@
 package com.aminook.tunemyday.framework.presentation.ProgramList
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +21,6 @@ class ProgramListAdapter :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.program_detail_item, parent, false)
-
         return ViewHolder(view)
     }
 
@@ -38,11 +38,14 @@ class ProgramListAdapter :
 
         fun bind(programDetail: ProgramDetail){
             itemView.txt_program_detail_title.text=programDetail.program.name
+            itemView.txt_lower_label_program.setBackgroundColor(programDetail.program.color)
+            itemView.card_program.strokeColor = programDetail.program.color
             itemView.txt_num_schedules.text=programDetail.schedules.size.toString()
             itemView.txt_num_todos.text=programDetail.todos.size.toString()
 
             itemView.setOnClickListener {
-                listener?.onProgramClick()
+
+                listener?.onProgramClick(programDetail)
             }
         }
     }
@@ -57,10 +60,18 @@ class ProgramListAdapter :
                 oldItem: ProgramDetail,
                 newItem: ProgramDetail
             ): Boolean {
+                Log.d("aminjoon", "areContentsTheSame: ${oldItem.program.id == newItem.program.id &&
+                        oldItem.program.name == newItem.program.name &&
+                        oldItem.schedules.size==newItem.schedules.size &&
+                        oldItem.todos.size==newItem.todos.size &&
+                        oldItem.program.color==newItem.program.color} ")
+
+
                 return oldItem.program.id == newItem.program.id &&
                         oldItem.program.name == newItem.program.name &&
                         oldItem.schedules.size==newItem.schedules.size &&
-                        oldItem.todos.size==newItem.todos.size
+                        oldItem.todos.size==newItem.todos.size &&
+                        oldItem.program.color==newItem.program.color
             }
         }
     }
@@ -75,7 +86,7 @@ class ProgramListAdapter :
     }
 
     interface ProgramDetailListener{
-        fun onProgramClick()
+        fun onProgramClick(program:ProgramDetail)
         fun onProgramSwipe(programDetail: ProgramDetail)
     }
 

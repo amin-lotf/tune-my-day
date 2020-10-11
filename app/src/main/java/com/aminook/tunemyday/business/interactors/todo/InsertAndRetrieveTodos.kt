@@ -22,7 +22,7 @@ class InsertAndRetrieveTodos @Inject constructor(
                 return DataState.data(
                     response = Response(
                         message = INSERT_AND_RETRIEVE_TODO_SUCCESS,
-                        uiComponentType = UIComponentType.None,
+                        uiComponentType = UIComponentType.Toast,
                         messageType = MessageType.Success
                     ),
                     data = resultObj
@@ -40,7 +40,7 @@ class InsertAndRetrieveTodos @Inject constructor(
     }
 
     companion object{
-        const val INSERT_AND_RETRIEVE_TODO_SUCCESS="task deleted successfully"
-        const val INSERT_AND_RETRIEVE_TODO_FAIL="Failed to delete task"
+        const val INSERT_AND_RETRIEVE_TODO_SUCCESS="Task added to the checklist"
+        const val INSERT_AND_RETRIEVE_TODO_FAIL="Failed to add the task"
     }
 }
