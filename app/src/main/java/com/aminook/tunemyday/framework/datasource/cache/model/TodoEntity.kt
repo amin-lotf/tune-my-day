@@ -25,10 +25,10 @@ data class TodoEntity(
     @ColumnInfo(name = "program_id",index = true)
     var programId:Long,
     val title: String,
-    val priorityIndex: Int,
+    val priorityIndex: Long,
     @ColumnInfo(name = "is_done")
     val isDone: Boolean,
-    val dateAdded: Int,
+    val dateAdded: Long,
     var isOneTime:Boolean,
     var lastChecked:Int
 ) {

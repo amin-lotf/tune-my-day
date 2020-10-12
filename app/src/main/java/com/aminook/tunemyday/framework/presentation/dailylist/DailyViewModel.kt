@@ -63,8 +63,8 @@ class DailyViewModel @ViewModelInject constructor(
                 scheduleId = scheduleId,
                 programId = programId,
                 isOneTime = isOneTime,
-                priorityIndex = dateUtil.curTimeInMillis,
-                dateAdded = dateUtil.curTimeInMillis
+                priorityIndex = dateUtil.curDateInInt,
+                dateAdded = dateUtil.curDateInInt
             )
             return addTodo(todo)
     }

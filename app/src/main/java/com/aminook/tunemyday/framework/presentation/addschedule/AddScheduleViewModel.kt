@@ -101,8 +101,8 @@ class AddScheduleViewModel @ViewModelInject constructor(
             scheduleId = scheduleId,
             programId = addScheduleManager.buffSchedule.program.id,
             isOneTime = isOneTime,
-            priorityIndex = dateUtil.curTimeInMillis,
-            dateAdded = dateUtil.curTimeInMillis
+            priorityIndex = dateUtil.curDateInInt,
+            dateAdded = dateUtil.curDateInInt
         )
         return addTodo(todo)
     }
@@ -145,7 +145,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
             .map {
                 processResponse(it?.stateMessage)
                 addScheduleManager.addTodos(it?.data)
-                it?.data ?: emptyList()
+                it?.data?: emptyList()
 
             }
 

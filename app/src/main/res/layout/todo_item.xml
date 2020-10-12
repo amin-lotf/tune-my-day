@@ -39,7 +39,10 @@
             app:layout_constraintTop_toTopOf="@id/chk_todo"
             app:layout_constraintBottom_toBottomOf="@id/chk_todo"
             android:padding="2dp"
-            android:text="Gym"/>
+
+            android:text="Gym"
+            android:maxLines="2"
+            />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

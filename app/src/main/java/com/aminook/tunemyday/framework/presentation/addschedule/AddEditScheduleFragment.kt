@@ -90,11 +90,11 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         args.scheduleRequestType?.apply {
             viewModel.processRequest(this, args)
             if (this == SCHEDULE_REQUEST_EDIT) {
-                toolbar_add_schedule.title = "Edit Activity"
+                toolbar_add_schedule.title = "Edit Schedule"
 
                 toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = true
             } else {
-                toolbar_add_schedule.title = "New Activity"
+                toolbar_add_schedule.title = "New Schedule"
                 add_schedule_name.text = "Choose an activity"
                 toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = false
                 layout_todo_group.isVisible = false
@@ -124,7 +124,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
 
     private fun setTodoAdapter() {
-        todoListAdapter = TodoAdapter()
+        todoListAdapter = TodoAdapter(true)
         todoListAdapter?.setListener(this)
         val layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -317,7 +317,6 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         addTodoBtmSheetDialog.setContentView(view)
         addTodoBtmSheetDialog.show()
 
-        val curPad=scroll_view_add_schedule.paddingBottom
 
         view.txt_add_todo.requestFocus()
         todo?.let {

@@ -39,13 +39,17 @@ class DateUtil @Inject constructor() {
             return (86400 * curDayIndex + hour * 60 * 60 + minute * 60+second)*1000+mills
         }
 
-    val curDateInInt:Int
+    val curDateInInt:Long
     get() {
         val today = Date()
         val year=SimpleDateFormat("yy", Locale.US).format(today.time)
         val month=SimpleDateFormat("MM", Locale.US).format(today.time)
         val day=SimpleDateFormat("dd", Locale.US).format(today.time)
-        return (year+month+day).toInt()
+        val hour=SimpleDateFormat("HH", Locale.US).format(today.time).toInt()
+        val minute=SimpleDateFormat("mm", Locale.US).format(today.time).toInt()
+        val second=SimpleDateFormat("ss", Locale.US).format(today.time).toInt()
+        val mills=SimpleDateFormat("SSS", Locale.US).format(today.time).toInt()
+        return (year+month+day+hour+minute+second+mills).toLong()
     }
 
     fun getDay(dayIndex:Int):Day{

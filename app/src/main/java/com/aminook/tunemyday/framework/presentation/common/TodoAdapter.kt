@@ -13,7 +13,7 @@ import com.aminook.tunemyday.business.domain.model.Todo
 import com.aminook.tunemyday.util.ItemMoveCallback
 import kotlinx.android.synthetic.main.todo_item.view.*
 
-class TodoAdapter : ListAdapter<Todo, TodoAdapter.ViewHolder>(DIFF_CALLBACK), ItemMoveCallback {
+class TodoAdapter(val isSummary:Boolean=false) : ListAdapter<Todo, TodoAdapter.ViewHolder>(DIFF_CALLBACK), ItemMoveCallback {
 
     private val TAG = "aminjoon"
     private var listener: ToDoRecyclerViewListener? = null
@@ -56,23 +56,28 @@ class TodoAdapter : ListAdapter<Todo, TodoAdapter.ViewHolder>(DIFF_CALLBACK), It
         fun bind(todo: Todo) {
 
             itemView.txt_todo_title.text = todo.title
-            if (todo.isDone) {
-                itemView.chk_todo.apply {
-                    isChecked = true
-                    Log.d(TAG, "bind: is checked")
-                    itemView.txt_todo_title.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+            if (!isSummary) {
+                if (todo.isDone) {
+                    itemView.chk_todo.apply {
+                        isChecked = true
+                        Log.d(TAG, "bind: is checked")
+                        itemView.txt_todo_title.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+                    }
+                } else {
+                    itemView.chk_todo.apply {
+                        isChecked = false
+                        itemView.txt_todo_title.paintFlags = Paint.ANTI_ALIAS_FLAG
+                    }
                 }
-            } else {
-                itemView.chk_todo.apply {
-                    isChecked = false
-                    itemView.txt_todo_title.paintFlags = Paint.ANTI_ALIAS_FLAG
-                }
-            }
 
-            itemView.chk_todo.setOnClickListener {
-                listener?.onCheckChanged(
-                    todo.copy(isDone = itemView.chk_todo.isChecked)
-                )
+                itemView.chk_todo.setOnClickListener {
+                    listener?.onCheckChanged(
+                        todo.copy(isDone = itemView.chk_todo.isChecked)
+                    )
+                }
+            }else
+            {
+                itemView.chk_todo.isEnabled=false
             }
 
             itemView.img_remove_todo.setOnClickListener {

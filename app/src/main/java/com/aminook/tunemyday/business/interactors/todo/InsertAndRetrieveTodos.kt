@@ -22,7 +22,7 @@ class InsertAndRetrieveTodos @Inject constructor(
                 return DataState.data(
                     response = Response(
                         message = INSERT_AND_RETRIEVE_TODO_SUCCESS,
-                        uiComponentType = UIComponentType.Toast,
+                        uiComponentType = UIComponentType.None,
                         messageType = MessageType.Success
                     ),
                     data = resultObj
