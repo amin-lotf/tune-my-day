@@ -16,7 +16,7 @@ class GetAllSchedules @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-     operator fun invoke(): Flow<DataState<List<Schedule>>?> {
+     operator fun invoke(routineId:Long): Flow<DataState<List<Schedule>>?> {
 
         val cacheResult=object :CacheResponseHandler<List<Schedule>,List<Schedule>>(){
             override  fun handleSuccess(resultObj: List<Schedule>): DataState<List<Schedule>>? {
@@ -33,7 +33,7 @@ class GetAllSchedules @Inject constructor(
         }
 
         return  cacheResult.getResult {
-            scheduleRepository.getAllSchedules()
+            scheduleRepository.getAllSchedules(routineId)
         }
     }
 

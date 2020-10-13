@@ -41,6 +41,11 @@ abstract class AppModule {
 
         @Singleton
         @Provides
+        fun provideRoutineDao(scheduleDatabase: ScheduleDatabase) =
+            scheduleDatabase.routineDao()
+
+        @Singleton
+        @Provides
         fun provideProgramDao(scheduleDatabase: ScheduleDatabase) =
             scheduleDatabase.programDao()
 
@@ -91,11 +96,21 @@ abstract class AppModule {
                 Color(ContextCompat.getColor(context, R.color.label14), false,white)
             )
         }
+        @DataStoreSettings
         @Singleton
         @Provides
-        fun getDayIndexDataStore(@ApplicationContext context: Context):DataStore<Preferences>{
+        fun getSettingsDataStore(@ApplicationContext context: Context):DataStore<Preferences>{
             return context.createDataStore(
                 "settings"
+            )
+        }
+
+        @DataStoreCache
+        @Singleton
+        @Provides
+        fun getCacheDataStore(@ApplicationContext context: Context):DataStore<Preferences>{
+            return context.createDataStore(
+                "cache"
             )
         }
 

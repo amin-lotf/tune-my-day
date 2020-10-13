@@ -11,6 +11,7 @@ import androidx.datastore.preferences.edit
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.*
 import com.aminook.tunemyday.business.domain.util.DateUtil
+import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.util.DAY_INDEX
 import com.aminook.tunemyday.worker.AlarmWorker
 import com.aminook.tunemyday.worker.NotificationReceiver.Companion.CHANNEL_ID
@@ -31,6 +32,7 @@ class BaseApplication : Application(), Configuration.Provider {
     lateinit var workerFactory: HiltWorkerFactory
 
     @Inject
+    @DataStoreSettings
     lateinit var dataStore: DataStore<Preferences>
 
     @Inject

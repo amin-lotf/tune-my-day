@@ -32,24 +32,15 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
     private lateinit var addTodoBtmSheetDialog:BottomSheetDialog
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        arguments?.let {
-            fragmentIndex = it.getInt(DAY_INDEX)
-            fragmentIndex?.let {
-                dailyViewModel.getDailySchedules(it)
-
-            }
-
-        }
-    }
-
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        top_toolbar_daily.title= dailyViewModel.getDay().fullName
+        dailyViewModel.getRoutineIndex().observeOnce(viewLifecycleOwner){
+            if(it!=0L) {
+                dailyViewModel.getDailySchedules(it)
+            }
+        }
+        top_toolbar_daily.title= "Today"
         initializeAdapters()
         subscribeObservers()
     }
@@ -182,17 +173,4 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
     override fun onScheduleClick(scheduleId: Long) {
 
     }
-
-    companion object {
-        private const val DAY_INDEX = "param1"
-        @JvmStatic
-        fun newInstance(dayIndex: Int) =
-            DailyFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(DAY_INDEX, dayIndex)
-                }
-            }
-    }
-
-
 }

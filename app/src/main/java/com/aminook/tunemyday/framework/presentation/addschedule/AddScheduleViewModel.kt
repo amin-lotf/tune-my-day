@@ -1,6 +1,8 @@
 package com.aminook.tunemyday.framework.presentation.addschedule
 
 import android.util.Log
+import androidx.datastore.DataStore
+import androidx.datastore.preferences.Preferences
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import androidx.lifecycle.MutableLiveData
@@ -11,10 +13,12 @@ import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.business.interactors.program.ProgramInteractors
 import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
 import com.aminook.tunemyday.business.interactors.todo.TodoInteractors
+import com.aminook.tunemyday.di.DataStoreCache
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_END
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_START
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
+import com.aminook.tunemyday.util.ROUTINE_INDEX
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import com.aminook.tunemyday.util.TodoCallback
@@ -28,11 +32,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
 
 
+
 class AddScheduleViewModel @ViewModelInject constructor(
     val programInteractors: ProgramInteractors,
     val scheduleInteractors: ScheduleInteractors,
     val todoInteractors: TodoInteractors,
-    val dateUtil: DateUtil
+    val dateUtil: DateUtil,
+    @DataStoreCache
+    val dataStoreCache: DataStore<Preferences>,
 ) : BaseViewModel() {
     private val TAG = "aminjoon"
     val addScheduleManager = AddScheduleManager()
@@ -210,9 +217,18 @@ class AddScheduleViewModel @ViewModelInject constructor(
         }
     }
 
-    fun processRequest(request: String, args: AddEditScheduleFragmentArgs) {
-        _requestType = request
+    fun getRoutineIndex():LiveData<Long> {
+        return dataStoreCache.data
+            .map {
+                Log.d(TAG, "getRoutineId: viewmodl")
+                it[ROUTINE_INDEX] ?: 0
 
+            }.asLiveData()
+    }
+
+    fun processRequest(request: String, args: AddEditScheduleFragmentArgs,routineId:Long) {
+        _requestType = request
+        addScheduleManager.setRoutineId(routineId)
         when (request) {
             SCHEDULE_REQUEST_EDIT -> {
                 val scheduleId = args.scheduleId
@@ -267,6 +283,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
             }
             SCHEDULE_REQUEST_NEW -> {
                 val index = args.chosenDay
+
                 catchDaysOfWeek(index)
             }
         }
@@ -325,7 +342,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
 
     fun getAllPrograms() {
 
-        job = CoroutineScope(activeScope).launch {
+         CoroutineScope(activeScope).launch {
             programInteractors.getAllPrograms()
                 .collect { dataState ->
 

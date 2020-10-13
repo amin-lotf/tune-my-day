@@ -21,15 +21,9 @@
             android:name="schedule_id"
             app:argType="long"
             android:defaultValue="0L" />
-    </fragment>
-    <fragment
-        android:id="@+id/dailyListFragment"
-        android:name="com.aminook.tunemyday.framework.presentation.dailylist.DailyListFragment"
-        android:label="fragment_daily_list"
-        tools:layout="@layout/fragment_daily_list" >
         <action
-            android:id="@+id/action_dailyListFragment_to_addScheduleFragment"
-            app:destination="@id/addScheduleFragment" />
+            android:id="@+id/action_weeklyListFragment_to_routineFragment"
+            app:destination="@id/routineFragment" />
     </fragment>
     <fragment
         android:id="@+id/taskListFragment"
@@ -41,9 +35,6 @@
         android:name="com.aminook.tunemyday.framework.presentation.addschedule.AddEditScheduleFragment"
         android:label="fragment_add_schedule"
         tools:layout="@layout/fragment_add_edit_schedule" >
-        <action
-            android:id="@+id/action_addScheduleFragment_to_addToDoFragment"
-            app:destination="@id/addToDoFragment" />
         <argument
             android:name="schedule_request_type"
             app:argType="string"
@@ -58,9 +49,14 @@
             android:defaultValue="-1" />
     </fragment>
     <fragment
-        android:id="@+id/addToDoFragment"
-        android:name="com.aminook.tunemyday.framework.presentation.addtodo.AddToDoFragment"
-        android:label="fragment_add_to_do"
-        tools:layout="@layout/fragment_add_to_do" />
+        android:id="@+id/dailyFragment"
+        android:name="com.aminook.tunemyday.framework.presentation.dailylist.DailyFragment"
+        android:label="fragment_daily"
+        tools:layout="@layout/fragment_daily" />
+    <fragment
+        android:id="@+id/routineFragment"
+        android:name="com.aminook.tunemyday.framework.presentation.routine.RoutineFragment"
+        android:label="fragment_routine"
+        tools:layout="@layout/fragment_routine" />
 
 </navigation>

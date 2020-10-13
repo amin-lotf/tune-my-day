@@ -17,27 +17,27 @@ interface ScheduleDao {
     fun testRelation(): Flow<List<FullSchedule>>
 
     @Transaction
-    @Query("select * from schedules where startDay= :day and `end`>=:curTime order by start")
-    fun selectDailySchedule(day: Int, curTime:Int): Flow<List<FullSchedule>>
+    @Query("select * from schedules where startDay= :day and `end`>=:curTime  and routine_id=:routineId order by start")
+    fun selectDailySchedule(day: Int, curTime:Int, routineId:Long): Flow<List<FullSchedule>>
 
-    fun selectDailyScheduleDistinct(day: Int,startTime:Int): Flow<List<FullSchedule>>{
-        return selectDailySchedule(day,startTime).distinctUntilChanged()
+    fun selectDailyScheduleDistinct(day: Int,startTime:Int, routineId:Long): Flow<List<FullSchedule>>{
+        return selectDailySchedule(day,startTime,routineId).distinctUntilChanged()
     }
 
     @Transaction
     @Query("select * from schedules where id= :id")
     suspend fun selectSchedule(id: Long): FullSchedule
 
-    @Query("delete from schedules")
-    fun deleteAllSchedules(): Int
+    @Query("delete from schedules where routine_id=:routineId")
+    fun deleteAllSchedules(routineId:Long): Int
 
     @Transaction
-    @Query("select * from schedules where startDay=:startDay or endDay=:startDay or endDay=:endDay or startDay=:endDay order by start")
-    suspend fun selectStartingTimes(startDay: Int,endDay:Int): List<FullSchedule>
+    @Query("select * from schedules where routine_id=:routineId and  (startDay=:startDay or endDay=:startDay or endDay=:endDay or startDay=:endDay) order by start")
+    suspend fun selectStartingTimes(startDay: Int,endDay:Int, routineId:Long): List<FullSchedule>
 
     @Transaction
-    @Query("select * from schedules   order by start")
-    fun selectSevenDaysSchedule(): Flow<List<FullSchedule>>
+    @Query("select * from schedules where routine_id=:routineId   order by start")
+    fun selectSevenDaysSchedule( routineId:Long): Flow<List<FullSchedule>>
 
     @Delete
     suspend fun deleteSchedule(scheduleEntity: ScheduleEntity): Int

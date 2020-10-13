@@ -10,12 +10,21 @@ import androidx.room.*
             childColumns = ["program_id"],
             onDelete = ForeignKey.CASCADE,
             onUpdate = ForeignKey.CASCADE
-        )
+        ),
+    ForeignKey(
+        entity = RoutineEntity::class,
+        parentColumns = ["id"],
+        childColumns = ["routine_id"],
+        onDelete = ForeignKey.CASCADE,
+        onUpdate = ForeignKey.CASCADE
+    )
     ]
 )
 data class ScheduleEntity(
     @ColumnInfo(name = "program_id", index = true)
     var programId: Long,
+    @ColumnInfo(name = "routine_id",index = true)
+    var routineId:Long,
     var start: Int,
     var end: Int,
     var startDay: Int,

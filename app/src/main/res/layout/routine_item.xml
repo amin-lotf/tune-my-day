@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginTop="10dp"
+    android:clickable="true"
+    android:backgroundTint="#19E18F47"
+    android:elevation="8dp"
+    >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/txt_routine_name"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:text="Fall 2020"
+            android:textColor="@color/colorDark"
+            android:textSize="20sp"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="8dp"/>
+
+        <ImageView
+            android:id="@+id/img_edit_routine"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_edit"
+
+            app:layout_constraintTop_toBottomOf="@id/txt_routine_name"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_margin="8dp"
+            />
+
+        <ImageView
+            android:id="@+id/img_delete_routine"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:layout_constraintTop_toTopOf="@id/img_edit_routine"
+            app:layout_constraintEnd_toStartOf="@id/img_edit_routine"
+            android:src="@drawable/ic_delete"
+            android:layout_marginEnd="14dp"/>
+
+        <ImageView
+            android:id="@+id/img_review_routine"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:layout_constraintTop_toTopOf="@id/img_edit_routine"
+            app:layout_constraintEnd_toStartOf="@id/img_delete_routine"
+            android:src="@drawable/ic_preview"
+            android:layout_marginEnd="14dp"/>
+
+        <TextView
+            android:id="@+id/txt_routine_blank"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/txt_routine_name"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/img_review_routine"
+            android:layout_marginEnd="4dp"/>
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

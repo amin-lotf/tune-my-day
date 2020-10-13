@@ -62,6 +62,10 @@ class AddScheduleManager {
         }
     }
 
+    fun setRoutineId(routineId:Long){
+        _buffSchedule.routineId=routineId
+    }
+
     fun addAlarm(alarm: Alarm){
         if (_buffSchedule.alarms.any { it.hourBefore==alarm.hourBefore && it.minuteBefore==alarm.minuteBefore }){
             return

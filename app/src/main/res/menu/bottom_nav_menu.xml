@@ -4,7 +4,7 @@
         android:title="Weekly schedule"
         android:icon="@drawable/ic_week"/>
 
-    <item android:id="@+id/dailyListFragment"
+    <item android:id="@+id/dailyFragment"
         android:title="Daily schedule"
         android:icon="@drawable/ic_day"/>
 

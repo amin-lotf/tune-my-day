@@ -21,7 +21,8 @@ class FullScheduleCacheMapper @Inject constructor(
         return Schedule(
             id = entity.schedule.id,
             startDay = entity.schedule.startDay,
-            program = program
+            program = program,
+            routineId = entity.schedule.routineId
         ).apply {
             val startHour = (entity.schedule.start / 3600) % 24
             val startMinute = (entity.schedule.start - (entity.schedule.start / 3600) * 3600) / 60
@@ -51,7 +52,8 @@ class FullScheduleCacheMapper @Inject constructor(
             end = domainModel.endInSec,
             startDay = domainModel.startDay,
             endDay = domainModel.endDay,
-            programId = domainModel.program.id
+            programId = domainModel.program.id,
+            routineId = domainModel.routineId
         ).apply {
             if (domainModel.id!=0L){
                 this.id = domainModel.id

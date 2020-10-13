@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.fragment_daily_list.*
 
 class DailyListFragment : BaseFragment(R.layout.fragment_daily_list) {
     private val TAG="aminjoon"
-    var dailyAdapter:DayViewPagerAdapter?=null
+    //var dailyAdapter:DayViewPagerAdapter?=null
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
       //  (activity as MainActivity).supportActionBar?.hide()
@@ -29,13 +29,13 @@ class DailyListFragment : BaseFragment(R.layout.fragment_daily_list) {
 
     override fun onResume() {
         super.onResume()
-        dailyAdapter=DayViewPagerAdapter(childFragmentManager,lifecycle)
-        view_pager_daily.adapter=dailyAdapter
+        //dailyAdapter=DayViewPagerAdapter(childFragmentManager,lifecycle)
+        //view_pager_daily.adapter=dailyAdapter
     }
 
     override fun onPause() {
-        dailyAdapter=null
-        view_pager_daily.adapter=null
+       // dailyAdapter=null
+        //view_pager_daily.adapter=null
         super.onPause()
 
     }

@@ -6,10 +6,12 @@ import com.aminook.tunemyday.business.data.util.selectSchedulesToDelete
 import com.aminook.tunemyday.business.data.util.updateSchedules
 import com.aminook.tunemyday.business.domain.model.*
 import com.aminook.tunemyday.business.domain.util.DateUtil
+import com.aminook.tunemyday.di.DataStoreCache
 import com.aminook.tunemyday.framework.datasource.cache.database.*
 import com.aminook.tunemyday.framework.datasource.cache.mappers.Mappers
 import com.aminook.tunemyday.framework.datasource.cache.model.AlarmEntity
 import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
+import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import kotlinx.coroutines.flow.Flow
@@ -30,6 +32,27 @@ class ScheduleRepositoryImpl @Inject constructor(
         return daoService.programDao.updateProgram(
             mappers.programCacheMapper.mapToEntity(program)
         )
+    }
+
+    override suspend fun insertRoutine(routineEntity: RoutineEntity): Long {
+        return daoService.routineDao.insertRoutine(routineEntity)
+    }
+
+    override fun getRoutine(routineId: Long): Flow<RoutineEntity> {
+        return daoService.routineDao.getRoutine(routineId)
+    }
+
+    override fun getAllRoutines(): Flow<List<RoutineEntity>> {
+        return daoService.routineDao.getAllRoutines()
+    }
+
+    override suspend fun updateRoutine(routineEntity: RoutineEntity): Int {
+        Log.d(TAG, "updateRoutine: ${routineEntity.name}")
+        return daoService.routineDao.updateRoutine(routineEntity)
+    }
+
+    override suspend fun deleteRoutine(routineEntity: RoutineEntity): Int {
+        return daoService.routineDao.deleteRoutine(routineEntity)
     }
 
     override suspend fun insertProgram(program: Program): Long {
@@ -189,7 +212,7 @@ class ScheduleRepositoryImpl @Inject constructor(
         val endDay = schedule.endDay
         Log.d(TAG, "checkIfOverwrite: target start $startDay")
         return getConflictedSchedules(
-            daoService.scheduleDao.selectStartingTimes(startDay, endDay),
+            daoService.scheduleDao.selectStartingTimes(startDay, endDay,schedule.routineId),
             schedule
         ).map { fullSchedule ->
             mappers.fullScheduleCacheMapper.mapFromEntity(fullSchedule)
@@ -197,8 +220,8 @@ class ScheduleRepositoryImpl @Inject constructor(
 
     }
 
-    override fun getAllSchedules(): Flow<List<Schedule>> {
-        return daoService.scheduleDao.selectSevenDaysSchedule().map { schedules ->
+    override fun getAllSchedules(routineId:Long): Flow<List<Schedule>> {
+        return daoService.scheduleDao.selectSevenDaysSchedule(routineId).map { schedules ->
             schedules.map {
                 mappers.fullScheduleCacheMapper.mapFromEntity(it)
             }
@@ -237,8 +260,8 @@ class ScheduleRepositoryImpl @Inject constructor(
 
     }
 
-    override fun getDailySchedules(dayIndex: Int): Flow<List<Schedule>> {
-        return daoService.scheduleDao.selectDailyScheduleDistinct(dayIndex,dateUtil.curTimeInSec).map { fullSchedules ->
+    override fun getDailySchedules(dayIndex: Int,routineId:Long): Flow<List<Schedule>> {
+        return daoService.scheduleDao.selectDailyScheduleDistinct(dayIndex,dateUtil.curTimeInSec,routineId).map { fullSchedules ->
             fullSchedules.map { mappers.fullScheduleCacheMapper.mapFromEntity(it) }
         }
     }

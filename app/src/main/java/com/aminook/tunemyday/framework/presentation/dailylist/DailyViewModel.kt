@@ -1,6 +1,8 @@
 package com.aminook.tunemyday.framework.presentation.dailylist
 
 import android.util.Log
+import androidx.datastore.DataStore
+import androidx.datastore.preferences.Preferences
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.aminook.tunemyday.business.domain.model.Day
@@ -11,8 +13,10 @@ import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
 import com.aminook.tunemyday.business.interactors.todo.InsertTodo.Companion.INSERT_TODO_SUCCESS
 import com.aminook.tunemyday.business.interactors.todo.TodoInteractors
+import com.aminook.tunemyday.di.DataStoreCache
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.framework.presentation.dailylist.manager.DailyScheduleManager
+import com.aminook.tunemyday.util.ROUTINE_INDEX
 import com.aminook.tunemyday.util.TodoCallback
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
@@ -24,6 +28,7 @@ class DailyViewModel @ViewModelInject constructor(
     val dateUtil: DateUtil,
     val scheduleInteractors: ScheduleInteractors,
     val todoInteractors: TodoInteractors,
+    @DataStoreCache val dataStoreCache: DataStore<Preferences>,
 
     ) : BaseViewModel() {
 
@@ -44,11 +49,20 @@ class DailyViewModel @ViewModelInject constructor(
         return dateUtil.getDay(dayIndex)
     }
 
-    fun getDailySchedules(fragmentIndex: Int) {
-        dayIndex = dateUtil.curDayIndex + fragmentIndex
-        dayIndex = if (dayIndex > 6) dayIndex - 7 else dayIndex
+    fun getRoutineIndex():LiveData<Long> {
+        return dataStoreCache.data
+            .map {
+                Log.d(TAG, "getRoutineId: viewmodl")
+                it[ROUTINE_INDEX] ?: 0
+
+            }.asLiveData()
+    }
+
+    fun getDailySchedules(routineId:Long) {
+        dayIndex = dateUtil.curDayIndex
+       // dayIndex = if (dayIndex > 6) dayIndex - 7 else dayIndex
         CoroutineScope(activeScope).launch {
-            scheduleInteractors.getDailySchedules(dayIndex).collect { dataState ->
+            scheduleInteractors.getDailySchedules(dayIndex,routineId).collect { dataState ->
                 processResponse(dataState?.stateMessage)
                 dataState?.data?.let { schedules ->
                     _schedules.value = schedules

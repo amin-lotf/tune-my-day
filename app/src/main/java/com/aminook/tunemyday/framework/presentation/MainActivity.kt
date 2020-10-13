@@ -26,6 +26,7 @@ import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.*
 import com.aminook.tunemyday.business.domain.util.DateUtil
+import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragmentDirections
 import com.aminook.tunemyday.util.DAY_INDEX
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
     lateinit var dateUtil:DateUtil
 
     @Inject
+    @DataStoreSettings
     lateinit var dataStore: DataStore<Preferences>
     private var dialogInView: AlertDialog? = null
     lateinit var navHostFragment: NavHostFragment

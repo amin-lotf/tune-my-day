@@ -87,17 +87,24 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
         // (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
         val args: AddEditScheduleFragmentArgs by navArgs()
-        args.scheduleRequestType?.apply {
-            viewModel.processRequest(this, args)
-            if (this == SCHEDULE_REQUEST_EDIT) {
-                toolbar_add_schedule.title = "Edit Schedule"
 
-                toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = true
-            } else {
-                toolbar_add_schedule.title = "New Schedule"
-                add_schedule_name.text = "Choose an activity"
-                toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = false
-                layout_todo_group.isVisible = false
+        viewModel.getRoutineIndex().observeOnce(viewLifecycleOwner){routineId->
+            if (routineId!=0L){
+                args.scheduleRequestType?.apply {
+                    viewModel.processRequest(this, args,routineId)
+                    if (this == SCHEDULE_REQUEST_EDIT) {
+                        toolbar_add_schedule.title = "Edit Schedule"
+
+                        toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = true
+                    } else {
+                        toolbar_add_schedule.title = "New Schedule"
+                        add_schedule_name.text = "Choose an activity"
+                        toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = false
+                        layout_todo_group.isVisible = false
+                    }
+                }
+            }else{
+                findNavController().popBackStack()
             }
         }
 
@@ -219,6 +226,8 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         }
 
 
+
+
         viewModel.allPrograms.observe(viewLifecycleOwner) {
             programsAdapter?.submitList(it)
         }
@@ -308,9 +317,6 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
     }
 
     private fun showAddTodo(scheduleId: Long, todo: Todo? = null) {
-//        recycler_schedule_todo.scrollToPosition(todoListAdapter?.itemCount?.minus(1)?:0)
-
-        Log.d(TAG, "showAddTodo: pos:${todoListAdapter?.itemCount?.minus(1)}")
         addTodoBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.DialogStyle)
         addTodoBtmSheetDialog.behavior.state=BottomSheetBehavior.STATE_EXPANDED
         val view = layoutInflater.inflate(R.layout.bottom_sheet_add_todo, btn_sheet_add_todo)
