@@ -15,7 +15,10 @@ interface ProgramDao {
     fun selectAllPrograms(): Flow<List<ProgramEntity>>
 
     @Query("select * from programs where id= :id")
-    fun selectProgram(id:Int):Flow<ProgramEntity?>
+    fun selectProgramDetail(id:Long):Flow<ProgramDetail>
+
+    @Query("select * from programs where id= :id")
+    fun selectProgram(id:Long):Flow<ProgramEntity>
 
     @Query("delete from programs")
     fun deleteAllPrograms(): Int

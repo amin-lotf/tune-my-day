@@ -26,7 +26,8 @@ interface AlarmDao {
     @Query("select * from alarms where day in(:days)")
     suspend fun selectUpcomingAlarms(days:List<Int>):List<AlarmEntity>
 
-
+    @Query("select id from alarms where day in(:days) and routine_id=:routineId")
+    suspend fun selectUpcomingAlarmIds(days:List<Int>,routineId:Long):List<Long>
 
 //    fun selectUpcomingAlarmsDistinct(startDay:Int,endDay:Int, startInSec:Int)=
 //        selectUpcomingAlarms(startDay,endDay, startInSec).distinctUntilChanged()

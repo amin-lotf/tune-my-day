@@ -84,12 +84,12 @@ class ProgramListAdapter :
     }
 
     override fun onItemSwipe(itemPosition: Int, direction: Int) {
-        listener?.onProgramSwipe(currentList[itemPosition])
+
     }
 
     interface ProgramDetailListener{
         fun onProgramClick(program:ProgramDetail)
-        fun onProgramSwipe(programDetail: ProgramDetail)
+
     }
 
 }

@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface ScheduleRepository {
 
+    suspend fun getUpcomingAlarms(startDay:Int,endDay:Int):List<Alarm>
+    suspend fun getUpcomingAlarmIds(startDay:Int,endDay:Int,routineId: Long):List<Long>
+
     suspend fun insertRoutine(routineEntity: RoutineEntity):Long
     fun getRoutine(routineId:Long):Flow<RoutineEntity>
     fun getAllRoutines():Flow<List<RoutineEntity>>
@@ -18,7 +21,8 @@ interface ScheduleRepository {
     suspend fun insertProgram(program: Program):Long
     fun getAllPrograms(): Flow<List<Program>>
     fun getAllProgramsDetail(): Flow<List<ProgramDetail>>
-    fun selectProgram(id:Int):Flow<Program?>
+    fun getProgramDetail(id:Long):Flow<ProgramDetail>
+    fun getProgram(id:Long):Flow<Program>
     suspend fun deleteAllPrograms(): Int
     suspend fun deleteProgram(program: ProgramDetail): Int
     suspend fun undoDeletedProgram(program: ProgramDetail):Long?
@@ -28,10 +32,9 @@ interface ScheduleRepository {
     suspend fun insertModifySchedule(schedule: Schedule, conflictedSchedule:List<Schedule>, requestType:String):Long?
     suspend fun checkIfOverwrite(schedule: Schedule):List<Schedule>
     fun getAllSchedules(routineId:Long):Flow<List<Schedule>>
-    suspend fun getUpcomingAlarms(startDay:Int,endDay:Int):List<Alarm>
     suspend fun deleteSchedule(scheduleId:Long):Int
     suspend fun getSchedule(scheduleId:Long):Schedule
-    fun getDailySchedules(dayIndex:Int,routineId:Long):Flow<List<Schedule>>
+    fun getDailySchedules(dayIndex:Int,routineId:Long,curTime:Int):Flow<List<Schedule>>
 
 
     suspend fun insertTodo(todo:Todo):Long

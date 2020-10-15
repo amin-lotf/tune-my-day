@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_schedule_item"
     android:layout_width="match_parent"
-    android:layout_height="80dp">
+    android:layout_height="80dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="4dp"
+    android:clickable="true"
+    android:elevation="8dp"
+    app:strokeWidth="1dp"
+    app:cardCornerRadius="8dp"
+    >
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_child_schedule_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-        <View
-            android:id="@+id/blackline"
-            android:layout_width="0dp"
-            android:layout_height="2dp"
-            android:background="#c0c0c0"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
 
         <TextView
@@ -29,12 +30,12 @@
             android:text="Programming"
             android:textAlignment="center"
             android:textSize="22sp"
-            app:layout_constraintStart_toEndOf="@id/program_color"
-            app:layout_constraintEnd_toStartOf="@id/schedule_alarm_icon"
-
+            android:layout_marginEnd="40dp"
+            android:layout_marginStart="40dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:layout_editor_absoluteX="0dp" />
-
+            />
 
 
         <TextView
@@ -73,15 +74,15 @@
             android:visibility="invisible"
             />
 
-        <TextView
-            android:id="@+id/program_color"
-            android:layout_width="40dp"
-            android:layout_height="75dp"
-
-            android:background="@drawable/program_label"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+<!--        <TextView-->
+<!--            android:id="@+id/program_color"-->
+<!--            android:layout_width="40dp"-->
+<!--            android:layout_height="75dp"-->
+<!--            android:visibility="gone"-->
+<!--            android:background="@drawable/program_label"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
 
         <TextView
             android:id="@+id/schedule_hour_start"
@@ -94,7 +95,8 @@
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/program_color" />
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="4dp"/>
 
         <ImageView
             android:id="@+id/img_start_hour"
@@ -154,4 +156,4 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

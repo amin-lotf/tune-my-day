@@ -4,28 +4,29 @@
     android:id="@+id/card_program"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="4dp"
+    android:layout_marginStart="10dp"
     android:layout_marginTop="8dp"
-    android:layout_marginEnd="4dp"
-
+    android:layout_marginEnd="10dp"
+    app:cardCornerRadius="8dp"
     app:strokeColor="@color/colorAccent"
-    app:strokeWidth="2dp">
+    app:strokeWidth="1dp">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_child_program"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="8dp">
+        android:padding="10dp">
 
 
         <TextView
             android:id="@+id/txt_program_detail_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
+            android:layout_marginStart="8dp"
             android:layout_marginEnd="4dp"
             android:text="Gym"
+            android:textColor="@color/colorDark"
             android:textSize="22sp"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -33,12 +34,20 @@
             android:id="@+id/txt_lower_label_program"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginStart="4dp"
+            android:layout_marginStart="40dp"
             android:layout_marginTop="4dp"
-            android:layout_marginEnd="4dp"
+            android:layout_marginEnd="40dp"
             android:layout_marginBottom="4dp"
             android:background="#c0c0c0"
+            android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/txt_program_detail_title" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/txt_program_detail_title"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txt_program_detail_title">
 
         <ImageView
             android:id="@+id/img_week"
@@ -46,16 +55,19 @@
             android:layout_height="24dp"
             android:layout_marginTop="8dp"
             android:src="@drawable/ic_week"
-            app:layout_constraintStart_toStartOf="@id/txt_program_detail_title"
-            app:layout_constraintTop_toBottomOf="@id/txt_program_detail_title" />
+            app:layout_constraintEnd_toStartOf="@id/txt_num_schedules"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintTop_toTopOf="parent"
+            />
 
         <TextView
             android:id="@+id/txt_num_schedules"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginEnd="20dp"
             android:text="7"
             android:textSize="18sp"
-            app:layout_constraintStart_toEndOf="@id/img_week"
+            app:layout_constraintEnd_toStartOf="@id/img_todo"
             app:layout_constraintTop_toTopOf="@id/img_week" />
 
         <ImageView
@@ -65,17 +77,18 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:src="@drawable/icon_todo"
-            app:layout_constraintStart_toEndOf="@id/txt_num_schedules"
-            app:layout_constraintTop_toBottomOf="@id/txt_program_detail_title" />
+            app:layout_constraintEnd_toStartOf="@id/txt_num_todos"
+
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/txt_num_todos"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
             android:text="16"
             android:textSize="18sp"
-            app:layout_constraintStart_toEndOf="@id/img_todo"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/img_todo" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
-</com.google.android.material.card.MaterialCardView>
+</androidx.constraintlayout.widget.ConstraintLayout></com.google.android.material.card.MaterialCardView>

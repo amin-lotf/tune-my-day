@@ -29,7 +29,11 @@
         android:id="@+id/taskListFragment"
         android:name="com.aminook.tunemyday.framework.presentation.ProgramList.ProgramListFragment"
         android:label="fragment_task_list"
-        tools:layout="@layout/fragment_program_list" />
+        tools:layout="@layout/fragment_program_list" >
+        <action
+            android:id="@+id/action_taskListFragment_to_addProgramFragment"
+            app:destination="@id/addProgramFragment" />
+    </fragment>
     <fragment
         android:id="@+id/addScheduleFragment"
         android:name="com.aminook.tunemyday.framework.presentation.addschedule.AddEditScheduleFragment"
@@ -47,6 +51,13 @@
             android:name="chosen_day"
             app:argType="integer"
             android:defaultValue="-1" />
+        <action
+            android:id="@+id/action_addScheduleFragment_to_addProgramFragment"
+            app:destination="@id/addProgramFragment" />
+        <argument
+            android:name="program_id"
+            app:argType="long"
+            android:defaultValue="0L" />
     </fragment>
     <fragment
         android:id="@+id/dailyFragment"
@@ -58,5 +69,22 @@
         android:name="com.aminook.tunemyday.framework.presentation.routine.RoutineFragment"
         android:label="fragment_routine"
         tools:layout="@layout/fragment_routine" />
+    <fragment
+        android:id="@+id/addProgramFragment"
+        android:name="com.aminook.tunemyday.framework.presentation.addprogram.AddProgramFragment"
+        android:label="fragment_add_program"
+        tools:layout="@layout/fragment_add_program" >
+        <argument
+            android:name="ProgramId"
+            app:argType="long"
+            android:defaultValue="0L" />
+        <action
+            android:id="@+id/action_addProgramFragment_to_addScheduleFragment"
+            app:destination="@id/addScheduleFragment" />
+        <argument
+            android:name="fromAddSchedule"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
 
 </navigation>

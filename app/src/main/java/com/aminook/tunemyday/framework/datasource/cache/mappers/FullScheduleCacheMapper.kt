@@ -1,5 +1,6 @@
 package com.aminook.tunemyday.framework.datasource.cache.mappers
 
+import android.util.Log
 import com.aminook.tunemyday.business.domain.model.Alarm
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.model.Time
@@ -16,33 +17,48 @@ class FullScheduleCacheMapper @Inject constructor(
     val alarmCacheMapper: AlarmCacheMapper,
     val todoCacheMapper: TodoCacheMapper
 ) : EntityMapper<FullSchedule, Schedule> {
-    override fun mapFromEntity(entity: FullSchedule): Schedule {
-        val program = programCacheMapper.mapFromEntity(entity.program)
-        return Schedule(
-            id = entity.schedule.id,
-            startDay = entity.schedule.startDay,
-            program = program,
-            routineId = entity.schedule.routineId
-        ).apply {
-            val startHour = (entity.schedule.start / 3600) % 24
-            val startMinute = (entity.schedule.start - (entity.schedule.start / 3600) * 3600) / 60
-            this.startTime = Time(startHour, startMinute)
+    override fun mapFromEntity(entity: FullSchedule?): Schedule {
+       try {
+            if (entity != null) {
+                val program = programCacheMapper.mapFromEntity(entity.program)
+                return Schedule(
+                    id = entity.schedule.id,
+                    startDay = entity.schedule.startDay,
+                    program = program,
+                    routineId = entity.schedule.routineId
+                ).apply {
+                    val startHour = (entity.schedule.start / 3600) % 24
+                    val startMinute =
+                        (entity.schedule.start - (entity.schedule.start / 3600) * 3600) / 60
+                    this.startTime = Time(startHour, startMinute)
 
-            val endHour = (entity.schedule.end / 3600) % 24
-            val endMinute = (entity.schedule.end - (entity.schedule.end / 3600) * 3600) / 60
-            this.endTime = Time(endHour, endMinute)
+                    val endHour = (entity.schedule.end / 3600) % 24
+                    val endMinute = (entity.schedule.end - (entity.schedule.end / 3600) * 3600) / 60
+                    this.endTime = Time(endHour, endMinute)
 
-            this.alarms.addAll(entity.alarms.map { alarmCacheMapper.mapFromEntity(it) })
-            this.todos.addAll(entity.todos.map { todoCacheMapper.mapFromEntity(it) }.sortedWith(
-                compareBy({it.isDone},{it.priorityIndex}))
-            )
+                    this.alarms.addAll(entity.alarms.map { alarmCacheMapper.mapFromEntity(it) })
+                    this.todos.addAll(
+                        entity.todos.map { todoCacheMapper.mapFromEntity(it) }.sortedWith(
+                            compareBy({ it.isDone }, { it.priorityIndex })
+                        )
+                    )
 
-            if (this.alarms.size>0){
-                this.hasAlarm=true
+                    if (this.alarms.size > 0) {
+                        this.hasAlarm = true
+                    }
+                    if (this.todos.size > 0) {
+                        this.hasToDo = true
+                    }
+
+                }
+            } else {
+                return Schedule()
             }
-            if (this.todos.size>0){
-                this.hasToDo=true
-            }
+        }
+        catch (e:Throwable){
+            Log.d("aminjoon", "mapFromEntity: error in mapper ")
+            e.printStackTrace()
+            return Schedule()
         }
     }
 

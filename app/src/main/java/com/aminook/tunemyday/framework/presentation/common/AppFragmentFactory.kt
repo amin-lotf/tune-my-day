@@ -7,6 +7,7 @@ import com.aminook.tunemyday.framework.presentation.addschedule.AlarmDialog
 import com.aminook.tunemyday.framework.presentation.addtodo.AddToDoFragment
 import com.aminook.tunemyday.framework.presentation.dailylist.DailyListFragment
 import com.aminook.tunemyday.framework.presentation.ProgramList.ProgramListFragment
+import com.aminook.tunemyday.framework.presentation.addprogram.AddProgramFragment
 import com.aminook.tunemyday.framework.presentation.dailylist.DailyFragment
 import com.aminook.tunemyday.framework.presentation.routine.RoutineFragment
 import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragment
@@ -34,6 +35,8 @@ class AppFragmentFactory @Inject constructor() : FragmentFactory() {
             DailyFragment::class.java.name->DailyFragment()
 
             RoutineFragment::class.java.name->RoutineFragment()
+
+            AddProgramFragment::class.java.name->AddProgramFragment()
 
             else->WeeklyListFragment()
         }

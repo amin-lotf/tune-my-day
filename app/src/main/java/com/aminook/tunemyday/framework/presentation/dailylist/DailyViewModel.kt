@@ -62,7 +62,7 @@ class DailyViewModel @ViewModelInject constructor(
         dayIndex = dateUtil.curDayIndex
        // dayIndex = if (dayIndex > 6) dayIndex - 7 else dayIndex
         CoroutineScope(activeScope).launch {
-            scheduleInteractors.getDailySchedules(dayIndex,routineId).collect { dataState ->
+            scheduleInteractors.getDailySchedules(dayIndex,routineId,dateUtil.curTimeInSec).collect { dataState ->
                 processResponse(dataState?.stateMessage)
                 dataState?.data?.let { schedules ->
                     _schedules.value = schedules

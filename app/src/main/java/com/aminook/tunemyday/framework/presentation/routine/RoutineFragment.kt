@@ -16,14 +16,20 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.bottom_sheet_add_routine.*
 import kotlinx.android.synthetic.main.bottom_sheet_add_routine.view.*
 import kotlinx.android.synthetic.main.fragment_routine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class RoutineFragment : BaseFragment(R.layout.fragment_routine),
     RoutineAdapter.RoutineAdapterListener {
-    private val TAG="aminjoon"
-    private var routineAdapter:RoutineAdapter?=null
-    private lateinit var addRoutineBtmSheetDialog:BottomSheetDialog
-    private val viewModel:RoutineViewModel by viewModels()
+    private val TAG = "aminjoon"
+    private var routineAdapter: RoutineAdapter? = null
+    private lateinit var addRoutineBtmSheetDialog: BottomSheetDialog
+    private val viewModel: RoutineViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -40,26 +46,29 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
     }
 
     private fun setupAdapter() {
-        routineAdapter= RoutineAdapter()
+        routineAdapter = RoutineAdapter()
         routineAdapter?.setListener(this)
         recycler_routines.apply {
-            layoutManager=LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
-            adapter=routineAdapter
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+            adapter = routineAdapter
         }
     }
 
     private fun subscribeObservers() {
         viewModel.stateMessage.observe(viewLifecycleOwner) { event ->
             event?.getContentIfNotHandled()?.let { stateMessage ->
-                uiController?.onResponseReceived(stateMessage.response, null)
+               onResponseReceived(stateMessage.response)
             }
         }
 
-        viewModel.routineLoaded.observe(viewLifecycleOwner){
-            findNavController().popBackStack()
+        viewModel.routineLoaded.observe(viewLifecycleOwner) {
+            if (it == true) {
+                findNavController().popBackStack()
+            }
         }
 
-        viewModel.getRoutines().observe(viewLifecycleOwner){routines->
+        viewModel.getRoutines().observe(viewLifecycleOwner) { routines ->
             routineAdapter?.submitList(routines)
         }
     }
@@ -70,7 +79,7 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
     }
 
     override fun onDeleteRoutineClick(routineEntity: RoutineEntity) {
-       viewModel.deleteRoutine(routineEntity)
+        viewModel.deleteRoutine(routineEntity)
     }
 
     override fun onUpdateRouineClick(routineEntity: RoutineEntity) {
@@ -78,12 +87,11 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
     }
 
 
-
     override fun onPreviewRoutineClick(routineEntity: RoutineEntity) {
 
     }
 
-    private fun showAddRoutineDialog(routineEntity: RoutineEntity?=null) {
+    private fun showAddRoutineDialog(routineEntity: RoutineEntity? = null) {
         addRoutineBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.DialogStyle)
         addRoutineBtmSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
 
@@ -97,13 +105,13 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
 
         view.btn_save_routine.setOnClickListener {
             if (view.txt_add_routine.text.isNotBlank()) {
-                if(routineEntity==null) {
+                if (routineEntity == null) {
                     Log.d(TAG, "showAddRoutineDialog: empty routine")
                     viewModel.addRoutine(view.txt_add_routine.text.toString())
 
-                }else{
-                    val updatedRoutine=RoutineEntity(view.txt_add_routine.text.toString()).apply {
-                        id=routineEntity.id
+                } else {
+                    val updatedRoutine = RoutineEntity(view.txt_add_routine.text.toString()).apply {
+                        id = routineEntity.id
                     }
                     viewModel.updateRoutine(updatedRoutine)
                 }

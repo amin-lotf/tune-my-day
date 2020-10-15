@@ -10,12 +10,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Schedule
-import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
-import kotlinx.android.synthetic.main.program_item.view.*
+import kotlinx.android.synthetic.main.program_detail_item.view.*
 import kotlinx.android.synthetic.main.schedule_item.view.*
-import java.util.zip.Inflater
 
-class ShortDailyScheduleRecycler(val context:Context) : RecyclerView.Adapter<ShortDailyScheduleRecycler.ViewHolder>() {
+class ShortDailyScheduleAdapter(val context:Context) : RecyclerView.Adapter<ShortDailyScheduleAdapter.ViewHolder>() {
 
     private var listener:ItemClickListener?=null
     private val TYPE_BUSY=1
@@ -23,11 +21,17 @@ class ShortDailyScheduleRecycler(val context:Context) : RecyclerView.Adapter<Sho
 
     private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Schedule>() {
         override fun areItemsTheSame(oldItem: Schedule, newItem: Schedule): Boolean {
-            return oldItem == newItem
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: Schedule, newItem: Schedule): Boolean {
-            return oldItem == newItem
+            return oldItem.id == newItem.id &&
+                    oldItem.hasAlarm==newItem.hasAlarm &&
+                    oldItem.hasToDo==newItem.hasToDo &&
+                    oldItem.startTime==newItem.startTime &&
+                    oldItem.endTime==newItem.endTime &&
+                    oldItem.program.name==newItem.program.name &&
+                    oldItem.program.color==newItem.program.color
         }
 
     }
@@ -66,7 +70,7 @@ class ShortDailyScheduleRecycler(val context:Context) : RecyclerView.Adapter<Sho
         return differ.currentList.size
     }
 
-    fun setOnClickListener(listener: ItemClickListener){
+    fun setOnClickListener(listener: ItemClickListener?){
         this.listener=listener
     }
 
@@ -81,8 +85,11 @@ class ShortDailyScheduleRecycler(val context:Context) : RecyclerView.Adapter<Sho
             itemView.schedule_program.text=schedule.program.name
             val label=ContextCompat.getDrawable(context,R.drawable.program_label)
             label?.setTint(schedule.program.color)
-            itemView.program_color.background=label
+          //  itemView.program_color.background=label
           //  itemView.program_color.
+            itemView.layout_schedule_item.setStrokeColor(schedule.program.color)
+            itemView.layout_child_schedule_item.setBackgroundColor(schedule.program.color)
+            itemView.layout_child_schedule_item.background.alpha=10
             itemView.schedule_hour_start.text=schedule.startTime.toString()
             itemView.schedule_hour_end.text=schedule.endTime.toString()
             itemView.schedule_duration.text=schedule.duration

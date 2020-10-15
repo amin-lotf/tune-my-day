@@ -26,7 +26,7 @@ class WeekViewPagerAdapter():RecyclerView.Adapter<WeekViewPagerAdapter.ViewHolde
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        listener?.setAdapter(holder,position)
+       // listener?.setAdapter(holder,position)
     }
 
 

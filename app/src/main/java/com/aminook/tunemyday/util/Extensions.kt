@@ -27,10 +27,14 @@ fun <T> RecyclerView.Adapter<*>.autoNotify(oldList:List<T>,newList:List<T>,compa
 }
 
 fun Activity.hideKeyboard() {
-    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    if (imm.isActive) {
-        imm.hideSoftInputFromWindow(window.decorView.windowToken, 0)
-        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
+    val inputMethodManager =
+        getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
+    // Check if no view has focus
+    val currentFocusedView = currentFocus
+    currentFocusedView?.let {
+        inputMethodManager.hideSoftInputFromWindow(
+            currentFocusedView.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 }
 

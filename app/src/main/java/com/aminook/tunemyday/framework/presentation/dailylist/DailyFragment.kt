@@ -48,7 +48,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
     private fun subscribeObservers() {
         dailyViewModel.stateMessage.observe(viewLifecycleOwner) { event ->
             event?.getContentIfNotHandled()?.let { stateMessage ->
-                uiController?.onResponseReceived(stateMessage.response,null)
+               onResponseReceived(stateMessage.response)
             }
         }
 

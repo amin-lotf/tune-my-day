@@ -33,54 +33,5 @@ class ProgramListViewModel @ViewModelInject constructor(
     }
 
 
-    fun deleteProgram(program: ProgramDetail) {
-        CoroutineScope(Default).launch {
-            programInteractors.deleteProgram(
-                program,
-                object : SnackbarUndoCallback {
-                    override fun undo() {
-                        undoDeletedProgram(program)
-                    }
-                }
-            )
-                .map {
-                    processResponse(it?.stateMessage)
-                }
-                .single()
-        }
-
-    }
-
-    fun updateProgram(program: Program){
-        CoroutineScope(Default).launch {
-            programInteractors.updateProgram(program)
-                .map {
-                    processResponse(it?.stateMessage)
-                }
-                .single()
-        }
-    }
-
-    fun addProgram(program: Program) {
-        CoroutineScope(Default).launch {
-            programInteractors.insertProgram(program)
-                .map {
-                    processResponse(it?.stateMessage)
-                }
-                .single()
-        }
-    }
-
-
-    fun undoDeletedProgram(program: ProgramDetail) {
-        CoroutineScope(Default).launch {
-            programInteractors.undoDeletedProgram(program)
-                .map {
-                    processResponse(it?.stateMessage)
-                }
-                .single()
-        }
-    }
-
 
 }

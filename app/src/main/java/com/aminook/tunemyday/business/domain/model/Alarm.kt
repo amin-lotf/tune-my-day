@@ -8,6 +8,7 @@ class Alarm(
     var id: Long = 0L,
     var index: Int = -1,
     var scheduleId:Long= -1L,
+    var routineId:Long=0L,
     var programId:Long= -1,
     var programName:String="",
     var hourBefore: Int = 0,

@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
@@ -51,7 +52,7 @@ class RoutineViewModel @ViewModelInject constructor(
         CoroutineScope(activeScope).launch {
             routineInteractors.updateRoutine(routineEntity).map {
                 processResponse(it?.stateMessage)
-            }.single()
+            }.collect()
         }
     }
 
@@ -59,7 +60,7 @@ class RoutineViewModel @ViewModelInject constructor(
         CoroutineScope(activeScope).launch {
             routineInteractors.deleteRoutine(routineEntity).map {
                 processResponse(it?.stateMessage)
-            }.single()
+            }.collect()
         }
     }
 
@@ -72,19 +73,20 @@ class RoutineViewModel @ViewModelInject constructor(
                     it?.data?.let { routineId ->
                         saveRoutineIndex(routineId)
                     }
-                }.single()
+                }.collect()
         }
     }
 
     fun saveRoutineIndex(routineId: Long) {
+        _routineLoaded.value=false
         CoroutineScope(activeScope).launch {
             dataStoreCache.edit { cache ->
                 cache[ROUTINE_INDEX] = routineId
+                withContext(Main) {
+                    _routineLoaded.value = true
+                }
+            }
 
-            }
-            withContext(Main) {
-                _routineLoaded.value = true
-            }
         }
     }
 

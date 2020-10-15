@@ -17,7 +17,7 @@ class ValidateSchedule @Inject constructor(
         val cacheResponse=object :CacheResponseHandler<List<Schedule>,List<Schedule>>(){
             override  fun handleSuccess(resultObj: List<Schedule>): DataState<List<Schedule>>? {
 
-                return if(resultObj.size==0){
+                return if(resultObj.isEmpty()){
                     DataState.data(
                         response = Response(
                             message = SCHEDULE_NO_OVERWRITE,

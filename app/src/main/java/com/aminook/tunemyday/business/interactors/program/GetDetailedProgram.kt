@@ -1,30 +1,29 @@
-package com.aminook.tunemyday.business.interactors.schedule
+package com.aminook.tunemyday.business.interactors.program
 
 import com.aminook.tunemyday.business.data.cache.CacheResponseHandler
 import com.aminook.tunemyday.business.data.cache.ScheduleRepository
-import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.DataState
 import com.aminook.tunemyday.business.domain.state.MessageType
 import com.aminook.tunemyday.business.domain.state.Response
 import com.aminook.tunemyday.business.domain.state.UIComponentType
+import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetDailySchedules @Inject constructor(
+class GetDetailedProgram @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-     operator fun invoke(dayIndex:Int,routineId:Long,curTime:Int):Flow<DataState<List<Schedule>>?>{
-
-        val cacheResponse=object :CacheResponseHandler<List<Schedule>,List<Schedule>>(){
-            override  fun handleSuccess(resultObj: List<Schedule>): DataState<List<Schedule>>? {
+     operator fun invoke(programId:Long): Flow<DataState<ProgramDetail>?> {
+        val cacheResponse = object : CacheResponseHandler<ProgramDetail,ProgramDetail>() {
+            override  fun handleSuccess(resultObj: ProgramDetail): DataState<ProgramDetail>? {
                 return DataState.data(
                     response = Response(
-                        message = DAILY_SCHEDULES_RECEIVED,
+                        message = GET_PROGRAM_SUCCESS,
                         uiComponentType = UIComponentType.None,
-                        messageType = MessageType.Success
+                        messageType = MessageType.None
                     ),
                     data = resultObj
                 )
@@ -33,12 +32,13 @@ class GetDailySchedules @Inject constructor(
         }
 
         return cacheResponse.getResult {
-            scheduleRepository.getDailySchedules(dayIndex,routineId,curTime)
+            scheduleRepository.getProgramDetail(programId)
         }
-
     }
 
-    companion object{
-        val DAILY_SCHEDULES_RECEIVED="Successfully received daily schedules"
+    companion object {
+        val GET_PROGRAM_SUCCESS = "Successfully retrieved all programs from the cache."
+        val GET_PROGRAM_FAILED = "Failed to get programs from the cache."
     }
+
 }

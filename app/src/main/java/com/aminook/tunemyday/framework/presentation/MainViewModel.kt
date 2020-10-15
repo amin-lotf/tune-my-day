@@ -6,11 +6,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aminook.tunemyday.business.domain.model.Alarm
+import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.SnackbarUndoCallback
 import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.business.interactors.alarm.AlarmInteractors
+import com.aminook.tunemyday.business.interactors.program.ProgramInteractors
 import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
+import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import com.aminook.tunemyday.util.TodoCallback
@@ -18,13 +21,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 
 
 class MainViewModel @ViewModelInject constructor(
     val dateUtil: DateUtil,
     val alarmInteractors: AlarmInteractors,
-    val scheduleInteractors: ScheduleInteractors
+    val scheduleInteractors: ScheduleInteractors,
+    val programInteractors: ProgramInteractors
 ) : BaseViewModel() {
 
     private val TAG="aminjoon"
@@ -34,6 +41,36 @@ class MainViewModel @ViewModelInject constructor(
 
     val upcomingAlarms: LiveData<List<Alarm>>
         get() = _upcomingAlarms
+
+    fun undoDeletedProgram(program: ProgramDetail) {
+        CoroutineScope(Dispatchers.Default).launch {
+            programInteractors.undoDeletedProgram(program)
+                .map {
+                    processResponse(it?.stateMessage)
+                }
+                .collect()
+        }
+    }
+
+
+    fun deleteProgram(program: ProgramDetail){
+       CoroutineScope(activeScope).launch {
+           delay(300)
+           programInteractors.deleteProgram(
+               program = program,
+               snackbarUndoCallback = object :SnackbarUndoCallback{
+                   override fun undo() {
+                       undoDeletedProgram(program)
+                   }
+
+               }
+           )
+               .map {
+               processResponse(it?.stateMessage)
+           }.collect()
+       }
+    }
+
 
     fun deleteSchedule(schedule:Schedule){
         CoroutineScope(activeScope).launch {
@@ -59,6 +96,8 @@ class MainViewModel @ViewModelInject constructor(
         }
 
     }
+
+
 
     private fun saveSchedule(schedule: Schedule) {
         CoroutineScope(activeScope).launch {
@@ -86,4 +125,6 @@ class MainViewModel @ViewModelInject constructor(
             }
         }
     }
+
+
 }

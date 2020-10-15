@@ -19,8 +19,12 @@ import com.aminook.tunemyday.framework.presentation.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -53,15 +57,22 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
         if (scheduleId!=null && scheduleId != -1L) {
             try {
                 CoroutineScope(Default).launch {
-                    scheduleInteractors.getSchedule(scheduleId).collect { dataState->
+                    scheduleInteractors.getSchedule(scheduleId).map { dataState->
 
                        dataState?.data?.let {
                            Log.d(TAG, "onReceive broadcast: schedule id:${it.id}  program: ${it.program.name}")
-
-                           showNotification(context,it,it.alarms.filter { it.id==alarmId }[0])
+                           withContext(Main) {
+                               if (it.alarms.isNotEmpty()) {
+                                   showNotification(
+                                       context,
+                                       it,
+                                       it.alarms.filter { it.id == alarmId }[0]
+                                   )
+                               }
+                           }
                        }
 
-                    }
+                    }.single()
                 }
             } catch (e: Throwable) {
                 Log.d(TAG, "onReceive: ${e.printStackTrace()}")

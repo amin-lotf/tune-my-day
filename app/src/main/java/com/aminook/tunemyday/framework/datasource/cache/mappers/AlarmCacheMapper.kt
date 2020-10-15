@@ -8,22 +8,28 @@ import javax.inject.Singleton
 
 @Singleton
 class AlarmCacheMapper @Inject  constructor():EntityMapper<AlarmEntity,Alarm>  {
-    override fun mapFromEntity(entity: AlarmEntity): Alarm {
-        return Alarm(
-            id = entity.id,
-            scheduleId = entity.scheduleId,
-            programId = entity.programId,
-            programName = entity.programName,
-            hourBefore = entity.hourBefore,
-            minuteBefore = entity.minBefore,
-            day = entity.day,
-            startInSec = entity.startInSec)
+    override fun mapFromEntity(entity: AlarmEntity?): Alarm {
+        return if (entity!=null){
+            Alarm(
+                id = entity.id,
+                scheduleId = entity.scheduleId,
+                programId = entity.programId,
+                routineId = entity.routineId,
+                programName = entity.programName,
+                hourBefore = entity.hourBefore,
+                minuteBefore = entity.minBefore,
+                day = entity.day,
+                startInSec = entity.startInSec)
+        }else{
+            Alarm()
+        }
     }
 
     override fun mapToEntity(domainModel: Alarm): AlarmEntity {
         return AlarmEntity(
             programId = domainModel.programId,
             scheduleId = domainModel.scheduleId,
+            routineId = domainModel.routineId,
             hourBefore = domainModel.hourBefore,
             minBefore = domainModel.minuteBefore,
             day = domainModel.day,

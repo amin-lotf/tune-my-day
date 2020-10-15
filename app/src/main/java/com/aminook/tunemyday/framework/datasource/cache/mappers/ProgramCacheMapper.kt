@@ -10,9 +10,13 @@ import javax.inject.Singleton
 
 @Singleton
 class ProgramCacheMapper @Inject constructor() : EntityMapper<ProgramEntity, Program> {
-    override fun mapFromEntity(entity: ProgramEntity): Program {
+    override fun mapFromEntity(entity: ProgramEntity?): Program {
 
-        return Program(entity.id, entity.name, entity.color)
+        return if (entity!=null){
+            Program(entity.id, entity.name, entity.color)
+        }else{
+            Program()
+        }
     }
 
     override fun mapToEntity(domainModel: Program): ProgramEntity {

@@ -2,8 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/weekly_list_parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+
     tools:context=".framework.presentation.weeklylist.WeeklyListFragment">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -19,7 +21,7 @@
             android:layout_height="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:menu="@menu/schedule_menu"
-            app:title="Weekly Schedule" />
+            />
     </com.google.android.material.appbar.AppBarLayout>
 
     <ProgressBar

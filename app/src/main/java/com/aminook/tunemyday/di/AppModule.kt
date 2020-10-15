@@ -12,6 +12,7 @@ import com.aminook.tunemyday.business.data.cache.ScheduleRepositoryImpl
 import com.aminook.tunemyday.business.domain.model.Color
 import com.aminook.tunemyday.framework.datasource.cache.database.ScheduleDatabase
 import com.aminook.tunemyday.framework.presentation.common.AppFragmentFactory
+import com.aminook.tunemyday.worker.NotificationManager
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -26,6 +27,11 @@ abstract class AppModule {
 
     companion object {
 
+
+        @Singleton
+        @Provides
+        fun provideNotificationManager(@ApplicationContext context:Context)=
+            NotificationManager(context)
 
         @Singleton
         @Provides

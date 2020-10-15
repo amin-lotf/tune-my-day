@@ -17,7 +17,13 @@ import androidx.room.*
       parentColumns = ["id"],
       childColumns = ["schedule_id"],
       onDelete = ForeignKey.CASCADE
-    )
+    ),
+  ForeignKey(
+    entity = RoutineEntity::class,
+    parentColumns = ["id"],
+    childColumns = ["routine_id"],
+    onDelete = ForeignKey.CASCADE
+  )
   ]
 )
 data class AlarmEntity(
@@ -25,6 +31,8 @@ data class AlarmEntity(
   var scheduleId: Long,
   @ColumnInfo(name = "program_id", index = true)
   var programId: Long,
+  @ColumnInfo(name = "routine_id",index = true)
+  var routineId:Long,
   //@ColumnInfo(name = "program_name")
   var programName:String,
   val hourBefore: Int,

@@ -8,18 +8,23 @@ import javax.inject.Singleton
 
 @Singleton
 class TodoCacheMapper @Inject constructor():EntityMapper<TodoEntity,Todo> {
-    override fun mapFromEntity(entity: TodoEntity): Todo {
-        return Todo(
-            id = entity.id,
-            title = entity.title,
-            scheduleId = entity.scheduleId,
-            programId = entity.programId,
-            isDone = entity.isDone,
-            dateAdded = entity.dateAdded,
-            priorityIndex = entity.priorityIndex,
-            isOneTime = entity.isOneTime,
-            lastChecked = entity.lastChecked
+    override fun mapFromEntity(entity: TodoEntity?): Todo {
+        return if(entity!=null){
+            Todo(
+                id = entity.id,
+                title = entity.title,
+                scheduleId = entity.scheduleId,
+                programId = entity.programId,
+                isDone = entity.isDone,
+                dateAdded = entity.dateAdded,
+                priorityIndex = entity.priorityIndex,
+                isOneTime = entity.isOneTime,
+                lastChecked = entity.lastChecked
             )
+        }
+        else{
+            Todo(dateAdded = 0)
+        }
         }
 
     override fun mapToEntity(domainModel: Todo): TodoEntity {

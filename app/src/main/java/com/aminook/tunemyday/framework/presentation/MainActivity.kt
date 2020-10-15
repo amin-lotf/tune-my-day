@@ -3,58 +3,63 @@ package com.aminook.tunemyday.framework.presentation
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.MarginLayoutParamsCompat
-import androidx.core.view.isVisible
-import androidx.core.view.marginBottom
+import androidx.core.content.ContextCompat
 import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
-import androidx.datastore.preferences.edit
 import androidx.fragment.app.FragmentFactory
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.aminook.tunemyday.R
+import com.aminook.tunemyday.business.domain.model.Color
+import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.*
 import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.di.DataStoreSettings
+import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
+import com.aminook.tunemyday.framework.datasource.cache.model.ProgramEntity
+import com.aminook.tunemyday.framework.presentation.common.ProgramColorsAdapter
 import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragmentDirections
-import com.aminook.tunemyday.util.DAY_INDEX
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import com.aminook.tunemyday.util.TodoCallback
 import com.aminook.tunemyday.worker.AlarmWorker
 import com.aminook.tunemyday.worker.AlarmWorker.Companion.ACTION_TYPE
 import com.aminook.tunemyday.worker.AlarmWorker.Companion.MODIFIED_ALARMS_INDEX
 import com.aminook.tunemyday.worker.AlarmWorker.Companion.TYPE_NEW_SCHEDULE
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.android.synthetic.main.dialog_add_program.*
+import kotlinx.android.synthetic.main.dialog_add_program.view.*
 
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), UIController, AlarmController,OnScheduleDeleteListener {
+class MainActivity : AppCompatActivity(), UIController, AlarmController,OnDeleteListener{
 
     private val TAG = "aminjoon"
     private val mainViewModel: MainViewModel by viewModels()
 
+    @Inject
+    lateinit var colors: List<Color>
 
+    private var programColorsAdapter: ProgramColorsAdapter? = null
+    private lateinit var addProgramBtmSheetDialog: BottomSheetDialog
     @Inject
     lateinit var appFragmentFactory: FragmentFactory
 
@@ -67,14 +72,10 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
     private var dialogInView: AlertDialog? = null
     lateinit var navHostFragment: NavHostFragment
     lateinit var navController: NavController
-    private var listener:MainActivityListener?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //setSupportActionBar(toolbar)
-        //supportFragmentManager.fragmentFactory = appFragmentFactory
         setupNavigation()
         subscribeObservers()
     }
@@ -88,58 +89,45 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
         }
     }
 
-    fun setListener(listener: MainActivityListener?){
-        this.listener=listener
-    }
+
 
     private fun setupNavigation() {
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.main_nav_host) as NavHostFragment
 
-        val bundle=Bundle()
-
         navController = navHostFragment.navController
-        navController.setGraph(R.navigation.nav_graph,bundle)
+        navController.setGraph(R.navigation.nav_graph)
         bottom_navigation.setupWithNavController(navController)
-        
+        bottom_navigation.setOnNavigationItemReselectedListener{}
         navController.addOnDestinationChangedListener{controller, destination, _ ->
 
             fab_schedule.animate().translationY(0f)
 
-
-            // First page is main menu
             if( destination.id==R.id.weeklyListFragment || destination.id==R.id.taskListFragment){
                 fab_schedule.show()
                 fab_schedule.setOnClickListener {
-                    when(destination.id){
-                        R.id.weeklyListFragment->{
-                            val dayIndex= runBlocking { dataStore.data.map { it[DAY_INDEX] }.first() }?: dateUtil.curDayIndex
-                            val action = WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
-                                scheduleRequestType = SCHEDULE_REQUEST_NEW,
-                                chosenDay =dayIndex
-                            )
-                            navController.navigate(action)
-                        }
-
-                        R.id.taskListFragment->{
-                            listener?.onFabClick()
-                        }
+                    if (destination.id==R.id.weeklyListFragment){
+                        val action = WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
+                            scheduleRequestType = SCHEDULE_REQUEST_NEW
+                        )
+                        navController.navigate(action)
                     }
-
+                    else if (destination.id==R.id.taskListFragment){
+                        val action=R.id.action_taskListFragment_to_addProgramFragment
+                        navController.navigate(action)
+                    }
+                    fab_schedule.visibility=View.INVISIBLE
                 }
             }else{
-                fab_schedule.hide()
+                fab_schedule.visibility=View.INVISIBLE
             }
 
-            if (destination.id==R.id.addScheduleFragment){
-                bottom_navigation.visibility=View.GONE
-            }else{
+            if (destination.id==R.id.weeklyListFragment || destination.id==R.id.dailyFragment || destination.id==R.id.taskListFragment){
                 bottom_navigation.visibility=View.VISIBLE
+            }else{
+                bottom_navigation.visibility=View.GONE
             }
         }
-
-
-
     }
 
     override fun <T> onResponseReceived(response: Response?, data: T?) {
@@ -168,15 +156,15 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
                     displayDialog(response)
                 }
 
-                is UIComponentType.AreYouSureDialog -> {
-
-                    response.message?.let {
-                        dialogInView = areYouSureDialog(
-                            message = it,
-                            callback = response.uiComponentType.callback
-                        )
-                    }
-                }
+//                is UIComponentType.AreYouSureDialog -> {
+//
+//                    response.message?.let {
+//                        dialogInView = areYouSureDialog(
+//                            message = it,
+//                            callback = response.uiComponentType.callback
+//                        )
+//                    }
+//                }
 
 
                 else -> {
@@ -189,6 +177,8 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
         message: String,
         callback: AreYouSureCallback
     ): AlertDialog {
+
+
         return MaterialAlertDialogBuilder(this)
             .setTitle("Are you Sure?")
             .setMessage(message)
@@ -312,13 +302,14 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnSchedu
             .enqueueUniqueWork("setAlarms", ExistingWorkPolicy.REPLACE, alarmWorker)
     }
 
+    override fun onProgramDeleteListener(program: ProgramDetail) {
+      mainViewModel.deleteProgram(program)
+    }
+
     override fun onScheduleDeleted(schedule: Schedule) {
         mainViewModel.deleteSchedule(schedule)
     }
 
-    interface MainActivityListener{
-        fun onFabClick()
-    }
 
 
 }

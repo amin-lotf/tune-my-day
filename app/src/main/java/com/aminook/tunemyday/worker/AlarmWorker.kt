@@ -31,6 +31,14 @@ class AlarmWorker @WorkerInject constructor(
             val modifiedAlarmIndexes = mutableListOf<Long>()
 
             val type = inputData.getString(ACTION_TYPE)
+            
+            if (type== TYPE_DELETE_ALARMS){
+                Log.d(TAG, "doWork: remove alarms")
+            }
+            if(type== TYPE_ADD_ALARMS){
+                Log.d(TAG, "doWork: add alarms")
+            }
+            
             if (type == TYPE_NEW_SCHEDULE) {
                 inputData.getLongArray(MODIFIED_ALARMS_INDEX)?.let {
                     modifiedAlarmIndexes.addAll(
@@ -84,15 +92,15 @@ class AlarmWorker @WorkerInject constructor(
                                 ),
                                 pendingIntent
                             )
-                            alarmManager.setAlarmClock(ac,pendingIntent)
-//                            alarmManager.setExactAndAllowWhileIdle(
-//                                AlarmManager.RTC_WAKEUP,
-//                                System.currentTimeMillis() + dateUtil.getTimeDifferenceInMills(
-//                                    it.day,
-//                                    it.startInSec
-//                                ),
-//                                pendingIntent
-//                            )
+ //                           alarmManager.setAlarmClock(ac,pendingIntent)
+                            alarmManager.setExactAndAllowWhileIdle(
+                                AlarmManager.RTC_WAKEUP,
+                                System.currentTimeMillis() + dateUtil.getTimeDifferenceInMills(
+                                    it.day,
+                                    it.startInSec
+                                ),
+                                pendingIntent
+                            )
                             Log.d(
                                 TAG,
                                 "doWork: alarm set id:${it.id} schedule id:${it.scheduleId} day: ${it.day} start:${it.startInSec}"
@@ -134,7 +142,11 @@ class AlarmWorker @WorkerInject constructor(
     companion object {
         val ACTION_TYPE = "action type"
         val MODIFIED_ALARMS_INDEX = "modified alarms index"
+        const val ALARMS_IDS="alarm ids"
         val TYPE_NEW_SCHEDULE = "new schedule"
         val TYPE_PERIODIC_SCHEDULE = "periodic schedule"
+        const val TYPE_DELETE_ALARMS="delete alarms"
+        const val TYPE_ADD_ALARMS="add alarms"
+        const val ALARM_WORKER_NAME="setupAlarm"
     }
 }

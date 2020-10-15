@@ -1,12 +1,8 @@
-package com.aminook.tunemyday.framework.presentation.addschedule
+package com.aminook.tunemyday.framework.presentation.common
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.AsyncListDiffer
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Color
@@ -21,7 +17,6 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
     val selectedColor:Color?
     get() = _selectedColor
 
-    var listener:OnColorClickListener?=null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view=LayoutInflater.from(parent.context).inflate(R.layout.color_item,parent,false)
@@ -39,9 +34,7 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
         return colors.size
     }
 
-    fun setOnColorClickListener(listener: OnColorClickListener){
-        this.listener=listener
-    }
+
 
     private fun updateColors(chosenColor: Color){
         for((index,color) in colors.withIndex()){
@@ -71,7 +64,6 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
             itemView.setOnClickListener {
                 updateColors(color)
                 _selectedColor=color
-                listener?.onSelectColor(color)
             }
 
 
@@ -79,6 +71,3 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
     }
 }
 
-interface OnColorClickListener{
-    fun onSelectColor(color: Color)
-}
