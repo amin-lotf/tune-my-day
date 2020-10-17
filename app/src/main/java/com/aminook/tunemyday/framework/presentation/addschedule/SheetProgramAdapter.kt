@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Program
 import kotlinx.android.synthetic.main.bottom_sheet_programs.view.*
+import kotlinx.android.synthetic.main.program_detail_item.view.*
 import kotlinx.android.synthetic.main.program_item.view.*
 
 class SheetProgramAdapter():RecyclerView.Adapter<SheetProgramAdapter.ViewHolder>() {
@@ -40,11 +41,15 @@ class SheetProgramAdapter():RecyclerView.Adapter<SheetProgramAdapter.ViewHolder>
     inner class ViewHolder(itemView:View): RecyclerView.ViewHolder(itemView) {
 
         fun bind(program:Program){
-            itemView.txt_program_name.text=program.name
-            itemView.img_program_label.setBackgroundColor(program.color)
-            itemView.setOnClickListener {
-                listener?.AddProgramClick(program)
+            itemView.txt_program_choose_title.text=program.name
 
+            itemView.card_choose_program.strokeColor = program.color
+            itemView.layout_child__choose_program.setBackgroundColor(program.color)
+            itemView.layout_child__choose_program.background.alpha=10
+
+            itemView.setOnClickListener {
+
+                listener?.AddProgramClick(program)
             }
         }
     }

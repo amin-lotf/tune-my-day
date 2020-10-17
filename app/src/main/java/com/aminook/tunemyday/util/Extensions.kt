@@ -7,6 +7,9 @@ import android.view.inputmethod.InputMethodManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
+
+
+
 fun <T> RecyclerView.Adapter<*>.autoNotify(oldList:List<T>,newList:List<T>,compare:(T,T)->Boolean){
     val diff=DiffUtil.calculateDiff(object :DiffUtil.Callback(){
         override fun getOldListSize()=oldList.size

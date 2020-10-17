@@ -85,12 +85,8 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
     }
 
 
-    override fun onPreviewRoutineClick(routineEntity: RoutineEntity) {
-
-    }
-
     private fun showAddRoutineDialog(routineEntity: RoutineEntity? = null) {
-        addRoutineBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.DialogStyle)
+        addRoutineBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.ThemeOverlay_DialogStyle)
         addRoutineBtmSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
 
         val view = layoutInflater.inflate(R.layout.bottom_sheet_add_routine, btn_sheet_add_routine)

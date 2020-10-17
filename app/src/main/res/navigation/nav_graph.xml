@@ -58,6 +58,16 @@
             android:name="program_id"
             app:argType="long"
             android:defaultValue="0L" />
+        <argument
+            android:name="start_time"
+            app:argType="com.aminook.tunemyday.business.domain.model.Time"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="end_time"
+            app:argType="com.aminook.tunemyday.business.domain.model.Time"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/dailyFragment"

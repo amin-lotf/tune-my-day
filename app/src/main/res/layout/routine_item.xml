@@ -46,14 +46,6 @@
             android:src="@drawable/ic_delete"
             android:layout_marginEnd="14dp"/>
 
-        <ImageView
-            android:id="@+id/img_review_routine"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            app:layout_constraintTop_toTopOf="@id/img_edit_routine"
-            app:layout_constraintEnd_toStartOf="@id/img_delete_routine"
-            android:src="@drawable/ic_preview"
-            android:layout_marginEnd="14dp"/>
 
         <TextView
             android:id="@+id/txt_routine_blank"
@@ -62,7 +54,7 @@
             app:layout_constraintTop_toBottomOf="@id/txt_routine_name"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/img_review_routine"
+            app:layout_constraintEnd_toStartOf="@id/img_delete_routine"
             android:layout_marginEnd="4dp"/>
 
 

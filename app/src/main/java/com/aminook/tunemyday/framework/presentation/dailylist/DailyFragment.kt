@@ -139,7 +139,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
     }
 
     private fun showAddTodo(scheduleId: Long, programId: Long, todoAdapter: TodoAdapter?, todo:Todo?=null) {
-        addTodoBtmSheetDialog= BottomSheetDialog(requireContext(),R.style.DialogStyle)
+        addTodoBtmSheetDialog= BottomSheetDialog(requireContext(),R.style.ThemeOverlay_DialogStyle)
         val view=layoutInflater.inflate(R.layout.bottom_sheet_add_todo,btn_sheet_add_todo)
         addTodoBtmSheetDialog.setContentView(view)
         addTodoBtmSheetDialog.behavior.state=BottomSheetBehavior.STATE_EXPANDED

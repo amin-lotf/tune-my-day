@@ -331,7 +331,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
     }
 
     private fun showAddTodo(scheduleId: Long, todo: Todo? = null) {
-        addTodoBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.DialogStyle)
+        addTodoBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.ThemeOverlay_DialogStyle)
         addTodoBtmSheetDialog.behavior.state=BottomSheetBehavior.STATE_EXPANDED
         val view = layoutInflater.inflate(R.layout.bottom_sheet_add_todo, btn_sheet_add_todo)
         addTodoBtmSheetDialog.setContentView(view)
@@ -386,7 +386,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
     private fun showAlarmDialog(alarm: Alarm? = null) {
         addAlarmBtmSheetDialog =
-            BottomSheetDialog(requireContext(), R.style.DialogStyle)
+            BottomSheetDialog(requireContext(), R.style.ThemeOverlay_DialogStyle)
         addAlarmBtmSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
         val view = LayoutInflater.from(requireContext())
             .inflate(R.layout.layout_add_alarm, bottom_sheet_add_alarm)
@@ -527,42 +527,6 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
             isShowingDialog = false
             programsAdapter = null
         }
-    }
-
-    private fun showAddProgramDialog() {
-        addProgramBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.DialogStyle)
-        addProgramBtmSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
-        val view = layoutInflater.inflate(R.layout.dialog_add_program, btm_sheet_add_program)
-
-
-        addProgramBtmSheetDialog.setContentView(view)
-        addProgramBtmSheetDialog.show()
-        addProgramBtmSheetDialog.setOnDismissListener {
-            view.recycler_program_colors.adapter = null
-            programColorsAdapter = null
-        }
-        view.edt_add_program.requestFocus()
-        view.btn_save_Program.setOnClickListener {
-            if (!view.edt_add_program.text.isNullOrBlank()) {
-                val programName = view.edt_add_program.text.toString()
-                val color = programColorsAdapter?.selectedColor
-                    ?: Color(ContextCompat.getColor(requireContext(), R.color.colorAccent))
-                val program = Program(name = programName, color = color.value)
-                viewModel.addProgram(program)
-                addProgramBtmSheetDialog.dismiss()
-            } else {
-                //TODO(Field must not be empty error
-            }
-        }
-
-        programColorsAdapter = ProgramColorsAdapter(colors)
-
-        view.recycler_program_colors.apply {
-            layoutManager = GridLayoutManager(requireContext(), 4)
-            adapter = programColorsAdapter
-        }
-
-
     }
 
 

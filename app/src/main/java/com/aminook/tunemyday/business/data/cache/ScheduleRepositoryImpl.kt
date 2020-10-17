@@ -211,8 +211,9 @@ class ScheduleRepositoryImpl @Inject constructor(
         val shortDayRange = dateUtil.shortDayRange
         val alarmIdsToCancel = mutableListOf<Long>()
         val alarmIdsToSchedule = mutableListOf<Long>()
-        if (schedule.routineId == curRoutine) {
-            alarmIdsToCancel.addAll(schedule.alarms.filter { it.id != 0L }.map { it.id })
+        if (schedule.id!=0L && schedule.routineId == curRoutine) {
+            val prevAlarmIds=daoService.alarmDao.getAlarmIdsByScheduleId(schedule.id)
+            alarmIdsToCancel.addAll(prevAlarmIds)
         }
 
         conflictedSchedule.forEach { s ->
@@ -280,8 +281,10 @@ class ScheduleRepositoryImpl @Inject constructor(
                     val todos = fullSchedule.todos.onEach { it.programId = fullSchedule.program.id }
                     daoService.todoDao.updateTodos(todos)
                 }
-                notificationManager.removeNotifications(alarmIdsToCancel)
 
+
+
+                notificationManager.removeNotifications(alarmIdsToCancel)
                 val res = daoService.scheduleDao.updateTransaction(
                     scheduleEntity = fullSchedule.schedule,
                     schedulesToDelete = scheduleEntitiesToDelete,

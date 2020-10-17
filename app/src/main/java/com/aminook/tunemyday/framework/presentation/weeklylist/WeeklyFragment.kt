@@ -6,10 +6,13 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
+import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_weekly.*
 import kotlinx.coroutines.CoroutineScope
@@ -63,6 +66,19 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
             adapter=shortDailyScheduleAdapter
         }
 
+
+        daily_short_schedules_recycler.addOnScrollListener(object :RecyclerView.OnScrollListener(){
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                if(dy>0){
+                    (requireActivity().findViewById<FloatingActionButton>(R.id.fab_schedule)).hide()
+                }else{
+                    (requireActivity().findViewById<FloatingActionButton>(R.id.fab_schedule)).show()
+                }
+            }
+        })
+
     }
 
 
@@ -82,10 +98,19 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
     }
 
     override fun onItemClick(schedule: Schedule) {
-        val action = WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
-            scheduleRequestType = SCHEDULE_REQUEST_EDIT,
-            scheduleId = schedule.id
-        )
+        val action = if(schedule.id!= -1L) {
+             WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
+                scheduleRequestType = SCHEDULE_REQUEST_EDIT,
+                scheduleId = schedule.id
+            )
+        }else{
+            WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
+                scheduleRequestType = SCHEDULE_REQUEST_NEW,
+                scheduleId = schedule.id,
+                startTime = schedule.startTime,
+                endTime = schedule.endTime
+            )
+        }
         findNavController().navigate(action)
     }
 

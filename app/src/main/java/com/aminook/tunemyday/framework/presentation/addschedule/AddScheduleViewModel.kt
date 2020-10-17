@@ -231,7 +231,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
             SCHEDULE_REQUEST_EDIT -> {
                 val scheduleId = args.scheduleId
                 addScheduleManager.setScheduleId(scheduleId)
-                if (scheduleId != 0L) {
+                if (scheduleId > 0L) {
                     try {
 
 
@@ -274,17 +274,30 @@ class AddScheduleViewModel @ViewModelInject constructor(
                         Log.d(TAG, "processRequest: error getting schedule add-edit ${e.message}")
                         println(e.stackTrace)
                     }
-                } else {
-
-                    //TODO(handle error)
                 }
             }
             SCHEDULE_REQUEST_NEW -> {
+                val startTime=args.startTime
+                val endTime=args.endTime
                 CoroutineScope(activeScope).launch {
                     dataStoreSettings.data.map {
                         val index = it[DAY_INDEX] ?: dateUtil.curDayIndex
                         withContext(Main) {
                             catchDaysOfWeek(index)
+                            startTime?.let {
+                                setTime(
+                                    startTime.hour,
+                                    startTime.minute,
+                                    TIME_START
+                                )
+                            }
+                            endTime?.let {
+                                setTime(
+                                    endTime.hour,
+                                    endTime.minute,
+                                    TIME_END
+                                )
+                            }
                         }
                     }.collect()
 

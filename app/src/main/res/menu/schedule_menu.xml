@@ -6,11 +6,11 @@
         android:title="New Weekly Schedule"
         app:showAsAction="always"
 
-        android:icon="@drawable/icon_add_weekly"/>
+        android:icon="@drawable/ic_add_weekly"/>
 
     <item
         android:id="@+id/action_load_weekly"
         android:title="Show History"
         app:showAsAction="always"
-        android:icon="@drawable/icon_change"/>
+        android:icon="@drawable/ic_hitory"/>
 </menu>

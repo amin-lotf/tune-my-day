@@ -10,6 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Color
 import com.aminook.tunemyday.business.domain.model.Program
@@ -21,6 +22,7 @@ import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.util.DragManageAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.dialog_add_program.*
 import kotlinx.android.synthetic.main.dialog_add_program.view.*
@@ -49,7 +51,17 @@ class ProgramListFragment : BaseFragment(R.layout.fragment_program_list),
             adapter = programListAdapter
         }
 
+        recycler_programs_detail.addOnScrollListener(object : RecyclerView.OnScrollListener(){
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
 
+                if(dy>0){
+                    (requireActivity().findViewById<FloatingActionButton>(R.id.fab_schedule)).hide()
+                }else{
+                    (requireActivity().findViewById<FloatingActionButton>(R.id.fab_schedule)).show()
+                }
+            }
+        })
 
         subscribeObservers()
 

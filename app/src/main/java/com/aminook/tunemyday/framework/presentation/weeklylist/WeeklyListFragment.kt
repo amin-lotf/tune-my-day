@@ -1,18 +1,24 @@
 package com.aminook.tunemyday.framework.presentation.weeklylist
 
+import android.graphics.Color.TRANSPARENT
+import android.graphics.PixelFormat.TRANSPARENT
+import android.icu.lang.UCharacter.JoiningType.TRANSPARENT
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.aminook.tunemyday.R
+import com.aminook.tunemyday.business.domain.model.Color
 import com.aminook.tunemyday.business.domain.model.Day
 import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.util.observeOnce
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -109,14 +115,13 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
 
     private fun showAddRoutineDialog() {
 
-        addRoutineBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.DialogStyle)
+        addRoutineBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.ThemeOverlay_DialogStyle)
         addRoutineBtmSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
-
         val view =
             layoutInflater.inflate(R.layout.bottom_sheet_add_routine, btn_sheet_add_routine)
         addRoutineBtmSheetDialog.setContentView(view)
-        addRoutineBtmSheetDialog.show()
 
+        addRoutineBtmSheetDialog.show()
         view.txt_add_routine.requestFocus()
 
         view.btn_save_routine.setOnClickListener {
@@ -132,7 +137,6 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
                weeklyViewPagerAdapter= WeeklyViewPagerAdapter(childFragmentManager,viewLifecycleOwner.lifecycle,routine.id)
                weekly_view_pager.apply {
                    this.adapter = weeklyViewPagerAdapter
-                   this.visibility = View.VISIBLE
                }
                setupTabLayout()
     }
@@ -158,7 +162,6 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
                 }
 
                 override fun onTabUnselected(tab: TabLayout.Tab?) {
-
                 }
 
                 override fun onTabReselected(tab: TabLayout.Tab?) {

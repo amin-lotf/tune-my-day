@@ -45,9 +45,7 @@ class RoutineAdapter : ListAdapter<RoutineEntity, RoutineAdapter.ViewHolder>(DIF
             itemView.img_edit_routine.setOnClickListener {
                 listener?.onUpdateRouineClick(routine)
             }
-            itemView.img_review_routine.setOnClickListener {
-                listener?.onPreviewRoutineClick(routine)
-            }
+
         }
     }
 
@@ -71,6 +69,6 @@ class RoutineAdapter : ListAdapter<RoutineEntity, RoutineAdapter.ViewHolder>(DIF
         fun onRoutineClick(routineEntity: RoutineEntity)
         fun onDeleteRoutineClick(routineEntity: RoutineEntity)
         fun onUpdateRouineClick(routineEntity: RoutineEntity)
-        fun onPreviewRoutineClick(routineEntity: RoutineEntity)
+
     }
 }
