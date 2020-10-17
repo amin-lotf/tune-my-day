@@ -17,7 +17,7 @@ class UndoDeletedProgram @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-    suspend operator fun invoke(program:ProgramDetail):Flow<DataState<Nothing>?>{
+    suspend operator fun invoke(program:ProgramDetail,curRoutine: Long):Flow<DataState<Nothing>?>{
 
         val cacheResponse=object :CacheResponseHandler<Long,Nothing>(){
             override fun handleSuccess(resultObj: Long): DataState<Nothing>? {
@@ -46,7 +46,7 @@ class UndoDeletedProgram @Inject constructor(
         return cacheResponse.getResult {
             flow {
                 emit(
-                    scheduleRepository.undoDeletedProgram(program)
+                    scheduleRepository.undoDeletedProgram(program,curRoutine)
                 )
             }
         }

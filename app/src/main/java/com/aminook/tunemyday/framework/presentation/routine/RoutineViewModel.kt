@@ -8,8 +8,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.aminook.tunemyday.business.interactors.alarm.AlarmInteractors
 import com.aminook.tunemyday.business.interactors.routine.RoutineInteractors
 import com.aminook.tunemyday.di.DataStoreCache
+import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.util.ROUTINE_INDEX
@@ -27,8 +29,10 @@ import kotlinx.coroutines.withContext
 
 class RoutineViewModel @ViewModelInject constructor(
     val routineInteractors: RoutineInteractors,
-    @DataStoreCache val dataStoreCache:DataStore<Preferences>
-) : BaseViewModel() {
+    val alarmInteractors: AlarmInteractors,
+    @DataStoreCache  dataStoreCache: DataStore<Preferences>,
+    @DataStoreSettings dataStoreSettings: DataStore<Preferences>
+) : BaseViewModel(dataStoreCache,dataStoreSettings) {
 
     private val activeScope = Dispatchers.IO + viewModelScope.coroutineContext
     private val _routineLoaded=MutableLiveData<Boolean>()
@@ -56,9 +60,11 @@ class RoutineViewModel @ViewModelInject constructor(
         }
     }
 
+
+
     fun deleteRoutine(routineEntity: RoutineEntity) {
         CoroutineScope(activeScope).launch {
-            routineInteractors.deleteRoutine(routineEntity).map {
+            routineInteractors.deleteRoutine(routineEntity,routineId).map {
                 processResponse(it?.stateMessage)
             }.collect()
         }
@@ -67,7 +73,7 @@ class RoutineViewModel @ViewModelInject constructor(
     fun addRoutine(routineName: String) {
         val routine = RoutineEntity(routineName)
         CoroutineScope(activeScope).launch {
-            routineInteractors.insertRoutine(routine)
+            routineInteractors.insertRoutine(routine,routineId)
                 .map {
                     processResponse(it?.stateMessage)
                     it?.data?.let { routineId ->

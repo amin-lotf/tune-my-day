@@ -14,6 +14,7 @@ import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
 import com.aminook.tunemyday.business.interactors.todo.InsertTodo.Companion.INSERT_TODO_SUCCESS
 import com.aminook.tunemyday.business.interactors.todo.TodoInteractors
 import com.aminook.tunemyday.di.DataStoreCache
+import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.framework.presentation.dailylist.manager.DailyScheduleManager
 import com.aminook.tunemyday.util.ROUTINE_INDEX
@@ -28,9 +29,9 @@ class DailyViewModel @ViewModelInject constructor(
     val dateUtil: DateUtil,
     val scheduleInteractors: ScheduleInteractors,
     val todoInteractors: TodoInteractors,
-    @DataStoreCache val dataStoreCache: DataStore<Preferences>,
-
-    ) : BaseViewModel() {
+    @DataStoreCache  dataStoreCache: DataStore<Preferences>,
+    @DataStoreSettings dataStoreSettings: DataStore<Preferences>
+) : BaseViewModel(dataStoreCache,dataStoreSettings){
 
     private val TAG = "aminjoon"
     val activeScope = Dispatchers.IO + viewModelScope.coroutineContext
@@ -49,14 +50,6 @@ class DailyViewModel @ViewModelInject constructor(
         return dateUtil.getDay(dayIndex)
     }
 
-    fun getRoutineIndex():LiveData<Long> {
-        return dataStoreCache.data
-            .map {
-                Log.d(TAG, "getRoutineId: viewmodl")
-                it[ROUTINE_INDEX] ?: 0
-
-            }.asLiveData()
-    }
 
     fun getDailySchedules(routineId:Long) {
         dayIndex = dateUtil.curDayIndex

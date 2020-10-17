@@ -17,7 +17,7 @@ class GetUpcomingAlarms @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-     operator fun invoke(startDay: Int, endDay: Int): Flow<DataState<List<Alarm>>?> {
+     operator fun invoke(routineId:Long): Flow<DataState<List<Alarm>>?> {
         val cacheResponse = object : CacheResponseHandler<List<Alarm>, List<Alarm>>() {
             override  fun handleSuccess(resultObj: List<Alarm>): DataState<List<Alarm>>? {
                 return DataState.data(
@@ -33,9 +33,9 @@ class GetUpcomingAlarms @Inject constructor(
         }
 
         return cacheResponse.getResult {
-            flow {
-                emit(scheduleRepository.getUpcomingAlarms(startDay, endDay))
-            }
+
+            scheduleRepository.getUpcomingAlarms(routineId)
+
         }
     }
 

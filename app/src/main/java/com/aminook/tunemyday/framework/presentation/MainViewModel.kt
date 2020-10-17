@@ -1,18 +1,21 @@
 package com.aminook.tunemyday.framework.presentation
 
 import android.util.Log
+import androidx.datastore.DataStore
+import androidx.datastore.preferences.Preferences
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.aminook.tunemyday.business.domain.model.Alarm
-import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.SnackbarUndoCallback
 import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.business.interactors.alarm.AlarmInteractors
 import com.aminook.tunemyday.business.interactors.program.ProgramInteractors
 import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
+import com.aminook.tunemyday.di.DataStoreCache
+import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
@@ -20,10 +23,7 @@ import com.aminook.tunemyday.util.TodoCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 
@@ -31,26 +31,38 @@ class MainViewModel @ViewModelInject constructor(
     val dateUtil: DateUtil,
     val alarmInteractors: AlarmInteractors,
     val scheduleInteractors: ScheduleInteractors,
-    val programInteractors: ProgramInteractors
-) : BaseViewModel() {
+    val programInteractors: ProgramInteractors,
+    @DataStoreCache  dataStoreCache: DataStore<Preferences>,
+    @DataStoreSettings dataStoreSettings: DataStore<Preferences>
+) : BaseViewModel(dataStoreCache,dataStoreSettings) {
 
     private val TAG="aminjoon"
     private val alarmRange = 2
     private val activeScope = Dispatchers.IO + viewModelScope.coroutineContext
-    private val _upcomingAlarms = MutableLiveData<List<Alarm>>()
 
-    val upcomingAlarms: LiveData<List<Alarm>>
-        get() = _upcomingAlarms
+    var buffRoutineId:Long=0
+
+
 
     fun undoDeletedProgram(program: ProgramDetail) {
         CoroutineScope(Dispatchers.Default).launch {
-            programInteractors.undoDeletedProgram(program)
+            programInteractors.undoDeletedProgram(program,routineId)
                 .map {
                     processResponse(it?.stateMessage)
                 }
                 .collect()
         }
     }
+
+    fun cancelPrevRoutineAlarms(routineId:Long){
+        CoroutineScope(activeScope).launch {
+            alarmInteractors.cancelUpcomingAlarmsByRoutine(routineId)
+                .map {
+                    processResponse(it?.stateMessage)
+                }.single()
+        }
+    }
+
 
 
     fun deleteProgram(program: ProgramDetail){
@@ -76,7 +88,7 @@ class MainViewModel @ViewModelInject constructor(
         CoroutineScope(activeScope).launch {
             delay(300) //delay added so the snackbar goes under the FAB
             scheduleInteractors.deleteSchedule(
-                schedule.id,
+                schedule,
                 object : SnackbarUndoCallback {
                     override fun undo() {
                        saveSchedule(schedule)
@@ -101,29 +113,33 @@ class MainViewModel @ViewModelInject constructor(
 
     private fun saveSchedule(schedule: Schedule) {
         CoroutineScope(activeScope).launch {
-            scheduleInteractors.insertSchedule(schedule, listOf(), SCHEDULE_REQUEST_NEW).collect{dataState->
+            scheduleInteractors.insertSchedule(schedule, listOf(), SCHEDULE_REQUEST_NEW,routineId).collect{ dataState->
                 processResponse(dataState?.stateMessage)
 
             }
         }
     }
 
-
-    fun getUpcomingAlarms() {
+    fun scheduleUpcomingAlarms(alarms:List<Alarm>){
         CoroutineScope(activeScope).launch {
-            val todayIndex = dateUtil.curDayIndex
-            alarmInteractors.getUpcomingAlarms(
-                startDay = todayIndex,
-                endDay = todayIndex + alarmRange
-            ).collect { dataState ->
-                Log.d(TAG, "catchDaysOfWeek: ")
-                processResponse(dataState?.stateMessage)
-                dataState?.data?.let { alarms ->
-                    _upcomingAlarms.value = alarms
-
-                }
-            }
+            alarmInteractors.scheduleUpcomingAlarms(alarms)
+                .map {
+                    processResponse(it?.stateMessage)
+                }.collect()
         }
+    }
+
+
+    fun getUpcomingAlarms():LiveData<List<Alarm>> {
+            return alarmInteractors.getUpcomingAlarms(
+               routineId
+            )
+                .map { dataState ->
+                Log.d(TAG, "doWorkk catchDaysOfWeek: ")
+                processResponse(dataState?.stateMessage)
+                dataState?.data?: emptyList()
+            }.asLiveData()
+
     }
 
 

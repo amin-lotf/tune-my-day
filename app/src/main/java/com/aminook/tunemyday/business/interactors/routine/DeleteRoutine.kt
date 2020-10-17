@@ -17,7 +17,7 @@ import javax.inject.Singleton
 class DeleteRoutine @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
-      operator fun invoke(routineEntity: RoutineEntity):Flow<DataState<Nothing>?>{
+      operator fun invoke(routineEntity: RoutineEntity,curRoutine: Long):Flow<DataState<Nothing>?>{
         val cacheResponse=object :CacheResponseHandler<Int,Nothing>(){
             override fun handleSuccess(resultObj: Int): DataState<Nothing>? {
                 return if (resultObj>0){
@@ -44,7 +44,7 @@ class DeleteRoutine @Inject constructor(
         return cacheResponse.getResult {
             flow {
                 emit(
-                    scheduleRepository.deleteRoutine(routineEntity)
+                    scheduleRepository.deleteRoutine(routineEntity,curRoutine)
                 )
             }
 

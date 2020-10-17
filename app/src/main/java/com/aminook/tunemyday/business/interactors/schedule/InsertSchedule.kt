@@ -17,7 +17,7 @@ class InsertSchedule @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-     operator fun invoke(schedule:Schedule,conflictedSchedule:List<Schedule>,requestType:String):Flow<DataState<String>?>{
+     operator fun invoke(schedule:Schedule,conflictedSchedule:List<Schedule>,requestType:String,curRoutine: Long):Flow<DataState<String>?>{
         val cacheResponse=object : CacheResponseHandler<Long,String>() {
             override  fun handleSuccess(resultObj: Long): DataState<String>? {
                 return if (resultObj>0){
@@ -45,7 +45,7 @@ class InsertSchedule @Inject constructor(
         return cacheResponse.getResult {
             flow {
                 emit(
-                    scheduleRepository.insertModifySchedule(schedule,conflictedSchedule,requestType)
+                    scheduleRepository.insertModifySchedule(schedule,conflictedSchedule,requestType,curRoutine)
                 )
             }
 

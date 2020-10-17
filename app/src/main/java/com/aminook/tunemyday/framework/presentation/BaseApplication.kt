@@ -1,6 +1,5 @@
 package com.aminook.tunemyday.framework.presentation
 
-import android.app.AlarmManager
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -59,10 +58,10 @@ class BaseApplication : Application(), Configuration.Provider {
         notificationManager?.createNotificationChannel(channel)
         setPeriodicSchedule()
 
-        updayeDayIndex()
+        updateDayIndex()
     }
 
-    private fun updayeDayIndex() {
+    private fun updateDayIndex() {
         CoroutineScope(Dispatchers.IO).launch {
 
             dataStore.edit { settings ->
@@ -74,7 +73,7 @@ class BaseApplication : Application(), Configuration.Provider {
     }
 
 
-    fun setPeriodicSchedule() {
+    private fun setPeriodicSchedule() {
         val currentDate = Calendar.getInstance()
         val dueDate = Calendar.getInstance()
         // Set Execution around 05:00:00 AM
@@ -85,7 +84,7 @@ class BaseApplication : Application(), Configuration.Provider {
             dueDate.add(Calendar.HOUR_OF_DAY, 24)
         }
         val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
-        Log.d(TAG, "setPeriodicSchedule: timediff: $timeDiff")
+        Log.d(TAG, "setPeriodicSchedule: an app run timediff: $timeDiff")
         val data = Data.Builder()
             .putString(AlarmWorker.ACTION_TYPE, AlarmWorker.TYPE_PERIODIC_SCHEDULE)
             .build()

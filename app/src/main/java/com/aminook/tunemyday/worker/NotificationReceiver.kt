@@ -14,8 +14,13 @@ import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Alarm
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.util.DateUtil
+import com.aminook.tunemyday.business.interactors.alarm.AlarmInteractors
 import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
 import com.aminook.tunemyday.framework.presentation.MainActivity
+import com.aminook.tunemyday.worker.AlarmWorker.Companion.ACTION_CALL_FROM_WORKER
+import com.aminook.tunemyday.worker.AlarmWorker.Companion.ALARM_WORKER_NAME
+import com.aminook.tunemyday.worker.AlarmWorker.Companion.PERIODIC_WORKER_NAME
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
@@ -35,7 +40,7 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
     private val TAG = "aminjoon"
 
     @Inject
-    lateinit var scheduleInteractors: ScheduleInteractors
+    lateinit var alarmInteractors: AlarmInteractors
 
     @Inject
     lateinit var dateUtil:DateUtil
@@ -46,42 +51,69 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
         super.onReceive(context, intent)
 
         if (intent?.action.equals("android.intent.action.BOOT_COMPLETED")) {
+            Log.d(TAG, "onReceive: boot completed")
             setPeriodicSchedule(context)
             return
         }
 
-
-        val scheduleId = intent?.getLongExtra(SCHEDULE_ID, -1)
-        val alarmId = intent?.getLongExtra(ALARM_ID, -1)
-        Log.d(TAG, "onReceive: id: $scheduleId")
-        if (scheduleId!=null && scheduleId != -1L) {
-            try {
-                CoroutineScope(Default).launch {
-                    scheduleInteractors.getSchedule(scheduleId).map { dataState->
-
-                       dataState?.data?.let {
-                           Log.d(TAG, "onReceive broadcast: schedule id:${it.id}  program: ${it.program.name}")
-                           withContext(Main) {
-                               if (it.alarms.isNotEmpty()) {
-                                   showNotification(
-                                       context,
-                                       it,
-                                       it.alarms.filter { it.id == alarmId }[0]
-                                   )
-                               }
-                           }
-                       }
-
-                    }.single()
+        if (intent?.action.equals(ACTION_CALL_FROM_WORKER)){
+            Log.d(TAG, "onReceive: ACTION_CALL_FROM_WORKER")
+            val alarmId=intent?.getLongExtra(ALARM_ID,0)
+            alarmId?.let { id->
+                Log.d(TAG, "onReceive: ACTION alarm id: $id")
+                try {
+                    CoroutineScope(Default).launch {
+                        alarmInteractors.getAlarmById(id).collect {dataState->
+                            dataState?.data?.let {alarm->
+                                withContext(Main){
+                                    showNotification(context,alarm)
+                                }
+                            }
+                        }
+                    }
+                }catch (e:Throwable){
+                    Log.d(TAG, "onReceive alarm notification: Error")
+                    FirebaseCrashlytics.getInstance().recordException(e)
+                    e.printStackTrace()
                 }
-            } catch (e: Throwable) {
-                Log.d(TAG, "onReceive: ${e.printStackTrace()}")
+
             }
+
         }
+
+
+
+//        val scheduleId = intent?.getLongExtra(SCHEDULE_ID, -1)
+//        val alarmId = intent?.getLongExtra(ALARM_ID, -1)
+//        Log.d(TAG, "onReceive: id: $scheduleId")
+//        if (scheduleId!=null && scheduleId != -1L) {
+//            try {
+//                CoroutineScope(Default).launch {
+//                    scheduleInteractors.getSchedule(scheduleId).map { dataState->
+//
+//                       dataState?.data?.let {
+//                           Log.d(TAG, "onReceive broadcast: schedule id:${it.id}  program: ${it.program.name}")
+//                           withContext(Main) {
+//                               if (it.alarms.isNotEmpty()) {
+//                                   showNotification(
+//                                       context,
+//                                       it,
+//                                       it.alarms.filter { it.id == alarmId }[0]
+//                                   )
+//                               }
+//                           }
+//                       }
+//
+//                    }.single()
+//                }
+//            } catch (e: Throwable) {
+//                Log.d(TAG, "onReceive: ${e.printStackTrace()}")
+//            }
+//        }
 
     }
 
-    fun showNotification(context: Context,schedule:Schedule,alarm:Alarm){
+    fun showNotification(context: Context,alarm:Alarm){
         val summaryNotification= NotificationCompat.Builder(context,CHANNEL_ID)
             .setContentTitle("Tune My Day")
             .setContentText("Upcoming Activity")
@@ -97,28 +129,28 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
 
         val notificationPendingIntent=PendingIntent.getActivity(
             context,
-            schedule.id.toInt(),
+            alarm.scheduleId.toInt(),
             notificationIntent,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         val notification=NotificationCompat.Builder(context.applicationContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(schedule.program.name)
+            .setContentTitle(alarm.programName)
             .setContentText(getNotificationSmallFormat(alarm))
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(
-                        getNotificationBigFormat(alarm,schedule)
-                    )
-            )
+//            .setStyle(
+//                NotificationCompat.BigTextStyle()
+//                    .bigText(
+//                        getNotificationBigFormat(alarm,schedule)
+//                    )
+//            )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(notificationPendingIntent)
             .setGroup(GROUP_KEY)
             .setAutoCancel(true)
             .build()
         with(NotificationManagerCompat.from(context.applicationContext)){
-            notify(schedule.id.toInt(),notification)
+            notify(alarm.scheduleId.toInt(),notification)
             notify(GROUP_KEY_ID,summaryNotification)
         }
     }
@@ -175,7 +207,7 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
 
         val workManager = WorkManager.getInstance(context.applicationContext)
         workManager.enqueueUniquePeriodicWork(
-            "periodic alarm scheduler",
+            PERIODIC_WORKER_NAME,
             ExistingPeriodicWorkPolicy.REPLACE,
             periodicAlarmWorker
         )

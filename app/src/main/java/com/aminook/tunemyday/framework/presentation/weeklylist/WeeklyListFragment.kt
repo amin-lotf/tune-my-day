@@ -6,17 +6,10 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Day
-import com.aminook.tunemyday.business.domain.model.Schedule
-import com.aminook.tunemyday.framework.datasource.cache.database.ScheduleDao
 import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
-import com.aminook.tunemyday.framework.presentation.MainActivity
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
-import com.aminook.tunemyday.util.DAY_INDEX
-import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
-import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import com.aminook.tunemyday.util.observeOnce
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -26,11 +19,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.bottom_sheet_add_routine.*
 import kotlinx.android.synthetic.main.bottom_sheet_add_routine.view.*
 import kotlinx.android.synthetic.main.fragment_weekly_list.*
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.inject.Inject
 
 
@@ -71,8 +59,8 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
 
 
 
-        viewModel.getRoutineIndex().observeOnce(viewLifecycleOwner) {
-
+        viewModel.getRoutineIndex().observe(viewLifecycleOwner) {
+            Log.d(TAG, "subscribeObservers: new routine id: $it")
             viewModel.getRoutine(it).observe(viewLifecycleOwner){
                 if (it != null && it.id != 0L) {
                     Log.d(TAG, "subscribeObservers: routine : $it")
@@ -103,7 +91,12 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
                 }
 
                 R.id.action_load_weekly -> {
-                    val action = R.id.action_weeklyListFragment_to_routineFragment
+                    Log.d(TAG, "setupToolbar: before nav ${viewModel.routineId}")
+                    val action =
+                        WeeklyListFragmentDirections.actionWeeklyListFragmentToRoutineFragment(
+                            viewModel.routineId
+                        )
+                    Log.d(TAG, "setupToolbar: before nav ${action.arguments}")
                     findNavController().navigate(action)
                     true
                 }

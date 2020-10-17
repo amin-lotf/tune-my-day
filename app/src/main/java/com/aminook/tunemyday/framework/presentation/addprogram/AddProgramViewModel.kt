@@ -1,12 +1,16 @@
 package com.aminook.tunemyday.framework.presentation.addprogram
 
 import android.util.Log
+import androidx.datastore.DataStore
+import androidx.datastore.preferences.Preferences
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.interactors.program.ProgramInteractors
+import com.aminook.tunemyday.di.DataStoreCache
+import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -20,8 +24,10 @@ import kotlinx.coroutines.withContext
 
 
 class AddProgramViewModel @ViewModelInject constructor(
-    val programInteractors: ProgramInteractors
-):BaseViewModel() {
+    val programInteractors: ProgramInteractors,
+    @DataStoreCache dataStoreCache: DataStore<Preferences>,
+    @DataStoreSettings dataStoreSettings: DataStore<Preferences>
+) : BaseViewModel(dataStoreCache,dataStoreSettings) {
 
     private var _savedProgram:ProgramDetail?=null
     private var _newProgramId=MutableLiveData<Long>()

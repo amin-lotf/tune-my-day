@@ -23,43 +23,55 @@ class DateUtil @Inject constructor() {
     val curTimeInSec: Int
         get() {
             val today = Date()
-            val hour=SimpleDateFormat("HH", Locale.US).format(today.time).toInt()
-            val minute=SimpleDateFormat("mm", Locale.US).format(today.time).toInt()
-            val second=SimpleDateFormat("ss", Locale.US).format(today.time).toInt()
-           return 86400 * curDayIndex + hour * 60 * 60 + minute * 60+second
+            val hour = SimpleDateFormat("HH", Locale.US).format(today.time).toInt()
+            val minute = SimpleDateFormat("mm", Locale.US).format(today.time).toInt()
+            val second = SimpleDateFormat("ss", Locale.US).format(today.time).toInt()
+            return 86400 * curDayIndex + hour * 60 * 60 + minute * 60 + second
         }
 
     val curTimeInMillis: Int
         get() {
             val today = Date()
-            val hour=SimpleDateFormat("HH", Locale.US).format(today.time).toInt()
-            val minute=SimpleDateFormat("mm", Locale.US).format(today.time).toInt()
-            val second=SimpleDateFormat("ss", Locale.US).format(today.time).toInt()
-            val mills=SimpleDateFormat("SSS", Locale.US).format(today.time).toInt()
-            return (86400 * curDayIndex + hour * 60 * 60 + minute * 60+second)*1000+mills
+            val hour = SimpleDateFormat("HH", Locale.US).format(today.time).toInt()
+            val minute = SimpleDateFormat("mm", Locale.US).format(today.time).toInt()
+            val second = SimpleDateFormat("ss", Locale.US).format(today.time).toInt()
+            val mills = SimpleDateFormat("SSS", Locale.US).format(today.time).toInt()
+            return (86400 * curDayIndex + hour * 60 * 60 + minute * 60 + second) * 1000 + mills
         }
 
-    val curDateInInt:Long
-    get() {
-        val today = Date()
-        val year=SimpleDateFormat("yy", Locale.US).format(today.time)
-        val month=SimpleDateFormat("MM", Locale.US).format(today.time)
-        val day=SimpleDateFormat("dd", Locale.US).format(today.time)
-        val hour=SimpleDateFormat("HH", Locale.US).format(today.time).toInt()
-        val minute=SimpleDateFormat("mm", Locale.US).format(today.time).toInt()
-        val second=SimpleDateFormat("ss", Locale.US).format(today.time).toInt()
-        val mills=SimpleDateFormat("SSS", Locale.US).format(today.time).toInt()
-        return (year+month+day+hour+minute+second+mills).toLong()
-    }
+    val curDateInInt: Long
+        get() {
+            val today = Date()
+            val year = SimpleDateFormat("yy", Locale.US).format(today.time)
+            val month = SimpleDateFormat("MM", Locale.US).format(today.time)
+            val day = SimpleDateFormat("dd", Locale.US).format(today.time)
+            val hour = SimpleDateFormat("HH", Locale.US).format(today.time).toInt()
+            val minute = SimpleDateFormat("mm", Locale.US).format(today.time).toInt()
+            val second = SimpleDateFormat("ss", Locale.US).format(today.time).toInt()
+            val mills = SimpleDateFormat("SSS", Locale.US).format(today.time).toInt()
+            return (year + month + day + hour + minute + second + mills).toLong()
+        }
 
-    fun getDay(dayIndex:Int):Day{
+    val shortDayRange: List<Int>
+        get() {
+            val dayRange = mutableListOf<Int>()
+
+            for (i in curDayIndex..curDayIndex+2) {
+                val day = if (i < 7) i else i - 7
+                dayRange.add(day)
+
+            }
+            return dayRange
+        }
+
+    fun getDay(dayIndex: Int): Day {
         val calendar = Calendar.getInstance(Locale.US)
 
         calendar.firstDayOfWeek = Calendar.MONDAY
         calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
         calendar.add(Calendar.DATE, dayIndex)
         val d = calendar.time
-        return  Day(
+        return Day(
             shortName = SimpleDateFormat("EE", Locale.US).format(d.time),
             fullName = SimpleDateFormat("EEEE", Locale.US).format(d.time),
             date = SimpleDateFormat("MM/dd", Locale.US).format(d.time),
@@ -99,7 +111,7 @@ class DateUtil @Inject constructor() {
 
     fun getNextNDays(chosenDay: Int = curDayIndex): List<Day> {
         val calendar = Calendar.getInstance(Locale.US)
-        val today=Date()
+        val today = Date()
 
         val days = mutableListOf<Day>()
 
@@ -113,14 +125,14 @@ class DateUtil @Inject constructor() {
                     date = SimpleDateFormat("MM/dd", Locale.getDefault()).format(d.time),
                     dayIndex = calendar.get(Calendar.DAY_OF_WEEK)
                 ).apply {
-                        if (chosenDay != -1) {
-                            isChosen = i == chosenDay
-                        } else {
-                            if (d == today) {
-                                isChosen = true
-                            }
+                    if (chosenDay != -1) {
+                        isChosen = i == chosenDay
+                    } else {
+                        if (d == today) {
+                            isChosen = true
                         }
                     }
+                }
             )
             calendar.add(Calendar.DATE, 1)
         }
@@ -150,17 +162,17 @@ class DateUtil @Inject constructor() {
         )
     }
 
-    fun getTimeDifferenceInMills(day:Int,startInSec:Int):Long{
-        return if(day==curDayIndex || startInSec>curTimeInSec){
-            (startInSec)*1000L-curTimeInMillis
-        }else{
-            (SECS_IN_WEEK+startInSec)*1000L-curTimeInMillis
+    fun getTimeDifferenceInMills(day: Int, startInSec: Int): Long {
+        return if (day == curDayIndex || startInSec > curTimeInSec) {
+            (startInSec) * 1000L - curTimeInMillis
+        } else {
+            (SECS_IN_WEEK + startInSec) * 1000L - curTimeInMillis
         }
     }
 
-    companion object{
-        val SECS_IN_DAY=86400
-        val SECS_IN_WEEK=604800
+    companion object {
+        val SECS_IN_DAY = 86400
+        val SECS_IN_WEEK = 604800
     }
 
 

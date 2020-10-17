@@ -17,7 +17,7 @@ class InsertRoutine @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-     operator fun invoke(routineEntity: RoutineEntity): Flow<DataState<Long>?>{
+     operator fun invoke(routineEntity: RoutineEntity,curRoutine: Long): Flow<DataState<Long>?>{
         val cacheResponse=object :CacheResponseHandler<Long,Long>(){
             override fun handleSuccess(resultObj: Long): DataState<Long>? {
                 return if (resultObj>0){
@@ -44,7 +44,7 @@ class InsertRoutine @Inject constructor(
         return cacheResponse.getResult {
             flow {
                 emit(
-                    scheduleRepository.insertRoutine(routineEntity)
+                    scheduleRepository.insertRoutine(routineEntity,curRoutine)
                 )
             }
         }

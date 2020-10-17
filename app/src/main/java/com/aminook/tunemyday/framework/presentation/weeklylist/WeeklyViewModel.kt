@@ -30,7 +30,9 @@ import kotlinx.coroutines.flow.*
 class WeeklyViewModel @ViewModelInject constructor(
     val scheduleInteractors: ScheduleInteractors,
     val dateUtil: DateUtil,
-) : BaseViewModel() {
+    @DataStoreCache  dataStoreCache: DataStore<Preferences>,
+    @DataStoreSettings dataStoreSettings: DataStore<Preferences>
+) : BaseViewModel(dataStoreCache,dataStoreSettings) {
     private val TAG = "aminjoon"
     var fragmentDayIndex: Int = 0
     var fragmentRoutineIndex: Long = 0

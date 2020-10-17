@@ -15,7 +15,6 @@ import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
 import com.aminook.tunemyday.business.interactors.todo.TodoInteractors
 import com.aminook.tunemyday.di.DataStoreCache
 import com.aminook.tunemyday.di.DataStoreSettings
-import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_END
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_START
@@ -23,12 +22,10 @@ import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
 
 
 class AddScheduleViewModel @ViewModelInject constructor(
@@ -36,11 +33,9 @@ class AddScheduleViewModel @ViewModelInject constructor(
     val scheduleInteractors: ScheduleInteractors,
     val todoInteractors: TodoInteractors,
     val dateUtil: DateUtil,
-    @DataStoreSettings
-    val dataStoreSettings: DataStore<Preferences>,
-    @DataStoreCache
-    val dataStoreCache: DataStore<Preferences>,
-) : BaseViewModel() {
+    @DataStoreCache  dataStoreCache: DataStore<Preferences>,
+    @DataStoreSettings dataStoreSettings: DataStore<Preferences>
+) : BaseViewModel(dataStoreCache,dataStoreSettings) {
     private val TAG = "aminjoon"
     val addScheduleManager = AddScheduleManager()
     var conflictedSchedules = listOf<Schedule>()
@@ -209,7 +204,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
         }
     }
 
-    fun saveSchedule(confSchedules: List<Schedule> = conflictedSchedules) {
+     fun saveSchedule(confSchedules: List<Schedule> = conflictedSchedules) {
         if (addScheduleManager.buffSchedule.program.name.isEmpty()) {
             handleLocalError("Please choose an activity")
         } else {
@@ -218,23 +213,14 @@ class AddScheduleViewModel @ViewModelInject constructor(
                 scheduleInteractors.insertSchedule(
                     addScheduleManager.buffSchedule,
                     confSchedules,
-                    _requestType
+                    _requestType,
+                    routineId
                 ).map {
                     processResponse(it?.stateMessage)
                 }.collect()
 
             }
         }
-    }
-
-    fun getRoutineIndex(): LiveData<Long> {
-
-        return dataStoreCache.data
-            .map {
-                Log.d(TAG, "getRoutineId: viewmodl")
-                it[ROUTINE_INDEX] ?: 0
-
-            }.asLiveData()
     }
 
 

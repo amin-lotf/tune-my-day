@@ -221,7 +221,9 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
     private fun subscribeObservers() {
 
         viewModel.scheduleValidated.observe(viewLifecycleOwner){
-            viewModel.saveSchedule()
+           if(it){
+               viewModel.saveSchedule()
+           }
         }
 
         viewModel.stateMessage.observe(viewLifecycleOwner) { event ->

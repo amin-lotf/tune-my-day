@@ -5,9 +5,9 @@ import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminook.tunemyday.R
-import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule
 import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -16,12 +16,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.bottom_sheet_add_routine.*
 import kotlinx.android.synthetic.main.bottom_sheet_add_routine.view.*
 import kotlinx.android.synthetic.main.fragment_routine.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class RoutineFragment : BaseFragment(R.layout.fragment_routine),
@@ -33,6 +27,8 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val args:RoutineFragmentArgs by navArgs()
+        viewModel.routineId=args.curRoutineId
 
         subscribeObservers()
         toolbar_routines.setNavigationOnClickListener {
@@ -64,6 +60,8 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
 
         viewModel.routineLoaded.observe(viewLifecycleOwner) {
             if (it == true) {
+
+
                 findNavController().popBackStack()
             }
         }
@@ -107,8 +105,7 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
             if (view.txt_add_routine.text.isNotBlank()) {
                 if (routineEntity == null) {
                     Log.d(TAG, "showAddRoutineDialog: empty routine")
-                    viewModel.addRoutine(view.txt_add_routine.text.toString())
-
+                            viewModel.addRoutine(view.txt_add_routine.text.toString())
                 } else {
                     val updatedRoutine = RoutineEntity(view.txt_add_routine.text.toString()).apply {
                         id = routineEntity.id

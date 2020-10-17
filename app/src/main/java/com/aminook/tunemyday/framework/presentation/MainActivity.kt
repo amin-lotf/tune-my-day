@@ -32,10 +32,9 @@ import com.aminook.tunemyday.framework.presentation.common.ProgramColorsAdapter
 import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragmentDirections
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import com.aminook.tunemyday.util.TodoCallback
+import com.aminook.tunemyday.util.observeOnce
 import com.aminook.tunemyday.worker.AlarmWorker
 import com.aminook.tunemyday.worker.AlarmWorker.Companion.ACTION_TYPE
-import com.aminook.tunemyday.worker.AlarmWorker.Companion.MODIFIED_ALARMS_INDEX
-import com.aminook.tunemyday.worker.AlarmWorker.Companion.TYPE_NEW_SCHEDULE
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -50,7 +49,7 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), UIController, AlarmController,OnDeleteListener{
+class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDeleteListener {
 
     private val TAG = "aminjoon"
     private val mainViewModel: MainViewModel by viewModels()
@@ -60,11 +59,12 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnDelete
 
     private var programColorsAdapter: ProgramColorsAdapter? = null
     private lateinit var addProgramBtmSheetDialog: BottomSheetDialog
+
     @Inject
     lateinit var appFragmentFactory: FragmentFactory
 
     @Inject
-    lateinit var dateUtil:DateUtil
+    lateinit var dateUtil: DateUtil
 
     @Inject
     @DataStoreSettings
@@ -82,13 +82,31 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnDelete
 
 
     private fun subscribeObservers() {
-        mainViewModel.stateMessage.observe(this){event->
+        mainViewModel.stateMessage.observe(this) { event ->
             event?.getContentIfNotHandled()?.let { stateMessage ->
-                onResponseReceived(stateMessage.response,null)
+                onResponseReceived(stateMessage.response, null)
+            }
+        }
+
+        mainViewModel.getRoutineIndex().observe(this) {
+            mainViewModel.routineId = it
+
+            if (it != 0L) {
+                if (it != mainViewModel.buffRoutineId && mainViewModel.buffRoutineId != 0L) {
+                    mainViewModel.cancelPrevRoutineAlarms(mainViewModel.buffRoutineId)
+                }
+
+                mainViewModel.buffRoutineId = it
+                mainViewModel.getUpcomingAlarms().observe(this) { alarms ->
+                    Log.d(TAG, "doWorkk subscribeObservers: get upComings size: ${alarms.size}")
+                    alarms.forEach {
+                        Log.d(TAG, "doWorkk subscribeObservers: id :${it.id}  ")
+                    }
+                    mainViewModel.scheduleUpcomingAlarms(alarms)
+                }
             }
         }
     }
-
 
 
     private fun setupNavigation() {
@@ -98,34 +116,34 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnDelete
         navController = navHostFragment.navController
         navController.setGraph(R.navigation.nav_graph)
         bottom_navigation.setupWithNavController(navController)
-        bottom_navigation.setOnNavigationItemReselectedListener{}
-        navController.addOnDestinationChangedListener{controller, destination, _ ->
+        bottom_navigation.setOnNavigationItemReselectedListener {}
+        navController.addOnDestinationChangedListener { controller, destination, _ ->
 
             fab_schedule.animate().translationY(0f)
 
-            if( destination.id==R.id.weeklyListFragment || destination.id==R.id.taskListFragment){
+            if (destination.id == R.id.weeklyListFragment || destination.id == R.id.taskListFragment) {
                 fab_schedule.show()
                 fab_schedule.setOnClickListener {
-                    if (destination.id==R.id.weeklyListFragment){
-                        val action = WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
-                            scheduleRequestType = SCHEDULE_REQUEST_NEW
-                        )
+                    if (destination.id == R.id.weeklyListFragment) {
+                        val action =
+                            WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
+                                scheduleRequestType = SCHEDULE_REQUEST_NEW
+                            )
+                        navController.navigate(action)
+                    } else if (destination.id == R.id.taskListFragment) {
+                        val action = R.id.action_taskListFragment_to_addProgramFragment
                         navController.navigate(action)
                     }
-                    else if (destination.id==R.id.taskListFragment){
-                        val action=R.id.action_taskListFragment_to_addProgramFragment
-                        navController.navigate(action)
-                    }
-                    fab_schedule.visibility=View.INVISIBLE
+                    fab_schedule.visibility = View.INVISIBLE
                 }
-            }else{
-                fab_schedule.visibility=View.INVISIBLE
+            } else {
+                fab_schedule.visibility = View.INVISIBLE
             }
 
-            if (destination.id==R.id.weeklyListFragment || destination.id==R.id.dailyFragment || destination.id==R.id.taskListFragment){
-                bottom_navigation.visibility=View.VISIBLE
-            }else{
-                bottom_navigation.visibility=View.GONE
+            if (destination.id == R.id.weeklyListFragment || destination.id == R.id.dailyFragment || destination.id == R.id.taskListFragment) {
+                bottom_navigation.visibility = View.VISIBLE
+            } else {
+                bottom_navigation.visibility = View.GONE
             }
         }
     }
@@ -288,28 +306,27 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController,OnDelete
 
     override fun setupAlarms(modifiedAlarmsIndex: List<Long>) {
 
-        val data = Data.Builder()
-            .putLongArray(MODIFIED_ALARMS_INDEX, modifiedAlarmsIndex.toLongArray())
-            .putString(ACTION_TYPE, TYPE_NEW_SCHEDULE)
-            .build()
-
-        val alarmWorker = OneTimeWorkRequest.Builder(AlarmWorker::class.java)
-            .setInputData(data)
-            .build()
-
-        Log.d(TAG, "setupAlarms: ")
-        WorkManager.getInstance(applicationContext)
-            .enqueueUniqueWork("setAlarms", ExistingWorkPolicy.REPLACE, alarmWorker)
+//        val data = Data.Builder()
+//            .putLongArray(MODIFIED_ALARMS_INDEX, modifiedAlarmsIndex.toLongArray())
+//            .putString(ACTION_TYPE, TYPE_NEW_SCHEDULE)
+//            .build()
+//
+//        val alarmWorker = OneTimeWorkRequest.Builder(AlarmWorker::class.java)
+//            .setInputData(data)
+//            .build()
+//
+//        Log.d(TAG, "setupAlarms: ")
+//        WorkManager.getInstance(applicationContext)
+//            .enqueueUniqueWork("setAlarms", ExistingWorkPolicy.REPLACE, alarmWorker)
     }
 
     override fun onProgramDeleteListener(program: ProgramDetail) {
-      mainViewModel.deleteProgram(program)
+        mainViewModel.deleteProgram(program)
     }
 
     override fun onScheduleDeleted(schedule: Schedule) {
         mainViewModel.deleteSchedule(schedule)
     }
-
 
 
 }

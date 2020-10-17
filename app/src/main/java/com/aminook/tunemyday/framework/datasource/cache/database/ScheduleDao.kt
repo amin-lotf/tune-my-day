@@ -1,5 +1,6 @@
 package com.aminook.tunemyday.framework.datasource.cache.database
 
+import android.util.Log
 import androidx.room.*
 import com.aminook.tunemyday.framework.datasource.cache.model.AlarmEntity
 import com.aminook.tunemyday.framework.datasource.cache.model.FullSchedule

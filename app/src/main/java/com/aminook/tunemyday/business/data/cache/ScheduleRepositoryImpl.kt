@@ -29,13 +29,82 @@ class ScheduleRepositoryImpl @Inject constructor(
     val notificationManager: NotificationManager
 ) : ScheduleRepository {
     private val TAG = "aminjoon"
+
+    override  fun scheduleUpComingAlarms(alarms: List<Alarm>): Boolean {
+        val alarmIds=alarms.map { it.id }
+        return try {
+            notificationManager.setNotifications(alarmIds)
+            true
+        } catch (e: Throwable) {
+            Log.d(TAG, "doWorkk scheduleUpComingAlarms: error")
+            false
+        }
+    }
+
+    override suspend fun cancelCurrentRoutineAlarms(routineId: Long): Boolean {
+        val alarmIds=getUpcomingAlarmIdsByRoutine(routineId)
+        return try {
+            notificationManager.removeNotifications(alarmIds)
+            true
+        } catch (e: Throwable) {
+            Log.d(TAG, "doWorkk cancel UpComingAlarms by routine: error")
+            false
+        }
+    }
+
+    override suspend fun scheduleCurrentRoutineAlarms(routineId: Long): Boolean {
+        val alarmIds=getUpcomingAlarmIdsByRoutine(routineId)
+        return try {
+            notificationManager.setNotifications(alarmIds)
+            true
+        } catch (e: Throwable) {
+            Log.d(TAG, "doWorkk set UpComingAlarms by routine: error")
+            false
+        }
+    }
+
+    override fun getUpcomingAlarms(routineId: Long): Flow<List<Alarm>> {
+
+        val dayRange = dateUtil.shortDayRange
+
+        return daoService.alarmDao.selectUpcomingAlarmsDistinct(
+            routineId,
+            dayRange,
+            dateUtil.curDayIndex,
+            dateUtil.curTimeInSec
+        ).map { alarms ->
+                alarms.map { mappers.alarmCacheMapper.mapFromEntity(it) }
+            }
+
+    }
+
+    override suspend fun getUpcomingAlarmIdsByRoutine(
+        routineId: Long
+    ): List<Long> {
+        val dayRange =dateUtil.shortDayRange
+        return daoService.alarmDao.selectUpcomingAlarmIds(dayRange, routineId)
+    }
+
+    override suspend fun getAlarmsById(alarmIds: List<Long>): List<Alarm> {
+        return daoService.alarmDao.selectAlarms(alarmIds,dateUtil.curDayIndex,dateUtil.curTimeInSec).map { mappers.alarmCacheMapper.mapFromEntity(it) }
+    }
+
+    override suspend fun getAlarmById(alarmId: Long): Alarm {
+        return mappers.alarmCacheMapper.mapFromEntity(
+            daoService.alarmDao.getAlarmById(alarmId)
+        )
+    }
+
     override suspend fun updateProgram(program: Program): Int {
         return daoService.programDao.updateProgram(
             mappers.programCacheMapper.mapToEntity(program)
         )
     }
 
-    override suspend fun insertRoutine(routineEntity: RoutineEntity): Long {
+    override suspend fun insertRoutine(routineEntity: RoutineEntity,curRoutine: Long): Long {
+//        if (curRoutine!=0L){
+//            cancelCurrentRoutineAlarms(curRoutine)
+//        }
         return daoService.routineDao.insertRoutine(routineEntity)
     }
 
@@ -52,7 +121,12 @@ class ScheduleRepositoryImpl @Inject constructor(
         return daoService.routineDao.updateRoutine(routineEntity)
     }
 
-    override suspend fun deleteRoutine(routineEntity: RoutineEntity): Int {
+    override suspend fun deleteRoutine(routineEntity: RoutineEntity,curRoutine: Long): Int {
+        Log.d(TAG, "deleteRoutine: delete id:${routineEntity.id}  cur:$curRoutine")
+        if (routineEntity.id==curRoutine){
+            cancelCurrentRoutineAlarms(curRoutine)
+        }
+
         return daoService.routineDao.deleteRoutine(routineEntity)
     }
 
@@ -94,9 +168,9 @@ class ScheduleRepositoryImpl @Inject constructor(
 
     override suspend fun deleteProgram(program: ProgramDetail): Int {
 
-        val alarmsToDelete= mutableListOf<Long>()
+        val alarmsToDelete = mutableListOf<Long>()
 
-        program.schedules.forEach{s->
+        program.schedules.forEach { s ->
             alarmsToDelete.addAll(s.alarms.map { it.id })
         }
         notificationManager.removeNotifications(alarmsToDelete)
@@ -104,23 +178,22 @@ class ScheduleRepositoryImpl @Inject constructor(
         return daoService.programDao.deleteProgram(program.program)
     }
 
-    override suspend fun undoDeletedProgram(program: ProgramDetail): Long? {
-
-        try {
+    override suspend fun undoDeletedProgram(program: ProgramDetail, curRoutine: Long): Long? {
+        return try {
             val res = daoService.programDao.insertProgram(program.program)
-
             program.schedules.forEach {
+
                 insertModifySchedule(
                     mappers.fullScheduleCacheMapper.mapFromEntity(it),
                     emptyList(),
-                    SCHEDULE_REQUEST_NEW
+                    SCHEDULE_REQUEST_NEW,
+                    curRoutine
                 )
             }
-
-            return res
+            res
         } catch (e: Throwable) {
             Log.d(TAG, "undoDeletedProgram: ${e.message}")
-            return null
+            null
         }
 
     }
@@ -132,15 +205,22 @@ class ScheduleRepositoryImpl @Inject constructor(
     override suspend fun insertModifySchedule(
         schedule: Schedule,
         conflictedSchedule: List<Schedule>,
-        requestType: String
+        requestType: String,
+        curRoutine: Long
     ): Long? {
-
-        val alarmIdsToCancel= mutableListOf<Long>()
-
-        alarmIdsToCancel.addAll(schedule.alarms.filter { it.id!=0L }.map { it.id })
+        val shortDayRange = dateUtil.shortDayRange
+        val alarmIdsToCancel = mutableListOf<Long>()
+        val alarmIdsToSchedule = mutableListOf<Long>()
+        if (schedule.routineId == curRoutine) {
+            alarmIdsToCancel.addAll(schedule.alarms.filter { it.id != 0L }.map { it.id })
+        }
 
         conflictedSchedule.forEach { s ->
-            alarmIdsToCancel.addAll(s.alarms.map { it.id })
+            if (s.routineId == curRoutine) {
+                alarmIdsToCancel.addAll(s.alarms.map { it.id })
+            }else{
+                Log.d(TAG, "doWorkk newinsertModifySchedule: not same")
+            }
         }
 
         val schedulesToDelete = selectSchedulesToDelete(
@@ -181,45 +261,56 @@ class ScheduleRepositoryImpl @Inject constructor(
         }
 
 
-
         val alarmsToUpdate = mutableListOf<AlarmEntity>()
-        schedulesToUpdate.forEach {
-            alarmsToUpdate.addAll(mappers.fullScheduleCacheMapper.mapToEntity(it).alarms)
+        schedulesToUpdate.forEach { s ->
+            alarmsToUpdate.addAll(mappers.fullScheduleCacheMapper.mapToEntity(s).alarms)
         }
 
 
         val fullSchedule = mappers.fullScheduleCacheMapper.mapToEntity(schedule)
 
 
-
         val alarmsToInsert = fullSchedule.alarms.onEach { it.id = 0L }
-        Log.d(TAG, "insertSchedule: alarm size: ${fullSchedule.alarms.size}")
+
         if (requestType == SCHEDULE_REQUEST_EDIT) {
 
 
-            return try {
+            try {
                 if (fullSchedule.todos.isNotEmpty() && fullSchedule.todos[0].programId != fullSchedule.program.id) {
                     val todos = fullSchedule.todos.onEach { it.programId = fullSchedule.program.id }
                     daoService.todoDao.updateTodos(todos)
                 }
                 notificationManager.removeNotifications(alarmIdsToCancel)
-                daoService.scheduleDao.updateTransaction(
+
+                val res = daoService.scheduleDao.updateTransaction(
                     scheduleEntity = fullSchedule.schedule,
                     schedulesToDelete = scheduleEntitiesToDelete,
                     schedulesToUpdate = scheduleEntitiesToUpdate,
                     alarmsToUpdate = alarmsToUpdate,
                     alarmsToInsert = alarmsToInsert
                 )
+                alarmIdsToSchedule.addAll(alarmsToUpdate.filter { it.routineId == curRoutine && it.day in shortDayRange }
+                    .map { it.id })
+
+                alarmsToUpdate.filter { it.routineId == curRoutine && it.day in shortDayRange }
+                    .map { it.id }.forEach {
+                    Log.d(TAG, "doWork new alarmsToUpdate: $it")
+                }
+
+                // notificationManager.setNotifications(alarmIdsToSchedule)
+
+                return res
 
             } catch (e: Throwable) {
                 Log.d(TAG, "insertModifiySchedule: error updating ")
                 Log.d(TAG, "insertModifiySchedule: ${e.message}")
-                null
+                return null
             }
         } else {
+            Log.d(TAG, "insertModifySchedule: doWorkk new schedule")
             return try {
                 notificationManager.removeNotifications(alarmIdsToCancel)
-                daoService.scheduleDao.insertTransaction(
+                val res = daoService.scheduleDao.insertTransaction(
                     scheduleEntity = fullSchedule.schedule,
                     schedulesToDelete = scheduleEntitiesToDelete,
                     schedulesToUpdate = scheduleEntitiesToUpdate,
@@ -227,6 +318,13 @@ class ScheduleRepositoryImpl @Inject constructor(
                     alarmsToInsert = fullSchedule.alarms,
                     todoEntities = fullSchedule.todos
                 )
+//                alarmIdsToSchedule.addAll(alarmsToUpdate.filter { it.routineId == curRoutine && it.day in shortDayRange }
+//                    .map { it.id })
+//                alarmIdsToSchedule.addAll(alarmsToInsert.filter { it.routineId == curRoutine && it.day in shortDayRange }
+//                    .map { it.id })
+              //  notificationManager.setNotifications(alarmIdsToSchedule)
+
+                return res
             } catch (e: Throwable) {
                 null
             }
@@ -239,7 +337,7 @@ class ScheduleRepositoryImpl @Inject constructor(
         val endDay = schedule.endDay
         Log.d(TAG, "checkIfOverwrite: target start $startDay")
         return getConflictedSchedules(
-            daoService.scheduleDao.selectStartingTimes(startDay, endDay,schedule.routineId),
+            daoService.scheduleDao.selectStartingTimes(startDay, endDay, schedule.routineId),
             schedule
         ).map { fullSchedule ->
             mappers.fullScheduleCacheMapper.mapFromEntity(fullSchedule)
@@ -247,7 +345,7 @@ class ScheduleRepositoryImpl @Inject constructor(
 
     }
 
-    override fun getAllSchedules(routineId:Long): Flow<List<Schedule>> {
+    override fun getAllSchedules(routineId: Long): Flow<List<Schedule>> {
         return daoService.scheduleDao.selectSevenDaysSchedule(routineId).map { schedules ->
             schedules.map {
                 mappers.fullScheduleCacheMapper.mapFromEntity(it)
@@ -255,43 +353,17 @@ class ScheduleRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUpcomingAlarmIds(
-        startDay: Int,
-        endDay: Int,
-        routineId: Long
-    ): List<Long> {
-        val dayRange = mutableListOf<Int>()
 
-        for (i in startDay..endDay) {
-            val day = if (i < 7) i else i - 7
-            dayRange.add(day)
+    override suspend fun deleteSchedule(schedule:Schedule): Int {
+        val alarmsToDelete=schedule.alarms.map { it.id }
 
-        }
+        notificationManager.removeNotifications(alarmsToDelete)
 
-        return daoService.alarmDao.selectUpcomingAlarmIds(dayRange,routineId)
-    }
-
-    override suspend fun getUpcomingAlarms(startDay: Int, endDay: Int): List<Alarm> {
-        Log.d(TAG, "getUpcomingAlarms: $startDay $endDay")
-        val dayRange = mutableListOf<Int>()
-
-        for (i in startDay..endDay) {
-            val day = if (i < 7) i else i - 7
-            dayRange.add(day)
-
-        }
-
-
-
-        return daoService.alarmDao.selectUpcomingAlarms(dayRange)
-            .map {
-                mappers.alarmCacheMapper.mapFromEntity(it)
-            }
-
-    }
-
-    override suspend fun deleteSchedule(scheduleId: Long): Int {
-        return daoService.scheduleDao.deleteScheduleById(scheduleId)
+        return daoService.scheduleDao.deleteSchedule(
+          mappers.fullScheduleCacheMapper.mapToEntity(
+              schedule
+          ).schedule
+        )
     }
 
     override suspend fun getSchedule(scheduleId: Long): Schedule {
@@ -303,10 +375,15 @@ class ScheduleRepositoryImpl @Inject constructor(
 
     }
 
-    override fun getDailySchedules(dayIndex: Int,routineId:Long,curTime:Int): Flow<List<Schedule>> {
-        return daoService.scheduleDao.selectDailyScheduleDistinct(dayIndex,curTime,routineId).map { fullSchedules ->
-            fullSchedules.map { mappers.fullScheduleCacheMapper.mapFromEntity(it) }
-        }
+    override fun getDailySchedules(
+        dayIndex: Int,
+        routineId: Long,
+        curTime: Int
+    ): Flow<List<Schedule>> {
+        return daoService.scheduleDao.selectDailyScheduleDistinct(dayIndex, curTime, routineId)
+            .map { fullSchedules ->
+                fullSchedules.map { mappers.fullScheduleCacheMapper.mapFromEntity(it) }
+            }
     }
 
     override suspend fun insertTodo(todo: Todo): Long {

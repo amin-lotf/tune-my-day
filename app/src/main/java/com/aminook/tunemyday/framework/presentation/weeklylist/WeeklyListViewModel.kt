@@ -31,10 +31,10 @@ import kotlinx.coroutines.flow.single
 class WeeklyListViewModel @ViewModelInject constructor(
     val scheduleInteractors: ScheduleInteractors,
     val routineInteractors: RoutineInteractors,
-    @DataStoreSettings val dataStoreSettings: DataStore<Preferences>,
-    @DataStoreCache val dataStoreCache: DataStore<Preferences>,
+    @DataStoreSettings  dataStoreSettings: DataStore<Preferences>,
+    @DataStoreCache  dataStoreCache: DataStore<Preferences>,
     val dateUtil: DateUtil,
-) : BaseViewModel() {
+) : BaseViewModel(dataStoreCache,dataStoreSettings) {
     private val TAG = "aminjoon"
     private val activeScope = Dispatchers.IO + viewModelScope.coroutineContext
     var savedDayIndex: Int = 0
@@ -62,14 +62,7 @@ class WeeklyListViewModel @ViewModelInject constructor(
         }
     }
 
-    fun getRoutineIndex(): LiveData<Long> {
-        return dataStoreCache.data
-            .map {
-                Log.d(TAG, "getRoutineId: viewmodl")
-                it[ROUTINE_INDEX] ?: 0
 
-            }.asLiveData()
-    }
 
     fun getDayIndex(): LiveData<Int> {
         return dataStoreSettings.data
@@ -101,12 +94,10 @@ class WeeklyListViewModel @ViewModelInject constructor(
 
         val routine = RoutineEntity(routineName)
         CoroutineScope(activeScope).launch {
-            routineInteractors.insertRoutine(routine)
+            routineInteractors.insertRoutine(routine,routineId)
                 .map {
                     processResponse(it?.stateMessage)
                     it?.data?.let { routineId ->
-                        getRoutine(routineId)
-
                         saveRoutineIndex(routineId)
                     }
                 }.collect()

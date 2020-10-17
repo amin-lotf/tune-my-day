@@ -68,7 +68,12 @@
         android:id="@+id/routineFragment"
         android:name="com.aminook.tunemyday.framework.presentation.routine.RoutineFragment"
         android:label="fragment_routine"
-        tools:layout="@layout/fragment_routine" />
+        tools:layout="@layout/fragment_routine" >
+        <argument
+            android:name="curRoutineId"
+            app:argType="long"
+            android:defaultValue="0L" />
+    </fragment>
     <fragment
         android:id="@+id/addProgramFragment"
         android:name="com.aminook.tunemyday.framework.presentation.addprogram.AddProgramFragment"

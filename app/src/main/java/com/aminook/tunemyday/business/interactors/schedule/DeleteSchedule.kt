@@ -15,31 +15,34 @@ class DeleteSchedule @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-     operator fun invoke(
-        scheduleId: Long,
-        snackbarUndoCallback: SnackbarUndoCallback?=null,
-        onDismissCallback:TodoCallback?=null
+    operator fun invoke(
+        schedule: Schedule,
+        snackbarUndoCallback: SnackbarUndoCallback? = null,
+        onDismissCallback: TodoCallback? = null
     ): Flow<DataState<Nothing>?> {
-        val cacheResponse=object:CacheResponseHandler<Int,Nothing>(){
-            override  fun handleSuccess(resultObj: Int): DataState<Nothing>? {
-               if (resultObj>0){
-                   return DataState.data(
-                       response = Response(
-                           message = SCHEDULE_DELETE_SUCCESS,
-                           uiComponentType = UIComponentType.SnackBar(snackbarUndoCallback,onDismissCallback),
-                           messageType = MessageType.Success
-                       )
+        val cacheResponse = object : CacheResponseHandler<Int, Nothing>() {
+            override fun handleSuccess(resultObj: Int): DataState<Nothing>? {
+                if (resultObj > 0) {
+                    return DataState.data(
+                        response = Response(
+                            message = SCHEDULE_DELETE_SUCCESS,
+                            uiComponentType = UIComponentType.SnackBar(
+                                snackbarUndoCallback,
+                                onDismissCallback
+                            ),
+                            messageType = MessageType.Success
+                        )
 
-                   )
-               }else{
-                   return DataState.error(
-                       response = Response(
-                           message = SCHEDULE_DELETE_FAIL,
-                           uiComponentType = UIComponentType.Toast,
-                           messageType = MessageType.Success
-                       )
-                   )
-               }
+                    )
+                } else {
+                    return DataState.error(
+                        response = Response(
+                            message = SCHEDULE_DELETE_FAIL,
+                            uiComponentType = UIComponentType.Toast,
+                            messageType = MessageType.Success
+                        )
+                    )
+                }
             }
 
         }
@@ -47,13 +50,14 @@ class DeleteSchedule @Inject constructor(
         return cacheResponse.getResult {
             flow {
                 emit(
-                    scheduleRepository.deleteSchedule(scheduleId)
+                    scheduleRepository.deleteSchedule(schedule)
                 )
             }
         }
     }
-    companion object{
-        val SCHEDULE_DELETE_SUCCESS="schedule deleted successfully"
-        val SCHEDULE_DELETE_FAIL="failed to delete schedule"
+
+    companion object {
+        val SCHEDULE_DELETE_SUCCESS = "schedule deleted successfully"
+        val SCHEDULE_DELETE_FAIL = "failed to delete schedule"
     }
 }

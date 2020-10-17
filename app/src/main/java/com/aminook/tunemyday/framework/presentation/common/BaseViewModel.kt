@@ -1,14 +1,25 @@
 package com.aminook.tunemyday.framework.presentation.common
 
 import android.util.Log
+import androidx.datastore.DataStore
+import androidx.datastore.preferences.Preferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import com.aminook.tunemyday.business.domain.state.*
+import com.aminook.tunemyday.util.ROUTINE_INDEX
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
-abstract class BaseViewModel : ViewModel() {
+abstract class BaseViewModel(
+    val dataStoreCache: DataStore<Preferences>,
+    val dataStoreSettings: DataStore<Preferences>
+) : ViewModel() {
+
+
+    var routineId:Long=0
     private var _stateMessage = MutableLiveData<Event<StateMessage?>>()
     private val TAG="aminjoon"
     val stateMessage: LiveData<Event<StateMessage?>>
@@ -18,9 +29,24 @@ abstract class BaseViewModel : ViewModel() {
 
         withContext(Main) {
             Log.d(TAG, "processResponse: ${event?.peekContent()?.response?.message}")
-            _stateMessage.postValue( event)
+            event?.let {
+                _stateMessage.postValue(it)
+            }
+
         }
     }
+    fun getRoutineIndex(): LiveData<Long> {
+        return dataStoreCache.data
+            .map {
+
+                routineId=it[ROUTINE_INDEX]?:0
+                Log.d(TAG, "getRoutineId: viewmodl: $routineId")
+                routineId
+
+            }.asLiveData()
+    }
+
+
 
     protected fun handleLocalError(message:String){
         _stateMessage.value= Event(
