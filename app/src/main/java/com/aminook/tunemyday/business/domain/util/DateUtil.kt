@@ -1,5 +1,6 @@
 package com.aminook.tunemyday.business.domain.util
 
+import android.util.Log
 import com.aminook.tunemyday.business.domain.model.Day
 import java.text.SimpleDateFormat
 import java.util.*
@@ -40,17 +41,8 @@ class DateUtil @Inject constructor() {
         }
 
     val curDateInInt: Long
-        get() {
-            val today = Date()
-            val year = SimpleDateFormat("yy", Locale.US).format(today.time)
-            val month = SimpleDateFormat("MM", Locale.US).format(today.time)
-            val day = SimpleDateFormat("dd", Locale.US).format(today.time)
-            val hour = SimpleDateFormat("HH", Locale.US).format(today.time).toInt()
-            val minute = SimpleDateFormat("mm", Locale.US).format(today.time).toInt()
-            val second = SimpleDateFormat("ss", Locale.US).format(today.time).toInt()
-            val mills = SimpleDateFormat("SSS", Locale.US).format(today.time).toInt()
-            return (year + month + day + hour + minute + second + mills).toLong()
-        }
+        get() =System.currentTimeMillis()
+
 
     val shortDayRange: List<Int>
         get() {

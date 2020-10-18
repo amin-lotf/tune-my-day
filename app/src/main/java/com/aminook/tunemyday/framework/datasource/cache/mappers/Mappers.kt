@@ -8,5 +8,6 @@ class Mappers @Inject constructor(
     val programCacheMapper: ProgramCacheMapper,
     val fullScheduleCacheMapper: FullScheduleCacheMapper,
     val alarmCacheMapper: AlarmCacheMapper,
-    val todoCacheMapper: TodoCacheMapper
+    val todoCacheMapper: TodoCacheMapper,
+    val detailedScheduleCacheMapper: DetailedScheduleCacheMapper
 )

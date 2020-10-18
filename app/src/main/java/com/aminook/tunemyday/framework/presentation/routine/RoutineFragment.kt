@@ -43,6 +43,7 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
 
     private fun setupAdapter() {
         routineAdapter = RoutineAdapter()
+
         routineAdapter?.setListener(this)
         recycler_routines.apply {
             layoutManager =

@@ -378,6 +378,14 @@ class ScheduleRepositoryImpl @Inject constructor(
 
     }
 
+    override suspend fun getDetailedSchedule(scheduleId: Long): Schedule {
+        return mappers.detailedScheduleCacheMapper.mapFromEntity(
+            daoService.scheduleDao.selectDetailedSchedule(
+                scheduleId
+            )
+        )
+    }
+
     override fun getDailySchedules(
         dayIndex: Int,
         routineId: Long,
@@ -403,9 +411,9 @@ class ScheduleRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getScheduleTodos(scheduleId: Long): List<Todo> {
-        return daoService.todoDao.getScheduleToDo(scheduleId).map {
-            mappers.todoCacheMapper.mapFromEntity(it)
+    override  fun getScheduleTodos(scheduleId: Long): Flow<List<Todo>> {
+        return daoService.todoDao.getScheduleToDoFlow(scheduleId).map {todoEntities->
+           todoEntities.map {  mappers.todoCacheMapper.mapFromEntity(it) }
         }
     }
 

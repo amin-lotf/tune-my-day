@@ -16,11 +16,13 @@ import com.aminook.tunemyday.framework.presentation.common.TodoAdapter
 import com.aminook.tunemyday.util.DragManageAdapter
 import com.aminook.tunemyday.util.TodoCallback
 import com.aminook.tunemyday.util.observeOnce
+import com.aminook.tunemyday.util.setTransition
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.bottom_sheet_add_todo.*
 import kotlinx.android.synthetic.main.bottom_sheet_add_todo.view.*
+import kotlinx.android.synthetic.main.daily_schedule_item.*
 import kotlinx.android.synthetic.main.fragment_daily.*
 
 @AndroidEntryPoint
@@ -35,6 +37,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         dailyViewModel.getRoutineIndex().observeOnce(viewLifecycleOwner){
             if(it!=0L) {
                 dailyViewModel.getDailySchedules(it)
@@ -61,7 +64,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
 
         dailyViewModel.schedules.observeOnce(viewLifecycleOwner){
-            Log.d(TAG, "initializeAdapters: ")
+
             dailyScheduleAdapter.submitList(it)
 
 
@@ -81,6 +84,28 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
     override fun onCheckChanged(todo: Todo, todoAdapter: TodoAdapter?) {
         dailyViewModel.updateTodo(todo).observeOnce(viewLifecycleOwner){
+            todoAdapter?.submitList(it)
+        }
+    }
+
+    override fun swipeToDelete(todo: Todo,todoAdapter: TodoAdapter?) {
+        dailyViewModel.deleteTodo(
+            todo,
+            undoCallback = object : SnackbarUndoCallback {
+                override fun undo() {
+                    dailyViewModel.addTodo(todo).observeOnce(viewLifecycleOwner) {
+                        todoAdapter?.submitList(it)
+                    }
+                }
+
+            },
+            onDismissCallback = object : TodoCallback {
+                override fun execute() {
+                    Log.d(TAG, "execute: todo delete snackbar dismissed")
+                }
+
+            }
+        ).observeOnce(viewLifecycleOwner){
             todoAdapter?.submitList(it)
         }
     }
@@ -106,31 +131,6 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
 
     }
-
-    override fun onDeleteTodoClick(todo: Todo, todoAdapter: TodoAdapter?) {
-        dailyViewModel.deleteTodo(
-            todo,
-            undoCallback = object : SnackbarUndoCallback {
-                override fun undo() {
-                    dailyViewModel.addTodo(todo).observeOnce(viewLifecycleOwner) {
-                        todoAdapter?.submitList(it)
-                    }
-                }
-
-            },
-            onDismissCallback = object : TodoCallback {
-                override fun execute() {
-                    Log.d(TAG, "execute: todo delete snackbar dismissed")
-                }
-
-            }
-        ).observeOnce(viewLifecycleOwner){
-            todoAdapter?.submitList(it)
-        }
-
-    }
-
-
 
 
 

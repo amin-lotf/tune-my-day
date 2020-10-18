@@ -27,6 +27,8 @@ interface TodoDao {
     @Query("select * from todos where schedule_id= :scheduleId order by is_done,priorityIndex")
     suspend fun getScheduleToDo(scheduleId:Long):List<TodoEntity>
 
+    @Query("select * from todos where schedule_id= :scheduleId order by is_done,priorityIndex")
+    fun getScheduleToDoFlow(scheduleId:Long):Flow<List<TodoEntity>>
 
     @Transaction
     @Query("select * from todos where schedule_id= :programId")

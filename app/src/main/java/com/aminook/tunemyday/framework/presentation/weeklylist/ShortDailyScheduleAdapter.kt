@@ -53,7 +53,7 @@ class ShortDailyScheduleAdapter(val context: Context) :
             return FreeViewHolder(view)
         }else{
             val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.last_schedule_item, parent, false)
+                .inflate(R.layout.last_item_empty, parent, false)
             return LASTViewHolder(view)
         }
 

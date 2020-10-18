@@ -7,95 +7,104 @@ import com.aminook.tunemyday.business.domain.model.*
 
 
 class AddScheduleManager {
-    private val TAG="aminjoon"
+    private val TAG = "aminjoon"
 
     private val _buffSchedule = Schedule()
-    private var _chosenProgram=MutableLiveData<Program>()
+    private var _chosenProgram = MutableLiveData<Program>()
     private var _daysOfWeek = mutableListOf<Day>()
-    private var _chosenDay =MutableLiveData<Day>()
-    private var _startTime=MutableLiveData<Time>()
-    private var _endTime=MutableLiveData<Time>()
-    private var _listChanged=MutableLiveData<String>()
-    private var _alarmModifiedPosition=0
+    private var _chosenDay = MutableLiveData<Day>()
+    private var _startTime = MutableLiveData<Time>()
+    private var _endTime = MutableLiveData<Time>()
+    private var _listChanged = MutableLiveData<String>()
+    private var _alarmModifiedPosition = 0
 
 
-    val buffSchedule:Schedule
-    get()=_buffSchedule
+    val buffSchedule: Schedule
+        get() = _buffSchedule
 
-    val startTime:LiveData<Time>
-    get()= _startTime
+    val startTime: LiveData<Time>
+        get() = _startTime
 
-    val endTime:LiveData<Time>
-    get() = _endTime
+    val endTime: LiveData<Time>
+        get() = _endTime
 
-    val alarms:List<Alarm>
-    get() = _buffSchedule.alarms
+    val alarms: List<Alarm>
+        get() = _buffSchedule.alarms
 
 
-    val listChanged:LiveData<String>
-    get() = _listChanged
+    val listChanged: LiveData<String>
+        get() = _listChanged
 
-    val alarmModifiedPosition:Int
-    get() = _alarmModifiedPosition
+    val alarmModifiedPosition: Int
+        get() = _alarmModifiedPosition
 
-    val chosenProgram:LiveData<Program>
-    get() = _chosenProgram
+    val chosenProgram: LiveData<Program>
+        get() = _chosenProgram
 
     val daysOfWeek: List<Day>
         get() = _daysOfWeek
 
-    fun setScheduleId(id:Long){
-        _buffSchedule.id=id
+    fun setScheduleId(id: Long) {
+        _buffSchedule.id = id
     }
 
-    fun removeAlarm(alarm: Alarm){
+    fun removeAlarm(alarm: Alarm) {
         _buffSchedule.alarms.remove(alarm)
-        _alarmModifiedPosition=alarm.index
-        _listChanged.value= ALARM_REMOVED
+        _alarmModifiedPosition = alarm.index
+        _listChanged.value = ALARM_REMOVED
 
     }
 
-    fun addTodos(todos: List<Todo>?=null){
+    fun processTodoList(todos: List<Todo>?): List<Todo> {
+        val tmpTodos = mutableListOf<Todo>()
+        todos?.let {
+            tmpTodos.addAll(it)
+            tmpTodos.add(Todo(id = -1))
+        }
+        return tmpTodos
+    }
+
+    fun addTodos(todos: List<Todo>? = null) {
         buffSchedule.todos.apply {
             clear()
-            addAll(todos?: emptyList())
+            addAll(todos ?: emptyList())
         }
     }
 
-    fun setRoutineId(routineId:Long){
-        _buffSchedule.routineId=routineId
+    fun setRoutineId(routineId: Long) {
+        _buffSchedule.routineId = routineId
     }
 
-    fun addAlarm(alarm: Alarm){
-        alarm.routineId=_buffSchedule.routineId
-        if (_buffSchedule.alarms.any { it.hourBefore==alarm.hourBefore && it.minuteBefore==alarm.minuteBefore }){
+    fun addAlarm(alarm: Alarm) {
+        alarm.routineId = _buffSchedule.routineId
+        if (_buffSchedule.alarms.any { it.hourBefore == alarm.hourBefore && it.minuteBefore == alarm.minuteBefore }) {
             return
         }
-        alarm.scheduleId=_buffSchedule.id
-        if(!alarm.inEditMode) {
+        alarm.scheduleId = _buffSchedule.id
+        if (!alarm.inEditMode) {
             _buffSchedule.alarms.add(alarm)
             _buffSchedule.alarms.sortWith(compareBy<Alarm> { it.hourBefore }.thenBy { it.minuteBefore })
             val index = _buffSchedule.alarms.indexOf(alarm)
-            alarm.index=index
+            alarm.index = index
 
             _alarmModifiedPosition = index
             _listChanged.value = ALARM_ADDED
-        }else{
-            if(alarm.index !=-1){
+        } else {
+            if (alarm.index != -1) {
 
-                if (alarm.index<_buffSchedule.alarms.size){
+                if (alarm.index < _buffSchedule.alarms.size) {
 
                     _buffSchedule.alarms.removeAt(alarm.index)
-                    _alarmModifiedPosition=alarm.index
-                    _listChanged.value= ALARM_REMOVED
+                    _alarmModifiedPosition = alarm.index
+                    _listChanged.value = ALARM_REMOVED
 
                     _buffSchedule.alarms.add(alarm)
 
-                    _buffSchedule.alarms.sortWith(compareBy<Alarm>{it.hourBefore}.thenBy { it.minuteBefore })
-                    val newIndex=_buffSchedule.alarms.indexOf(alarm)
-                    alarm.index=newIndex
-                    _alarmModifiedPosition=newIndex
-                    _listChanged.value= ALARM_ADDED
+                    _buffSchedule.alarms.sortWith(compareBy<Alarm> { it.hourBefore }.thenBy { it.minuteBefore })
+                    val newIndex = _buffSchedule.alarms.indexOf(alarm)
+                    alarm.index = newIndex
+                    _alarmModifiedPosition = newIndex
+                    _listChanged.value = ALARM_ADDED
                 }
 
             }
@@ -106,12 +115,9 @@ class AddScheduleManager {
 
     fun addProgramToBuffer(program: Program) {
         _buffSchedule.program = program
-        _chosenProgram.value=program
+        _chosenProgram.value = program
         Log.d(TAG, "addProgramToBuffer: ${_buffSchedule.program.id}")
     }
-
-
-
 
 
     fun addDaysToBuffer(days: List<Day>) {
@@ -119,39 +125,36 @@ class AddScheduleManager {
         _daysOfWeek.addAll(days)
     }
 
-    fun setTime(hour:Int,minute:Int, type: Int){
-        when(type){
-            TIME_START->{
-                _buffSchedule.startTime.hour=hour
-                _buffSchedule.startTime.minute= minute
-                _startTime.value=_buffSchedule.startTime
+    fun setTime(hour: Int, minute: Int, type: Int) {
+        when (type) {
+            TIME_START -> {
+                _buffSchedule.startTime.hour = hour
+                _buffSchedule.startTime.minute = minute
+                _startTime.value = _buffSchedule.startTime
             }
-            TIME_END->{
-                _buffSchedule.endTime.hour=hour
-                _buffSchedule.endTime.minute= minute
-                _endTime.value=_buffSchedule.endTime
+            TIME_END -> {
+                _buffSchedule.endTime.hour = hour
+                _buffSchedule.endTime.minute = minute
+                _endTime.value = _buffSchedule.endTime
             }
         }
     }
 
     fun setChosenDay(chosenDay: Day) {
-        _buffSchedule.startDay=chosenDay.dayIndex
-        _chosenDay.value=chosenDay
+        _buffSchedule.startDay = chosenDay.dayIndex
+        _chosenDay.value = chosenDay
         for (day in _daysOfWeek) {
             day.isChosen = day === chosenDay
         }
     }
 
 
-
-
-
-    companion object{
-        val TIME_START=0
-        val TIME_END=1
-        val ALARM_LIST_ADDED="list of alarms added"
-        val ALARM_ADDED="item added to alarm list"
-        val ALARM_REMOVED="item removed from alarm list"
+    companion object {
+        val TIME_START = 0
+        val TIME_END = 1
+        val ALARM_LIST_ADDED = "list of alarms added"
+        val ALARM_ADDED = "item added to alarm list"
+        val ALARM_REMOVED = "item removed from alarm list"
     }
 
 }

@@ -39,12 +39,15 @@ interface ScheduleRepository {
     fun getAllSchedules(routineId:Long):Flow<List<Schedule>>
     suspend fun deleteSchedule(schedule:Schedule):Int
     suspend fun getSchedule(scheduleId:Long):Schedule
+
+    suspend fun getDetailedSchedule(scheduleId:Long):Schedule
+
     fun getDailySchedules(dayIndex:Int,routineId:Long,curTime:Int):Flow<List<Schedule>>
 
 
     suspend fun insertTodo(todo:Todo):Long
     suspend fun deleteTodo(todo: Todo):Int
-    suspend fun getScheduleTodos(scheduleId: Long):List<Todo>
+    fun getScheduleTodos(scheduleId: Long):Flow<List<Todo>>
     suspend fun deleteAndRetrieveTodos(todo: Todo):List<Todo>
     suspend fun insertAndRetrieveTodos(todo: Todo):List<Todo>
     suspend fun updateAndRetrieveTodos(todo: Todo):List<Todo>

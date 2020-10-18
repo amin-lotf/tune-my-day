@@ -58,3 +58,20 @@ data class FullSchedule(
     val todos:List<TodoEntity>
 
 )
+
+data class DetailedSchedule(
+    @Embedded
+    val schedule: ScheduleEntity,
+
+    @Relation(
+        parentColumn = "program_id",
+        entityColumn = "id"
+    )
+    val program: ProgramEntity,
+
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "schedule_id")
+    val alarms:List<AlarmEntity>,
+
+)

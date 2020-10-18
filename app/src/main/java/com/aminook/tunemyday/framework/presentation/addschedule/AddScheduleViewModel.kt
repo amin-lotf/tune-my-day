@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
 
 
 class AddScheduleViewModel @ViewModelInject constructor(
@@ -47,9 +48,12 @@ class AddScheduleViewModel @ViewModelInject constructor(
     private val _todos = MutableLiveData<List<Todo>>()
     private val _scheduleValidated = MutableLiveData<Boolean>()
 
+    private val _scheduleInEditId=MutableLiveData<Long>()
 
-    val scheduleTodos: LiveData<List<Todo>>
-        get() = _todos
+    val scheduleInEditId:LiveData<Long>
+    get() = _scheduleInEditId
+
+
 
     val scheduleValidated: LiveData<Boolean>
         get() = _scheduleValidated
@@ -83,6 +87,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
         get() = addScheduleManager.alarmModifiedPosition
 
 
+
     fun addTodo(todo: Todo): LiveData<List<Todo>> {
 
         return todoInteractors.insertAndRetrieveTodos(todo)
@@ -108,6 +113,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
             priorityIndex = dateUtil.curDateInInt,
             dateAdded = dateUtil.curDateInInt
         )
+        Log.d(TAG, "createTodo: todo ${todo.title} : ${todo.priorityIndex}   ")
         return addTodo(todo)
     }
 
@@ -138,22 +144,19 @@ class AddScheduleViewModel @ViewModelInject constructor(
         todo: Todo,
         undoCallback: SnackbarUndoCallback,
         onDismissCallback: TodoCallback
-    ): LiveData<List<Todo>> {
+    ) {
+        CoroutineScope(activeScope).launch {
+            todoInteractors.deleteTodo(
+                todo = todo,
+                undoCallback = undoCallback,
+                onDismissCallback = onDismissCallback
+            )
+                .map {
+                    processResponse(it?.stateMessage)
 
-        return todoInteractors.deleteAndRetrieveTodos(
-            todo = todo,
-            undoCallback = undoCallback,
-            onDismissCallback = onDismissCallback
-        )
-            .map {
-                processResponse(it?.stateMessage)
-                addScheduleManager.addTodos(it?.data)
-                it?.data ?: emptyList()
-
-            }
-
-            .flowOn(Default)
-            .asLiveData()
+                }
+                .single()
+        }
 
     }
 
@@ -234,14 +237,14 @@ class AddScheduleViewModel @ViewModelInject constructor(
                 if (scheduleId > 0L) {
                     try {
 
-
                         CoroutineScope(Default).launch {
-                            scheduleInteractors.getSchedule(scheduleId)
+                            scheduleInteractors.getDetailedSchedule(scheduleId)
                                 .map {
                                     processResponse(it?.stateMessage)
                                     try {
                                         withContext(Main) {
                                             it?.data?.let { schedule ->
+                                                _scheduleInEditId.value=scheduleId
                                                 bufferChosenProgram(schedule.program)
                                                 catchDaysOfWeek(schedule.startDay)
                                                 updateBufferedDays(daysOfWeek[schedule.startDay])
@@ -258,8 +261,8 @@ class AddScheduleViewModel @ViewModelInject constructor(
                                                 schedule.alarms.forEach {
                                                     setAlarm(it)
                                                 }
-                                                _todos.value = schedule.todos
-                                                addScheduleManager.addTodos(schedule.todos)
+                                                //_todos.value = schedule.todos
+                                                //addScheduleManager.addTodos(schedule.todos)
                                             }
                                         }
                                     } catch (e: Throwable) {
@@ -304,6 +307,14 @@ class AddScheduleViewModel @ViewModelInject constructor(
                 }
             }
         }
+    }
+
+     fun getTodos(scheduleId: Long):LiveData<List<Todo>> {
+            return todoInteractors.getScheduleTodos(scheduleId)
+                .map {
+                    processResponse(it?.stateMessage)
+                    addScheduleManager.processTodoList(it?.data)
+                }.asLiveData()
     }
 
     fun removeAlarm(alarm: Alarm) {

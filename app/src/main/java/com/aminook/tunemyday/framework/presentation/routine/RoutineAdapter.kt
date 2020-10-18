@@ -5,20 +5,39 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
+import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
+import com.aminook.tunemyday.framework.presentation.common.BaseViewHolder
 import kotlinx.android.synthetic.main.routine_item.view.*
 
-class RoutineAdapter : ListAdapter<RoutineEntity, RoutineAdapter.ViewHolder>(DIFF_UTIL) {
+class RoutineAdapter : ListAdapter<RoutineEntity, BaseViewHolder<RoutineEntity>>(DIFF_UTIL) {
     private var listener: RoutineAdapterListener? = null
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.routine_item, parent, false)
 
-        return ViewHolder(view)
+    val TYPE_ROUTINE=1
+    val TYPE_LAST=2
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<RoutineEntity> {
+        if (viewType==TYPE_ROUTINE){
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.routine_item, parent, false)
+            return ViewHolder(view)
+        }else{
+            val view =
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.last_item_empty, parent, false)
+            return LastItemViewHolder(view)
+        }
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun getItemViewType(position: Int): Int {
+        return if (getItem(position).id!=0L){
+            TYPE_ROUTINE
+        }else{
+            TYPE_LAST
+        }
+    }
+
+    override fun onBindViewHolder(holder:BaseViewHolder<RoutineEntity>, position: Int) {
         val routine = currentList[position]
         holder.bind(routine)
     }
@@ -27,26 +46,33 @@ class RoutineAdapter : ListAdapter<RoutineEntity, RoutineAdapter.ViewHolder>(DIF
         this.listener = listener
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View) : BaseViewHolder<RoutineEntity>(itemView) {
 
-        fun bind(routine: RoutineEntity) {
-            itemView.txt_routine_name.text = routine.name
+        override fun bind(item: RoutineEntity) {
+            itemView.txt_routine_name.text = item.name
 
             itemView.txt_routine_name.setOnClickListener {
-                listener?.onRoutineClick(routine)
+                listener?.onRoutineClick(item)
             }
             itemView.txt_routine_blank.setOnClickListener {
-                listener?.onRoutineClick(routine)
+                listener?.onRoutineClick(item)
             }
 
             itemView.img_delete_routine.setOnClickListener {
-                listener?.onDeleteRoutineClick(routine)
+                listener?.onDeleteRoutineClick(item)
             }
             itemView.img_edit_routine.setOnClickListener {
-                listener?.onUpdateRouineClick(routine)
+                listener?.onUpdateRouineClick(item)
             }
 
         }
+    }
+
+    inner class LastItemViewHolder(itemView: View) : BaseViewHolder<RoutineEntity>(itemView) {
+        override fun bind(item: RoutineEntity) {
+
+        }
+
     }
 
     companion object {
@@ -71,4 +97,6 @@ class RoutineAdapter : ListAdapter<RoutineEntity, RoutineAdapter.ViewHolder>(DIF
         fun onUpdateRouineClick(routineEntity: RoutineEntity)
 
     }
+
+
 }

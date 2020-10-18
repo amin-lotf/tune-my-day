@@ -37,18 +37,13 @@ class DailyViewModel @ViewModelInject constructor(
     val activeScope = Dispatchers.IO + viewModelScope.coroutineContext
 
 
+    private val dailyScheduleManager=DailyScheduleManager()
     private val _schedules = MutableLiveData<List<Schedule>>()
     private val _curScheduleTodos = MutableLiveData<List<Todo>>()
     private var dayIndex=0
 
     val schedules: LiveData<List<Schedule>>
         get() = _schedules
-
-
-
-    fun getDay():Day{
-        return dateUtil.getDay(dayIndex)
-    }
 
 
     fun getDailySchedules(routineId:Long) {
@@ -58,7 +53,8 @@ class DailyViewModel @ViewModelInject constructor(
             scheduleInteractors.getDailySchedules(dayIndex,routineId,dateUtil.curTimeInSec).collect { dataState ->
                 processResponse(dataState?.stateMessage)
                 dataState?.data?.let { schedules ->
-                    _schedules.value = schedules
+                    Log.d(TAG, "initializeAdapters: schedules size: ${schedules.size} ")
+                    _schedules.value = dailyScheduleManager.processSchedules(schedules)
                 }
             }
         }
@@ -81,7 +77,7 @@ class DailyViewModel @ViewModelInject constructor(
         return todoInteractors.insertAndRetrieveTodos(todo)
             .map {
                 processResponse(it?.stateMessage)
-                it?.data?: emptyList()
+                dailyScheduleManager.processTodoList( it?.data)
             }
             .flowOn(Default)
             .asLiveData()
@@ -91,7 +87,7 @@ class DailyViewModel @ViewModelInject constructor(
         return todoInteractors.updateTodo(todo)
             .map {
                 processResponse(it?.stateMessage)
-                it?.data?: emptyList()
+                dailyScheduleManager.processTodoList(it?.data)
             }
             .flowOn(Default)
             .asLiveData()
@@ -101,24 +97,13 @@ class DailyViewModel @ViewModelInject constructor(
         return todoInteractors.updateTodos(todos,scheduleId)
             .map {
                 processResponse(it?.stateMessage)
-                it?.data?: emptyList()
+                dailyScheduleManager.processTodoList(it?.data)
             }
             .flowOn(Default)
             .asLiveData()
     }
 
-    fun getTodos(scheduleId: Long): LiveData<List<Todo>> {
 
-
-        return todoInteractors.getScheduleTodos(scheduleId)
-            .flowOn(Default)
-            .map {
-                processResponse(it?.stateMessage)
-                it?.data ?: emptyList()
-            }
-            .asLiveData()
-
-    }
 
     fun deleteTodo(todo: Todo,undoCallback: SnackbarUndoCallback,onDismissCallback: TodoCallback):LiveData<List<Todo>> {
 
@@ -129,7 +114,7 @@ class DailyViewModel @ViewModelInject constructor(
             )
                 .map {
                     processResponse(it?.stateMessage)
-                    it?.data?: emptyList()
+                    dailyScheduleManager.processTodoList(it?.data)
 
                 }
 

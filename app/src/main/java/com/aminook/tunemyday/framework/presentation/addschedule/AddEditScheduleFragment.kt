@@ -1,5 +1,6 @@
 package com.aminook.tunemyday.framework.presentation.addschedule
 
+import android.animation.LayoutTransition
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.util.Log
@@ -86,10 +87,12 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        layout_animate_add_schedule.setTransition()
 
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Long>(ADD_PROGRAM)?.observe(
             viewLifecycleOwner
         ){
+            Log.d(TAG, "onViewCreated: got key from add progrram id:$it")
             if (it!=0L){
                 viewModel.getProgram(it)
             }
@@ -143,27 +146,24 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         val layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        val dividerItemDecoration =
-            DividerItemDecoration(requireContext(), layoutManager.orientation)
+
         recycler_schedule_todo.apply {
             this.layoutManager = layoutManager
             adapter = todoListAdapter
-            addItemDecoration(dividerItemDecoration)
+            setHasFixedSize(false)
+            isNestedScrollingEnabled=false
         }
         todoListAdapter?.let {
             val callback= DragManageAdapter(
                 it,
                 requireContext(),
                 ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
-                0
+                ItemTouchHelper.LEFT
             )
 
             val helper= ItemTouchHelper(callback)
 
             helper.attachToRecyclerView(recycler_schedule_todo)
-            viewModel.scheduleTodos.observe(viewLifecycleOwner){todos->
-                todoListAdapter?.submitList(todos)
-            }
         }
 
 
@@ -237,6 +237,13 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
             }
         }
 
+        viewModel.scheduleInEditId.observe(viewLifecycleOwner){
+            if(it>0){
+                viewModel.getTodos(it).observe(viewLifecycleOwner){todos->
+                    todoListAdapter?.submitList(todos)
+                }
+            }
+        }
 
 
 
@@ -285,7 +292,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         }
 
         viewModel.selectedProgram.observe(viewLifecycleOwner) { program ->
-            // Log.d(TAG, "subscribeObservers: selectedProgram $it")
+             Log.d(TAG, "subscribeObservers: selectedProgram $program")
             add_schedule_name.text = program.name
 
             txt_upper_label.setBackgroundColor(program.color)
@@ -558,17 +565,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         super.onDestroyView()
     }
 
-//    override fun proceed() {
-//
-//        viewModel.saveSchedule()
-//
-//    }
-//
-//    override fun cancel() {
-//        //do nothing
-//    }
-
-    override fun onDeleteTodoClick(todo: Todo) {
+    override fun swipeToDelete(todo: Todo) {
         viewModel.deleteTodo(
             todo,
             undoCallback = object : SnackbarUndoCallback {
@@ -585,10 +582,9 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
                 }
 
             }
-        ).observeOnce(viewLifecycleOwner) {
-            todoListAdapter?.submitList(it)
-        }
+        )
     }
+
 
     override fun onEditTodoClick(todo: Todo) {
         showAddTodo(todo.scheduleId, todo)

@@ -21,7 +21,7 @@ class DeleteTodo @Inject constructor(
                     DataState.data(
                         response = Response(
                             message = DELETE_TODO_SUCCESS,
-                            uiComponentType =UIComponentType.SnackBar(undoCallback,onDismissCallback),
+                            uiComponentType =UIComponentType.None,//UIComponentType.SnackBar(undoCallback,onDismissCallback),
                             messageType = MessageType.Success
                         ),
                         data = null

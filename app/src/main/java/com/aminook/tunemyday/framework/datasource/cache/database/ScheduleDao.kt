@@ -2,10 +2,7 @@ package com.aminook.tunemyday.framework.datasource.cache.database
 
 import android.util.Log
 import androidx.room.*
-import com.aminook.tunemyday.framework.datasource.cache.model.AlarmEntity
-import com.aminook.tunemyday.framework.datasource.cache.model.FullSchedule
-import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
-import com.aminook.tunemyday.framework.datasource.cache.model.TodoEntity
+import com.aminook.tunemyday.framework.datasource.cache.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -18,7 +15,7 @@ interface ScheduleDao {
     fun testRelation(): Flow<List<FullSchedule>>
 
     @Transaction
-    @Query("select * from schedules where startDay= :day and `end`>=:curTime  and routine_id=:routineId order by start")
+    @Query("select * from schedules where startDay= :day and (`end`>=:curTime or endDay!=startDay)  and routine_id=:routineId order by start")
     fun selectDailySchedule(day: Int, curTime:Int, routineId:Long): Flow<List<FullSchedule>>
 
     fun selectDailyScheduleDistinct(day: Int,startTime:Int, routineId:Long): Flow<List<FullSchedule>>{
@@ -28,6 +25,10 @@ interface ScheduleDao {
     @Transaction
     @Query("select * from schedules where id= :id")
     suspend fun selectSchedule(id: Long): FullSchedule
+
+    @Transaction
+    @Query("select * from schedules where id= :id")
+    suspend fun selectDetailedSchedule(id: Long): DetailedSchedule
 
     @Query("delete from schedules where routine_id=:routineId")
     fun deleteAllSchedules(routineId:Long): Int

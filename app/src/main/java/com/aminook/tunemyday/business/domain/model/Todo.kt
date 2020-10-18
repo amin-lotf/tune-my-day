@@ -10,7 +10,7 @@ data class Todo(
     var scheduleId:Long=0L,
     var programId:Long=0L,
     var isDone: Boolean=false,
-    var dateAdded:Long,
+    var dateAdded:Long=0,
     var priorityIndex: Long=0,
     val subTodos:MutableList<SubTodo> = mutableListOf(),
     var isOneTime:Boolean=false,

@@ -11,15 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/img_remove_todo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_close"
-            app:layout_constraintTop_toTopOf="@id/chk_todo"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/chk_todo"
-            android:layout_marginEnd="4dp"/>
+
 
 
         <CheckBox
@@ -35,7 +27,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/chk_todo"
-            app:layout_constraintEnd_toStartOf="@id/img_remove_todo"
+           app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="8dp"
             app:layout_constraintTop_toTopOf="@id/chk_todo"
             app:layout_constraintBottom_toBottomOf="@id/chk_todo"
             android:padding="2dp"

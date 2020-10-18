@@ -1,66 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view_daily"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginStart="4dp"
     android:layout_marginTop="8dp"
     android:layout_marginEnd="4dp"
-    android:layout_marginStart="4dp"
-    android:elevation="0dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:animateLayoutChanges="true"
+    android:elevation="0dp">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_parent_daily"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="4dp">
+
         <TextView
             android:id="@+id/txt_daily_start_time"
             android:layout_width="40dp"
             android:layout_height="wrap_content"
-            android:text="22:00"
-            android:textSize="15sp"
-            android:textAlignment="center"
-            android:layout_marginTop="4dp"
             android:layout_marginStart="2dp"
+            android:layout_marginTop="4dp"
+            android:text="22:00"
+            android:textAlignment="center"
+            android:textSize="15sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/layout_daily_schedule"
-            />
+            app:layout_constraintTop_toTopOf="@id/layout_daily_schedule" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layout_daily_schedule"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/txt_daily_start_time"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="4dp"
-            android:paddingBottom="8dp"
+            android:animateLayoutChanges="true"
             android:background="@drawable/item_border"
-            app:layout_constraintTop_toTopOf="parent"
-            >
+            android:paddingBottom="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/txt_daily_start_time"
+            app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                 android:id="@+id/txt_daily_program_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:text="Programming"
                 android:textAlignment="center"
                 android:textSize="18sp"
-                android:layout_marginStart="8dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
             <TextView
                 android:id="@+id/txt_upper_label_daily"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#c0c0c0"
-                android:layout_marginTop="4dp"
                 android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginEnd="4dp"
-                app:layout_constraintTop_toBottomOf="@id/txt_daily_program_name"/>
+                android:background="#c0c0c0"
+                app:layout_constraintTop_toBottomOf="@id/txt_daily_program_name" />
 
             <ImageView
                 android:id="@+id/img_add_todo"
@@ -71,25 +74,27 @@
                 android:src="@drawable/ic_add_task"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
             <TextView
                 android:id="@+id/txt_empty_todo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
-                android:textAlignment="center"
                 android:layout_marginTop="4dp"
                 android:padding="8dp"
+                android:text="Checklist is empty"
+                android:textAlignment="center"
+                android:textSize="15sp"
                 android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/img_add_todo"
-                android:text="Checklist is empty"/>
+                app:layout_constraintTop_toBottomOf="@id/img_add_todo" />
+
             <androidx.recyclerview.widget.RecyclerView
-                android:visibility="visible"
                 android:id="@+id/recycler_schedule_todo"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/img_add_todo"
                 tools:itemCount="2"
@@ -101,13 +106,13 @@
             android:id="@+id/txt_daily_end_time"
             android:layout_width="40dp"
             android:layout_height="wrap_content"
-            android:text="23:00"
-            android:textSize="15sp"
-            android:textAlignment="center"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/layout_daily_schedule"
-
             android:layout_marginStart="2dp"
-            android:layout_marginBottom="4dp"/>
+            android:layout_marginBottom="4dp"
+            android:text="23:00"
+            android:textAlignment="center"
+            android:textSize="15sp"
+
+            app:layout_constraintBottom_toBottomOf="@id/layout_daily_schedule"
+            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

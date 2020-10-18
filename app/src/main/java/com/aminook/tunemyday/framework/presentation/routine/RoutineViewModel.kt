@@ -14,6 +14,7 @@ import com.aminook.tunemyday.di.DataStoreCache
 import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
+import com.aminook.tunemyday.framework.presentation.routine.manager.RoutineManager
 import com.aminook.tunemyday.util.ROUTINE_INDEX
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,7 @@ class RoutineViewModel @ViewModelInject constructor(
     private val activeScope = Dispatchers.IO + viewModelScope.coroutineContext
     private val _routineLoaded=MutableLiveData<Boolean>()
 
+    private val routineManager=RoutineManager()
 
     val routineLoaded:LiveData<Boolean>
     get() = _routineLoaded
@@ -45,7 +47,7 @@ class RoutineViewModel @ViewModelInject constructor(
         return routineInteractors.getAllRoutine()
             .map {
                 processResponse(it?.stateMessage)
-                it?.data ?: emptyList()
+                routineManager.processRoutines(it?.data ?: emptyList())
             }
             .flowOn(Default)
             .asLiveData()

@@ -31,11 +31,7 @@ class GetScheduleTodos @Inject constructor(
         }
 
         return cacheResponse.getResult {
-            flow {
-                emit(
                     scheduleRepository.getScheduleTodos(scheduleId)
-                )
-            }
         }
     }
 
