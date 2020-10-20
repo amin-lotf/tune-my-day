@@ -6,54 +6,83 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Todo
+import com.aminook.tunemyday.framework.datasource.cache.database.TodoDao
 import com.aminook.tunemyday.util.ItemMoveCallback
 import kotlinx.android.synthetic.main.todo_item.view.*
+import javax.inject.Inject
 
-class TodoAdapter(val isSummary:Boolean=false) : ListAdapter<Todo, BaseViewHolder<Todo>>(DIFF_CALLBACK), ItemMoveCallback {
+class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
+    RecyclerView.Adapter<BaseViewHolder<Todo>>(), ItemMoveCallback {
 
     private val TAG = "aminjoon"
     private var listener: ToDoRecyclerViewListener? = null
+    private var _todos = mutableListOf<Todo>()
 
-    private val TYPE_TODO=1
-    private val TYPE_LAST=2
+
+    val currentList: List<Todo>
+        get() = _todos
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<Todo> {
-       if (viewType==TYPE_TODO){
-           val view =
-               LayoutInflater.from(parent.context).inflate(R.layout.todo_item, parent, false)
-           return ViewHolder(view)
-       }else{
-           val view =
-               LayoutInflater.from(parent.context)
-                   .inflate(R.layout.last_todo_empty, parent, false)
-           return LastItemViewHolder(view)
-       }
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.todo_item, parent, false)
+        return ViewHolder(view)
+    }
+
+
+    override fun getItemViewType(position: Int): Int {
+        return 0
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder<Todo>, position: Int) {
-        val todo = getItem(position)
+        val todo = _todos[position]
         holder.bind(todo)
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return if (getItem(position).id!= -1L){
-            TYPE_TODO
-        }else{
-            TYPE_LAST
-        }
+    override fun getItemCount() = _todos.size
+
+
+    fun updateItem(todo: Todo, position: Int) {
+        _todos[position] = todo
+        notifyItemChanged(position)
     }
 
-    override fun submitList(list: List<Todo>?) {
-        if (list.isNullOrEmpty()){
-            listener?.onEmptyList()
-        }else{
+    fun removeItem(position: Int) {
+        _todos.removeAt(position)
+        notifyItemRemoved(position)
 
-            listener?.onNonEmptyList()
-        }
-        super.submitList(list)
+    }
+
+    fun moveItem(todos: List<Todo>) {
+
+        val srcIndex = _todos.withIndex().indexOfFirst { it.value.id == todos.first().id }
+        val destIndex = _todos.withIndex().indexOfFirst { it.value.id == todos.last().id }
+
+        _todos.removeAt(srcIndex)
+        _todos.add(srcIndex, todos.last())
+
+        _todos.removeAt(destIndex)
+        _todos.add(destIndex, todos.first())
+        notifyItemMoved(srcIndex, destIndex)
+
+
+        // listener?.updateTodos(_todos)
+    }
+
+    fun addItem(todo: Todo, position: Int = _todos.size - 2) {
+        _todos.add(position, todo)
+        notifyItemInserted(position)
+    }
+
+
+    fun submitList(list: List<Todo>?) {
+        val tmp = list as MutableList
+        tmp.add(Todo(id = -1))
+        tmp.add(Todo(id = -2))
+        _todos = tmp
+        notifyDataSetChanged()
     }
 
     fun setListener(listener: ToDoRecyclerViewListener) {
@@ -62,56 +91,69 @@ class TodoAdapter(val isSummary:Boolean=false) : ListAdapter<Todo, BaseViewHolde
 
 
     override fun onItemSwap(fromPosition: Int, toPosition: Int) {
-        listener?.swapItems(fromPosition, toPosition)
+        if (toPosition < _todos.size - 2 && fromPosition < _todos.size - 2) {
+            listener?.swapItems(_todos[fromPosition].copy(), _todos[toPosition].copy())
+        }
     }
 
     override fun onItemSwipe(itemPosition: Int, direction: Int) {
-        listener?.swipeToDelete(getItem(itemPosition))
+        listener?.swipeToDelete(_todos[itemPosition], itemPosition)
     }
+
 
     inner class ViewHolder(itemView: View) :
         BaseViewHolder<Todo>(itemView) {
         override fun bind(item: Todo) {
+            if (item.id == -2L) {
+                itemView.visibility = View.INVISIBLE
+                return
+            }
 
-            itemView.txt_todo_title.text = item.title
-            if (!isSummary) {
-                if (item.isDone) {
-                    itemView.chk_todo.apply {
-                        isChecked = true
-                        Log.d(TAG, "bind: is checked")
-                        itemView.txt_todo_title.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+            if (item.id == -1L) {
+                itemView.layout_add_todo.visibility = View.VISIBLE
+                itemView.layout_show_todo.visibility = View.GONE
+
+                itemView.setOnClickListener {
+                    listener?.onAddTodoClick()
+                }
+
+            } else {
+
+                itemView.txt_todo_title.text = item.title
+                if (!isSummary) {
+                    if (item.isDone) {
+                        itemView.chk_todo.apply {
+                            isChecked = true
+                            Log.d(TAG, "bind: is checked")
+                            itemView.txt_todo_title.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+                        }
+                    } else {
+                        itemView.chk_todo.apply {
+                            isChecked = false
+                            itemView.txt_todo_title.paintFlags = Paint.ANTI_ALIAS_FLAG
+                        }
+                    }
+
+                    itemView.chk_todo.setOnClickListener {
+                        listener?.onCheckChanged(
+                            item,
+                            itemView.chk_todo.isChecked,
+                            adapterPosition
+                        )
                     }
                 } else {
-                    itemView.chk_todo.apply {
-                        isChecked = false
-                        itemView.txt_todo_title.paintFlags = Paint.ANTI_ALIAS_FLAG
-                    }
+                    itemView.chk_todo.isEnabled = false
                 }
 
-                itemView.chk_todo.setOnClickListener {
-                    listener?.onCheckChanged(
-                        item.copy(isDone = itemView.chk_todo.isChecked)
-                    )
+
+                itemView.txt_todo_title.setOnClickListener {
+                    listener?.onEditTodoClick(item, adapterPosition)
                 }
-            }else
-            {
-                itemView.chk_todo.isEnabled=false
-            }
-
-
-            itemView.txt_todo_title.setOnClickListener {
-                listener?.onEditTodoClick(item)
             }
 
         }
     }
 
-    inner class LastItemViewHolder(itemView: View) : BaseViewHolder<Todo>(itemView) {
-        override fun bind(item: Todo) {
-
-        }
-
-    }
 
     companion object {
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Todo>() {
@@ -130,12 +172,13 @@ class TodoAdapter(val isSummary:Boolean=false) : ListAdapter<Todo, BaseViewHolde
     }
 
     interface ToDoRecyclerViewListener {
-        fun onEditTodoClick(todo: Todo)
-        fun onCheckChanged(todo: Todo)
-        fun swapItems(fromPosition: Int, toPosition: Int)
-        fun swipeToDelete(todo: Todo)
-        fun onEmptyList()
-        fun onNonEmptyList()
+        fun onAddTodoClick()
+        fun onEditTodoClick(todo: Todo, position: Int)
+        fun onCheckChanged(todo: Todo, checked: Boolean, position: Int)
+        fun swapItems(fromPosition: Todo, toPosition: Todo)
+        fun swipeToDelete(todo: Todo, position: Int)
+        fun updateTodos(todos: List<Todo>)
+
     }
 
 

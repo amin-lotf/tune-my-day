@@ -4,6 +4,10 @@ import android.animation.LayoutTransition
 import android.app.Activity
 import android.content.Context
 import android.view.View
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.Animation
+import android.view.animation.Interpolator
+import android.view.animation.Transformation
 import android.view.inputmethod.InputMethodManager
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DiffUtil
@@ -35,6 +39,7 @@ fun <T> RecyclerView.Adapter<*>.autoNotify(
 
 fun ConstraintLayout.setTransition(){
     this.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+    this.layoutTransition.setDuration(300)
 }
 
 

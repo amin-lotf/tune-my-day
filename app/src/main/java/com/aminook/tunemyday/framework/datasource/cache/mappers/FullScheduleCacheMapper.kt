@@ -1,9 +1,9 @@
 package com.aminook.tunemyday.framework.datasource.cache.mappers
 
 import android.util.Log
-import com.aminook.tunemyday.business.domain.model.Alarm
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.model.Time
+import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.business.domain.util.EntityMapper
 import com.aminook.tunemyday.framework.datasource.cache.model.FullSchedule
 import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
@@ -15,7 +15,8 @@ import kotlin.math.abs
 class FullScheduleCacheMapper @Inject constructor(
     val programCacheMapper: ProgramCacheMapper,
     val alarmCacheMapper: AlarmCacheMapper,
-    val todoCacheMapper: TodoCacheMapper
+    val todoCacheMapper: TodoCacheMapper,
+    val dateUtil: DateUtil
 ) : EntityMapper<FullSchedule, Schedule> {
     override fun mapFromEntity(entity: FullSchedule?): Schedule {
        try {
@@ -37,16 +38,32 @@ class FullScheduleCacheMapper @Inject constructor(
                     this.endTime = Time(endHour, endMinute)
 
                     this.alarms.addAll(entity.alarms.map { alarmCacheMapper.mapFromEntity(it) })
-                    this.todos.addAll(
-                        entity.todos.map { todoCacheMapper.mapFromEntity(it) }.sortedWith(
-                            compareBy({ it.isDone }, { it.priorityIndex })
-                        )
-                    )
+ //                   this.unfinishedTodos.addAll(entity.todos.sortedBy { it.priorityIndex }.map {  todoCacheMapper.mapFromEntity(it)})
+
+                    entity.todos.sortedBy { it.priorityIndex }.onEach {
+                        if (
+                            !it.isDone ||
+                            (it.lastChecked!=dateUtil.currentDayInInt &&
+                                    it.lastChecked!=dateUtil.currentDayInInt-1 &&
+                                    it.lastChecked!=dateUtil.currentDayInInt+1)
+                        ){
+                            it.isDone=false
+                            unfinishedTodos.add(todoCacheMapper.mapFromEntity(it))
+                        }else{
+                            finishedTodos.add(todoCacheMapper.mapFromEntity(it))
+                        }
+                    }
+
+//                    this.unfinishedTodos.addAll(
+//                        entity.todos.map { todoCacheMapper.mapFromEntity(it) }.sortedWith(
+//                            compareBy({ it.isDone }, { it.priorityIndex })
+//                        )
+//                    )
 
                     if (this.alarms.size > 0) {
                         this.hasAlarm = true
                     }
-                    if (this.todos.size > 0) {
+                    if (this.unfinishedTodos.size > 0) {
                         this.hasToDo = true
                     }
 
@@ -97,7 +114,7 @@ class FullScheduleCacheMapper @Inject constructor(
             }
         }
 
-        val todos=domainModel.todos.map { todoCacheMapper.mapToEntity(it) }
+        val todos=domainModel.unfinishedTodos.map { todoCacheMapper.mapToEntity(it) }
 
         return FullSchedule(
             scheduleEntity,

@@ -1,6 +1,7 @@
 package com.aminook.tunemyday.framework.presentation.weeklylist
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +15,7 @@ import com.aminook.tunemyday.framework.presentation.common.BaseViewHolder
 import kotlinx.android.synthetic.main.no_schedule_item.view.*
 import kotlinx.android.synthetic.main.schedule_item.view.*
 
-class ShortDailyScheduleAdapter(val context: Context) :
+class ShortDailyScheduleAdapter(val context: Context,val curDay:Int) :
     RecyclerView.Adapter<BaseViewHolder<Schedule>>() {
 
     private var listener: ItemClickListener? = null
@@ -119,8 +120,13 @@ class ShortDailyScheduleAdapter(val context: Context) :
                 itemView.schedule_alarm_icon_on.visibility = View.INVISIBLE
                 itemView.schedule_alarm_icon_off.visibility = View.VISIBLE
             }
-            if (item.startDay != item.endDay && item.endTime.hour!=0 && item.endTime.minute!=0) {
+
+            if (item.startDay==curDay && item.startDay != item.endDay && (item.endTime.hour!=0 || item.endTime.minute!=0)) {
                 itemView.txt_next_day.visibility = View.VISIBLE
+            }
+
+            if (item.startDay!=curDay){
+                itemView.txt_prev_day.visibility=View.VISIBLE
             }
 
             itemView.setOnClickListener {

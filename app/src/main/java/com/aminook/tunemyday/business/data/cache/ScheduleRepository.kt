@@ -4,6 +4,7 @@ import com.aminook.tunemyday.business.domain.model.*
 import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
 import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
+import com.aminook.tunemyday.framework.datasource.cache.model.TodoEntity
 import kotlinx.coroutines.flow.Flow
 
 interface ScheduleRepository {
@@ -46,10 +47,13 @@ interface ScheduleRepository {
 
 
     suspend fun insertTodo(todo:Todo):Long
+    suspend fun updateTodos(todos:List<Todo>):Int
+    suspend fun updateTodo(todo: Todo):Int
     suspend fun deleteTodo(todo: Todo):Int
     fun getScheduleTodos(scheduleId: Long):Flow<List<Todo>>
     suspend fun deleteAndRetrieveTodos(todo: Todo):List<Todo>
     suspend fun insertAndRetrieveTodos(todo: Todo):List<Todo>
     suspend fun updateAndRetrieveTodos(todo: Todo):List<Todo>
     suspend fun updateListAndRetrieveTodos(todos: List<Todo>,scheduleId: Long):List<Todo>
+
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -19,12 +20,28 @@ class DragManageAdapter<T>(adapter: T, val context: Context, dragDirs: Int, swip
         viewHolder: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        nameAdapter.onItemSwap(viewHolder.adapterPosition,target.adapterPosition)
+        //recyclerView.adapter?.notifyItemMoved(viewHolder.adapterPosition,target.adapterPosition)
+
         return true
+    }
+
+    override fun onMoved(
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder,
+        fromPos: Int,
+        target: RecyclerView.ViewHolder,
+        toPos: Int,
+        x: Int,
+        y: Int
+    ) {
+        nameAdapter.onItemSwap(viewHolder.adapterPosition,target.adapterPosition)
+        super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y)
+
     }
 
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+
         nameAdapter.onItemSwipe(viewHolder.adapterPosition,direction)
     }
 
@@ -39,32 +56,41 @@ class DragManageAdapter<T>(adapter: T, val context: Context, dragDirs: Int, swip
     ) {
         if (dY==0f) {
             val itemView = viewHolder.itemView
-            val itemHeight = itemView.bottom - itemView.top
-
+            val icon = ContextCompat.getDrawable(
+                viewHolder.itemView.context,
+                R.drawable.ic_delete
+            )
             val background = ColorDrawable(ContextCompat.getColor(context, R.color.colorDelete))
+
+            val iconMargin = (itemView.height - icon!!.intrinsicHeight) / 2
+            val iconTop = itemView.top + (itemView.height - icon.intrinsicHeight) / 2
+            val iconBottom = iconTop + icon.intrinsicHeight
+
+            val iconLeft = itemView.right - iconMargin - icon.intrinsicWidth
+            val iconRight = itemView.right - iconMargin
+
+            icon.setBounds(
+                iconLeft,
+                iconTop,
+                iconRight,
+                iconBottom
+            )
+
             background.setBounds(
-                itemView.right + dX.toInt(),
+                (itemView.right + dX).toInt(),
                 itemView.top,
                 itemView.right,
                 itemView.bottom
             )
+
+            if (dX.toInt() == 0) { // view is unSwiped
+                background.setBounds(0, 0, 0, 0)
+            }
+
             background.draw(c)
 
-            val icon = ContextCompat.getDrawable(context, R.drawable.ic_delete)
-
-            val inWidth = icon?.intrinsicWidth ?: 0
-            val inHeight = icon?.intrinsicHeight ?: 0
-            // Calculate position of delete icon
-            val iconTop = itemView.top + (itemHeight - inHeight) / 2
-            val iconMargin = (itemHeight - inHeight) / 2
-            val iconLeft = itemView.right - iconMargin - inWidth
-            val iconRight = itemView.right - iconMargin
-            val iconBottom = iconTop + inHeight
-
-            // Draw the delete icon
-
-            icon?.setBounds(iconLeft, iconTop, iconRight, iconBottom)
-            icon?.draw(c)
+            if (-dX > (icon.intrinsicWidth + iconMargin)) // Draw icon only on full visibility
+                icon.draw(c)
         }
 
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)

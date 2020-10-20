@@ -18,9 +18,9 @@ import javax.inject.Singleton
 class InsertTodo @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
-     operator fun invoke(todo:Todo): Flow<DataState<String>?> {
-        val cacheResponse=object :CacheResponseHandler<Long,String>(){
-            override  fun handleSuccess(resultObj: Long): DataState<String>? {
+     operator fun invoke(todo:Todo): Flow<DataState<Todo>?> {
+        val cacheResponse=object :CacheResponseHandler<Long,Todo>(){
+            override  fun handleSuccess(resultObj: Long): DataState<Todo>? {
                 return if (resultObj>0){
                     DataState.data(
                         response = Response(
@@ -28,16 +28,15 @@ class InsertTodo @Inject constructor(
                             uiComponentType = UIComponentType.Toast,
                             messageType = MessageType.Success
                         ),
-                        data = INSERT_TODO_SUCCESS
+                        data = todo.copy(id = resultObj)
                     )
                 }else{
-                    DataState.data(
+                    DataState.error(
                         response = Response(
                             message = INSERT_TODO_FAIL,
                             uiComponentType = UIComponentType.Toast,
                             messageType = MessageType.Error
-                        ),
-                        data = INSERT_TODO_FAIL
+                        )
                     )
 
                 }

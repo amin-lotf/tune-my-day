@@ -27,7 +27,7 @@ data class TodoEntity(
     val title: String,
     val priorityIndex: Long,
     @ColumnInfo(name = "is_done")
-    val isDone: Boolean,
+    var isDone: Boolean,
     val dateAdded: Long,
     var isOneTime:Boolean,
     var lastChecked:Int

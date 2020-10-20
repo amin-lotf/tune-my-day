@@ -1,29 +1,21 @@
 package com.aminook.tunemyday.framework.presentation.addschedule
 
-import android.animation.LayoutTransition
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TimePicker
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.*
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.*
-import com.aminook.tunemyday.business.domain.state.AreYouSureCallback
 import com.aminook.tunemyday.business.domain.state.SnackbarUndoCallback
-import com.aminook.tunemyday.business.domain.state.StateMessage
-import com.aminook.tunemyday.business.domain.state.UIComponentType
 import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule.Companion.INSERT_SCHEDULE_SUCCESS
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_ADDED
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.ALARM_LIST_ADDED
@@ -37,14 +29,11 @@ import com.aminook.tunemyday.framework.presentation.common.TodoAdapter
 import com.aminook.tunemyday.util.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.bottom_sheet_add_todo.*
 import kotlinx.android.synthetic.main.bottom_sheet_add_todo.view.*
 import kotlinx.android.synthetic.main.bottom_sheet_programs.*
 import kotlinx.android.synthetic.main.bottom_sheet_programs.view.*
-import kotlinx.android.synthetic.main.dialog_add_program.*
-import kotlinx.android.synthetic.main.dialog_add_program.view.*
 import kotlinx.android.synthetic.main.fragment_add_edit_schedule.*
 import kotlinx.android.synthetic.main.layout_add_alarm.*
 import kotlinx.android.synthetic.main.layout_add_alarm.view.*
@@ -88,7 +77,6 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         layout_animate_add_schedule.setTransition()
-
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Long>(ADD_PROGRAM)?.observe(
             viewLifecycleOwner
         ){
@@ -141,7 +129,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
 
     private fun setTodoAdapter() {
-        todoListAdapter = TodoAdapter(true)
+        todoListAdapter = TodoAdapter(true,viewModel.dateUtil.currentDayInInt)
         todoListAdapter?.setListener(this)
         val layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -356,13 +344,19 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
                     viewModel.createTodo(scheduleId, task.toString(), false)
                         .observeOnce(viewLifecycleOwner) {
                             todoListAdapter?.submitList(it)
+                            todoListAdapter?.let {adapter->
+                                //adapter.submitList(it)
+                                val pos=recycler_schedule_todo.bottom
+                                scroll_view_add_schedule.smoothScrollTo(0,pos)
+                            }
+
                         }
                 } else {
-                    viewModel.updateTodo(todo.copy(title = task.toString()))
-                        .observeOnce(viewLifecycleOwner) {
-                            todoListAdapter?.submitList(it)
-                            addTodoBtmSheetDialog.dismiss()
-                        }
+//                    viewModel.updateTodo(todo.copy(title = task.toString()))
+//                        .observeOnce(viewLifecycleOwner) {
+//                            //todoListAdapter?.submitList(it)
+//                            addTodoBtmSheetDialog.dismiss()
+//                        }
                 }
                 view.txt_add_todo.setText("")
             } else {
@@ -536,6 +530,9 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         }
     }
 
+    override fun onAddTodoClick() {
+
+    }
 
     override fun AddProgramClick(program: Program) {
         chooseProgramBtmSheetDialog.dismiss()
@@ -565,13 +562,14 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         super.onDestroyView()
     }
 
-    override fun swipeToDelete(todo: Todo) {
+    override fun swipeToDelete(todo: Todo,position: Int) {
+
         viewModel.deleteTodo(
             todo,
             undoCallback = object : SnackbarUndoCallback {
                 override fun undo() {
                     viewModel.addTodo(todo).observeOnce(viewLifecycleOwner) {
-                        todoListAdapter?.submitList(it)
+                        //todoListAdapter?.submitList(it)
                     }
                 }
 
@@ -585,21 +583,25 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         )
     }
 
+    override fun updateTodos(todos: List<Todo>) {
 
-    override fun onEditTodoClick(todo: Todo) {
+    }
+
+    override fun onEditTodoClick(todo: Todo,position: Int) {
         showAddTodo(todo.scheduleId, todo)
     }
 
-    override fun onCheckChanged(todo: Todo) {
-        viewModel.updateTodo(todo).observeOnce(viewLifecycleOwner) {
-            todoListAdapter?.submitList(it)
-        }
+    override fun onCheckChanged(todo: Todo,checked:Boolean,position: Int) {
+//        viewModel.updateTodo(todo).observeOnce(viewLifecycleOwner) {
+//         //   todoListAdapter?.submitList(it)
+//        }
     }
 
-    override fun swapItems(fromPosition: Int, toPosition: Int) {
+    override fun swapItems(fromPosition: Todo, toPosition: Todo) {
         todoListAdapter?.let {
-            val destTodo = it.currentList[toPosition].copy()
-            val sourceTodo = it.currentList[fromPosition].copy()
+
+            val destTodo = fromPosition
+            val sourceTodo = toPosition
             if (!sourceTodo.isDone) {
                 val destPriorityIndex = destTodo.priorityIndex
                 val sourcePriorityIndex = sourceTodo.priorityIndex
@@ -619,13 +621,6 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
     }
 
-    override fun onEmptyList() {
-
-    }
-
-    override fun onNonEmptyList() {
-
-    }
 
     companion object{
         const val ADD_PROGRAM="add program"

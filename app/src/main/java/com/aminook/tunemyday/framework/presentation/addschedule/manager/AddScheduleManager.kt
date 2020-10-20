@@ -55,17 +55,17 @@ class AddScheduleManager {
 
     }
 
-    fun processTodoList(todos: List<Todo>?): List<Todo> {
-        val tmpTodos = mutableListOf<Todo>()
-        todos?.let {
-            tmpTodos.addAll(it)
-            tmpTodos.add(Todo(id = -1))
-        }
-        return tmpTodos
-    }
+//    fun processTodoList(todos: List<Todo>?): List<Todo> {
+//        val tmpTodos = mutableListOf<Todo>()
+//        todos?.let {
+//            tmpTodos.addAll(it)
+//           // tmpTodos.add(Todo(id = -1))
+//        }
+//        return tmpTodos
+//    }
 
     fun addTodos(todos: List<Todo>? = null) {
-        buffSchedule.todos.apply {
+        buffSchedule.unfinishedTodos.apply {
             clear()
             addAll(todos ?: emptyList())
         }

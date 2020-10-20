@@ -76,6 +76,11 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+    }
+
+    override fun onResume() {
+        super.onResume()
         setupNavigation()
         subscribeObservers()
     }

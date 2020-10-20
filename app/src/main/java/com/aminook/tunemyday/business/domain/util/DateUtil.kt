@@ -5,11 +5,15 @@ import com.aminook.tunemyday.business.domain.model.Day
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import kotlin.math.ceil
+import kotlin.math.floor
 
 
 class DateUtil @Inject constructor() {
     private val TAG = "aminjoon"
 
+    val currentDayInInt:Int
+    get() = floor(System.currentTimeMillis()/86400000.0).toInt()
 
     val curDayIndex: Int
         get() {
@@ -41,14 +45,14 @@ class DateUtil @Inject constructor() {
         }
 
     val curDateInInt: Long
-        get() =System.currentTimeMillis()
+        get() = System.currentTimeMillis()
 
 
     val shortDayRange: List<Int>
         get() {
             val dayRange = mutableListOf<Int>()
 
-            for (i in curDayIndex..curDayIndex+2) {
+            for (i in curDayIndex..curDayIndex + 2) {
                 val day = if (i < 7) i else i - 7
                 dayRange.add(day)
 

@@ -50,17 +50,20 @@ class DailyViewModel @ViewModelInject constructor(
         dayIndex = dateUtil.curDayIndex
        // dayIndex = if (dayIndex > 6) dayIndex - 7 else dayIndex
         CoroutineScope(activeScope).launch {
-            scheduleInteractors.getDailySchedules(dayIndex,routineId,dateUtil.curTimeInSec).collect { dataState ->
+            scheduleInteractors.getDailySchedules(dayIndex,routineId,dateUtil.curTimeInSec)
+                .collect { dataState ->
                 processResponse(dataState?.stateMessage)
-                dataState?.data?.let { schedules ->
-                    Log.d(TAG, "initializeAdapters: schedules size: ${schedules.size} ")
-                    _schedules.value = dailyScheduleManager.processSchedules(schedules)
-                }
+                    _schedules.value = dataState?.data?: emptyList()
             }
         }
     }
 
-    fun createTodo(scheduleId: Long,programId:Long, task: String, isOneTime: Boolean = false):LiveData<List<Todo>> {
+    fun createTodo(
+        scheduleId: Long,
+        programId:Long,
+        task: String,
+        isOneTime: Boolean = false
+    ):LiveData<Todo?> {
             val todo=Todo(
                 title = task,
                 scheduleId = scheduleId,
@@ -72,22 +75,22 @@ class DailyViewModel @ViewModelInject constructor(
             return addTodo(todo)
     }
 
-    fun addTodo(todo: Todo):LiveData<List<Todo>> {
+    fun addTodo(todo: Todo):LiveData<Todo?> {
 
-        return todoInteractors.insertAndRetrieveTodos(todo)
+        return todoInteractors.insertTodo(todo)
             .map {
                 processResponse(it?.stateMessage)
-                dailyScheduleManager.processTodoList( it?.data)
+                it?.data
             }
             .flowOn(Default)
             .asLiveData()
     }
 
-    fun updateTodo(todo: Todo):LiveData<List<Todo>>{
-        return todoInteractors.updateTodo(todo)
+    fun updateTodo(todo: Todo,showSnackbar: Boolean,undoCallback: SnackbarUndoCallback?=null,onDismissCallback: TodoCallback?=null):LiveData<Todo?>{
+        return todoInteractors.updateTodo(todo,showSnackbar,undoCallback,onDismissCallback)
             .map {
                 processResponse(it?.stateMessage)
-                dailyScheduleManager.processTodoList(it?.data)
+                it?.data
             }
             .flowOn(Default)
             .asLiveData()
@@ -97,33 +100,50 @@ class DailyViewModel @ViewModelInject constructor(
         return todoInteractors.updateTodos(todos,scheduleId)
             .map {
                 processResponse(it?.stateMessage)
-                dailyScheduleManager.processTodoList(it?.data)
+               it?.data?: emptyList()
             }
-            .flowOn(Default)
             .asLiveData()
     }
 
+    fun moveTodos(todos: List<Todo>,scheduleId: Long):LiveData<List<Todo>>{
+
+             return todoInteractors.updateTodos(todos,scheduleId)
+                 .map {
+                     processResponse(it?.stateMessage)
+                     it?.data?: emptyList()
+                 }
+                 .asLiveData()
 
 
-    fun deleteTodo(todo: Todo,undoCallback: SnackbarUndoCallback,onDismissCallback: TodoCallback):LiveData<List<Todo>> {
+    }
 
-           return todoInteractors.deleteAndRetrieveTodos(
-                todo = todo,
-                undoCallback = undoCallback,
-                onDismissCallback = onDismissCallback
-            )
+    fun changeTodoCheck(todo:Todo,showSnackbar:Boolean,undoCallback: SnackbarUndoCallback?=null,onDismissCallback: TodoCallback?=null):LiveData<Todo?>{
+
+            return todoInteractors.updateTodo(todo,showSnackbar,undoCallback,onDismissCallback)
                 .map {
                     processResponse(it?.stateMessage)
-                    dailyScheduleManager.processTodoList(it?.data)
-
+                    it?.data
                 }
-
-                .flowOn(Default)
                 .asLiveData()
 
+
     }
 
-    override fun onCleared() {
-        super.onCleared()
+
+
+    fun deleteTodo(todo: Todo,undoCallback: SnackbarUndoCallback,onDismissCallback: TodoCallback):LiveData<Todo?> {
+               return todoInteractors.deleteTodo(
+                    todo = todo,
+                    undoCallback = undoCallback,
+                    onDismissCallback = onDismissCallback
+                )
+                    .map {
+                        processResponse(it?.stateMessage)
+                        it?.data
+
+                    }
+                    .asLiveData()
+
     }
+
 }

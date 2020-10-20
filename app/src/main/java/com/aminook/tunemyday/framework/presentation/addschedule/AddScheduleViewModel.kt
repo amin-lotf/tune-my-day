@@ -23,10 +23,7 @@ import com.aminook.tunemyday.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.*
 
 
 class AddScheduleViewModel @ViewModelInject constructor(
@@ -93,7 +90,6 @@ class AddScheduleViewModel @ViewModelInject constructor(
         return todoInteractors.insertAndRetrieveTodos(todo)
             .map {
                 processResponse(it?.stateMessage)
-                addScheduleManager.addTodos(it?.data)
                 it?.data ?: emptyList()
             }
             .flowOn(Dispatchers.Default)
@@ -117,22 +113,20 @@ class AddScheduleViewModel @ViewModelInject constructor(
         return addTodo(todo)
     }
 
-    fun updateTodo(todo: Todo): LiveData<List<Todo>> {
-        return todoInteractors.updateTodo(todo)
-            .map {
-                processResponse(it?.stateMessage)
-                addScheduleManager.addTodos(it?.data)
-                it?.data ?: emptyList()
-            }
-            .flowOn(Dispatchers.Default)
-            .asLiveData()
-    }
+ //  fun updateTodo(todo: Todo): LiveData<List<Todo>> {
+////        return todoInteractors.updateTodo(todo)
+////            .map {
+////                processResponse(it?.stateMessage)
+////                it?.data ?: emptyList()
+////            }
+////            .flowOn(Dispatchers.Default)
+////            .asLiveData()
+//    }
 
     fun updateTodos(todos: List<Todo>, scheduleId: Long): LiveData<List<Todo>> {
         return todoInteractors.updateTodos(todos, scheduleId)
             .map {
                 processResponse(it?.stateMessage)
-                addScheduleManager.addTodos(it?.data)
                 it?.data ?: emptyList()
             }
             .flowOn(Default)
@@ -311,9 +305,10 @@ class AddScheduleViewModel @ViewModelInject constructor(
 
      fun getTodos(scheduleId: Long):LiveData<List<Todo>> {
             return todoInteractors.getScheduleTodos(scheduleId)
+                .debounce(350)
                 .map {
                     processResponse(it?.stateMessage)
-                    addScheduleManager.processTodoList(it?.data)
+                    it?.data?: emptyList()
                 }.asLiveData()
     }
 

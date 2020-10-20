@@ -53,7 +53,7 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
 
 
     private fun setupAdapter() {
-        shortDailyScheduleAdapter= ShortDailyScheduleAdapter(requireContext())
+        shortDailyScheduleAdapter= ShortDailyScheduleAdapter(requireContext(),viewModel.fragmentDayIndex)
         shortDailyScheduleAdapter?.setOnClickListener(this)
 
         viewModel.getFragmentSchedules().observe(viewLifecycleOwner){

@@ -1,5 +1,6 @@
 package com.aminook.tunemyday.framework.datasource.cache.database
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.aminook.tunemyday.business.domain.model.Todo
 import com.aminook.tunemyday.framework.datasource.cache.model.TodoEntity
@@ -11,23 +12,23 @@ interface TodoDao {
     @Insert
     suspend fun insertTodo(todoEntity: TodoEntity): Long
 
-
-
     @Update
     suspend fun updateTodo(todoEntity: TodoEntity):Int
 
     @Transaction
     @Update
-    suspend fun updateTodos(todoEntities:List<TodoEntity>)
+    suspend fun updateTodos(todoEntities:List<TodoEntity>):Int
+
+
 
     @Delete
     suspend fun deleteTodo(todoEntity: TodoEntity):Int
 
     @Transaction
-    @Query("select * from todos where schedule_id= :scheduleId order by is_done,priorityIndex")
+    @Query("select * from todos where schedule_id= :scheduleId order by priorityIndex")
     suspend fun getScheduleToDo(scheduleId:Long):List<TodoEntity>
 
-    @Query("select * from todos where schedule_id= :scheduleId order by is_done,priorityIndex")
+    @Query("select * from todos where schedule_id= :scheduleId order by priorityIndex")
     fun getScheduleToDoFlow(scheduleId:Long):Flow<List<TodoEntity>>
 
     @Transaction
@@ -60,5 +61,7 @@ interface TodoDao {
         updateTodos(todosToUpdate)
         return getScheduleToDo(scheduleId)
     }
+
+
 
 }

@@ -14,7 +14,8 @@ data class Todo(
     var priorityIndex: Long=0,
     val subTodos:MutableList<SubTodo> = mutableListOf(),
     var isOneTime:Boolean=false,
-    var lastChecked:Int=0
+    var lastChecked:Int=0,
+    var index:Int=0
 ) : Parcelable
 
 @Parcelize

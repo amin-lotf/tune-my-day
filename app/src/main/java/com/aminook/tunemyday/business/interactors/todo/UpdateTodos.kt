@@ -18,16 +18,26 @@ class UpdateTodos @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
      operator fun invoke(todos:List<Todo>,scheduleId:Long): Flow<DataState<List<Todo>>?> {
-        val cacheResponse=object :CacheResponseHandler<List<Todo>,List<Todo>>(){
-            override  fun handleSuccess(resultObj: List<Todo>): DataState<List<Todo>>? {
-                return DataState.data(
+        val cacheResponse=object :CacheResponseHandler<Int,List<Todo>>(){
+            override  fun handleSuccess(resultObj: Int): DataState<List<Todo>>? {
+                return if (resultObj>0){
+                    DataState.data(
                         response = Response(
                             message = UPDATE_TODO_SUCCESS,
                             uiComponentType = UIComponentType.None,
                             messageType = MessageType.Success
                         ),
-                        data = resultObj
+                        data = todos
                     )
+                }else{
+                    DataState.error(
+                        response = Response(
+                            message = UPDATE_TODO_FAIL,
+                            uiComponentType = UIComponentType.Toast,
+                            messageType = MessageType.Error
+                        )
+                    )
+                }
             }
 
         }
@@ -35,7 +45,7 @@ class UpdateTodos @Inject constructor(
         return  cacheResponse.getResult {
             flow {
                 emit(
-                    scheduleRepository.updateListAndRetrieveTodos(todos,scheduleId)
+                    scheduleRepository.updateTodos(todos)
                 )
             }
         }
@@ -44,6 +54,6 @@ class UpdateTodos @Inject constructor(
 
     companion object{
         const val UPDATE_TODO_SUCCESS="todo updated"
-        const val UPDATE_TODO_FAIL="failed to update todo"
+        const val UPDATE_TODO_FAIL="failed to update tasks"
     }
 }

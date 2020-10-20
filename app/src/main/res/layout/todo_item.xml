@@ -3,23 +3,54 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="50dp"
     android:layout_margin="4dp"
+    app:cardElevation="0dp"
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_add_todo"
         android:layout_width="match_parent"
+        android:visibility="gone"
         android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/btn_add_todo"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_add_dark"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
 
+           android:layout_margin="8dp"/>
 
+        <TextView
+            android:id="@+id/txt_todo_add_daily"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/btn_add_todo"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintTop_toTopOf="@id/btn_add_todo"
+            app:layout_constraintBottom_toBottomOf="@id/btn_add_todo"
+            android:padding="2dp"
+            android:text="Add new task"
+            android:maxLines="2"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_show_todo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+       >
         <CheckBox
             android:id="@+id/chk_todo"
-            android:layout_width="35dp"
-            android:layout_height="40dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:button="@drawable/cb_selector"
             app:layout_constraintTop_toTopOf="parent"
             android:textSize="40sp"
+            android:layout_margin="8dp"
             app:layout_constraintStart_toStartOf="parent"
             />
         <TextView
@@ -32,7 +63,6 @@
             app:layout_constraintTop_toTopOf="@id/chk_todo"
             app:layout_constraintBottom_toBottomOf="@id/chk_todo"
             android:padding="2dp"
-
             android:text="Gym"
             android:maxLines="2"
             />

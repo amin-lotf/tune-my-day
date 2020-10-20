@@ -14,19 +14,26 @@ import javax.inject.Singleton
 class DeleteTodo @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
-     operator fun invoke(todo:Todo,undoCallback: SnackbarUndoCallback,onDismissCallback:TodoCallback):Flow<DataState<Nothing>?>{
-        val cacheResponse=object :CacheResponseHandler<Int,Nothing>(){
-            override  fun handleSuccess(resultObj: Int): DataState<Nothing>? {
-               return if(resultObj>0){
+    operator fun invoke(
+        todo: Todo,
+        undoCallback: SnackbarUndoCallback,
+        onDismissCallback: TodoCallback
+    ): Flow<DataState<Todo>?> {
+        val cacheResponse = object : CacheResponseHandler<Int, Todo>() {
+            override fun handleSuccess(resultObj: Int): DataState<Todo>? {
+                return if (resultObj > 0) {
                     DataState.data(
                         response = Response(
                             message = DELETE_TODO_SUCCESS,
-                            uiComponentType =UIComponentType.None,//UIComponentType.SnackBar(undoCallback,onDismissCallback),
+                            uiComponentType = UIComponentType.SnackBar(
+                                undoCallback,
+                                onDismissCallback
+                            ),
                             messageType = MessageType.Success
                         ),
-                        data = null
+                        data = todo
                     )
-                }else{
+                } else {
                     DataState.error(
                         response = Response(
                             message = DELETE_TODO_FAIL,
@@ -46,9 +53,9 @@ class DeleteTodo @Inject constructor(
         }
     }
 
-    companion object{
-        const val DELETE_TODO_SUCCESS="task deleted successfully"
-        const val DELETE_TODO_FAIL="Failed to delete task"
+    companion object {
+        const val DELETE_TODO_SUCCESS = "Task deleted successfully"
+        const val DELETE_TODO_FAIL = "Failed to delete the task"
     }
 
 }

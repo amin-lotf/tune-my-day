@@ -1,12 +1,10 @@
 package com.aminook.tunemyday.framework.datasource.cache.mappers
 
 import android.util.Log
-import com.aminook.tunemyday.business.domain.model.Alarm
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.model.Time
 import com.aminook.tunemyday.business.domain.util.EntityMapper
 import com.aminook.tunemyday.framework.datasource.cache.model.DetailedSchedule
-import com.aminook.tunemyday.framework.datasource.cache.model.FullSchedule
 import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,7 +41,7 @@ class DetailedScheduleCacheMapper @Inject constructor(
                     if (this.alarms.size > 0) {
                         this.hasAlarm = true
                     }
-                    if (this.todos.size > 0) {
+                    if (this.unfinishedTodos.size > 0) {
                         this.hasToDo = true
                     }
 
