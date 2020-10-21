@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.aminook.tunemyday.R
@@ -34,7 +35,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
     private var fragmentIndex: Int? = null
     private val dailyViewModel: DailyViewModel by viewModels()
 
-    private lateinit var addTodoBtmSheetDialog: BottomSheetDialog
+    private  var addTodoBtmSheetDialog: BottomSheetDialog?=null
 
     @Inject
     lateinit var todoDao: TodoDao
@@ -66,7 +67,9 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
             event?.getContentIfNotHandled()?.let { stateMessage ->
                 onResponseReceived(stateMessage.response)
             }
+
         }
+
 
 
     }
@@ -119,9 +122,9 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
             true,
             undoCallback = object : SnackbarUndoCallback {
                 override fun undo() {
-                    dailyViewModel.changeTodoCheck(todo,false).observeOnce(viewLifecycleOwner) {
+                    dailyViewModel.changeTodoCheck(todo.copy(),false).observeOnce(viewLifecycleOwner) {
                         it?.let {
-                            todoAdapter?.addItem(todo, position)
+                            todoAdapter?.addItem(it)
 
                         }
                     }
@@ -136,32 +139,13 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
             }
             ).observe(viewLifecycleOwner){
             it?.let {
-                todoAdapter?.removeItem(position)
+                todoAdapter?.removeItem(it)
             }
         }
     }
 
     override fun swipeToDelete(todo: Todo, position: Int, todoAdapter: TodoAdapter?) {
-        todoAdapter?.removeItem(position)
-        dailyViewModel.deleteTodo(
-            todo,
-            undoCallback = object : SnackbarUndoCallback {
-                override fun undo() {
-                    dailyViewModel.addTodo(todo).observeOnce(viewLifecycleOwner) {
-                       it?.let {
-                           todoAdapter?.addItem(it,position)
-                       }
-                    }
-                }
 
-            },
-            onDismissCallback = object : TodoCallback {
-                override fun execute() {
-                    Log.d(TAG, "execute: todo delete snackbar dismissed")
-                }
-
-            }
-        )
     }
 
     override fun updateTodos(todos: List<Todo>) {
@@ -209,9 +193,9 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
         addTodoBtmSheetDialog =
             BottomSheetDialog(requireContext(), R.style.ThemeOverlay_DialogStyle)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_add_todo, btn_sheet_add_todo)
-        addTodoBtmSheetDialog.setContentView(view)
-        addTodoBtmSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
-        addTodoBtmSheetDialog.show()
+        addTodoBtmSheetDialog?.setContentView(view)
+        addTodoBtmSheetDialog?.behavior?.state = BottomSheetBehavior.STATE_EXPANDED
+        addTodoBtmSheetDialog?.show()
         todo?.let {
             view.txt_add_todo.setText(todo.title)
         }
@@ -224,7 +208,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                         override fun undo() {
                             dailyViewModel.addTodo(todo).observeOnce(viewLifecycleOwner) {
                                 it?.let {
-                                    todoAdapter?.addItem(it, position)
+                                    todoAdapter?.addItem(it)
 
                                 }
                             }
@@ -239,8 +223,8 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                     }
                 ).observe(viewLifecycleOwner){
                     it?.let {
-                        todoAdapter?.removeItem(position)
-                        addTodoBtmSheetDialog.dismiss()
+                        todoAdapter?.removeItem(it)
+                        addTodoBtmSheetDialog?.dismiss()
                     }
                 }
             }
@@ -257,7 +241,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                         .observeOnce(viewLifecycleOwner) {
                             it?.let {
                                 todoAdapter?.addItem(it)
-                                addTodoBtmSheetDialog.dismiss()
+                                addTodoBtmSheetDialog?.dismiss()
                             }
 
                         }
@@ -269,7 +253,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                             override fun undo() {
                                 dailyViewModel.updateTodo(todo,false).observeOnce(viewLifecycleOwner) {
                                     it?.let {
-                                        todoAdapter?.updateItem(todo, position)
+                                        todoAdapter?.updateItem(todo)
 
                                     }
                                 }
@@ -285,10 +269,10 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                     )
                         .observeOnce(viewLifecycleOwner) {
                             it?.let {
-                                todoAdapter?.updateItem(it,position)
+                                todoAdapter?.updateItem(it)
                             }
 
-                            addTodoBtmSheetDialog.dismiss()
+                            addTodoBtmSheetDialog?.dismiss()
                         }
                 }
                 view.txt_add_todo.setText("")
@@ -300,7 +284,13 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
     override fun onScheduleClick(scheduleId: Long) {
 
+        val action=DailyFragmentDirections.actionDailyFragmentToViewTodoFragment(scheduleId)
+        findNavController().navigate(action)
 
+    }
 
+    override fun onDestroyView() {
+        addTodoBtmSheetDialog= null
+        super.onDestroyView()
     }
 }

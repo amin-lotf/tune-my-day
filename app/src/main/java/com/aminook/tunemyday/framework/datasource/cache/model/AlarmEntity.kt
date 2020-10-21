@@ -46,3 +46,16 @@ data class AlarmEntity(
 
 
 }
+
+
+data class NotificationAlarm(
+  @Embedded
+  val alarm:AlarmEntity,
+
+  @Relation(
+    entity = ScheduleEntity::class,
+    parentColumn = "schedule_id",
+    entityColumn = "id"
+  )
+  val detailedSchedule: DetailedSchedule
+)

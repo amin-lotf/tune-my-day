@@ -40,7 +40,7 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
     private val TAG = "aminjoon"
 
     @Inject
-    lateinit var alarmInteractors: AlarmInteractors
+    lateinit var scheduleInteractors: ScheduleInteractors
 
     @Inject
     lateinit var dateUtil:DateUtil
@@ -63,10 +63,10 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
                 Log.d(TAG, "onReceive: ACTION alarm id: $id")
                 try {
                     CoroutineScope(Default).launch {
-                        alarmInteractors.getAlarmById(id).collect {dataState->
-                            dataState?.data?.let {alarm->
+                        scheduleInteractors.getNotificationScheduleByAlarmId(id).collect {dataState->
+                            dataState?.data?.let {schedule->
                                 withContext(Main){
-                                    showNotification(context,alarm)
+                                    showNotification(context,schedule)
                                 }
                             }
                         }
@@ -113,7 +113,8 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
 
     }
 
-    fun showNotification(context: Context,alarm:Alarm){
+    fun showNotification(context: Context,schedule:Schedule){
+        val alarm=schedule.alarms.first()
         val summaryNotification= NotificationCompat.Builder(context,CHANNEL_ID)
             .setContentTitle("Tune My Day")
             .setContentText("Upcoming Activity")
@@ -129,21 +130,24 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
 
         val notificationPendingIntent=PendingIntent.getActivity(
             context,
-            alarm.scheduleId.toInt(),
+            schedule.id.toInt(),
             notificationIntent,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         val notification=NotificationCompat.Builder(context.applicationContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(alarm.programName)
+            .setContentTitle(
+                "${schedule.program.name} (${schedule.startTime})"
+            )
+
             .setContentText(getNotificationSmallFormat(alarm))
-//            .setStyle(
-//                NotificationCompat.BigTextStyle()
-//                    .bigText(
-//                        getNotificationBigFormat(alarm,schedule)
-//                    )
-//            )
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(
+                        getNotificationBigFormat(schedule)
+                    )
+            )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(notificationPendingIntent)
             .setGroup(GROUP_KEY)
@@ -173,7 +177,8 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
         }
     }
 
-    private fun getNotificationBigFormat(alarm: Alarm,schedule: Schedule):String{
+    private fun getNotificationBigFormat(schedule: Schedule):String{
+        val alarm=schedule.alarms.first()
         val day=if(dateUtil.curDayIndex==schedule.startDay) "" else "(Tomorrow)"
         val time="${schedule.startTime.hour}:${schedule.startTime.minute}"
         return if (alarm.hourBefore == 0 && alarm.minuteBefore == 0) {

@@ -20,7 +20,7 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
     private val TAG = "aminjoon"
     private var listener: ToDoRecyclerViewListener? = null
     private var _todos = mutableListOf<Todo>()
-
+    private var padding=0
 
     val currentList: List<Todo>
         get() = _todos
@@ -44,14 +44,23 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
     override fun getItemCount() = _todos.size
 
 
-    fun updateItem(todo: Todo, position: Int) {
-        _todos[position] = todo
-        notifyItemChanged(position)
+    fun updateItem(todo: Todo) {
+        val pos=_todos.withIndex().indexOfFirst { it.value.id==todo.id }
+        _todos[pos] = todo
+        notifyItemChanged(pos)
     }
 
-    fun removeItem(position: Int) {
-        _todos.removeAt(position)
-        notifyItemRemoved(position)
+    fun removeItem(todo:Todo) {
+
+        val pos=_todos.withIndex().indexOfFirst { it.value.id==todo.id }
+        Log.d(TAG, "removeItem: $pos")
+        if(pos>=0){
+            _todos.removeAt(pos)
+            notifyItemRemoved(pos)
+        }else{
+            Log.d(TAG, "removeItem: not in list")
+        }
+
 
     }
 
@@ -71,17 +80,33 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
         // listener?.updateTodos(_todos)
     }
 
-    fun addItem(todo: Todo, position: Int = _todos.size - 2) {
-        _todos.add(position, todo)
-        notifyItemInserted(position)
+    fun addItem(todo: Todo) {
+        var pos=_todos.withIndex().indexOfFirst { it.value.priorityIndex>todo.priorityIndex }
+        if (pos<0){
+            pos= _todos.size - padding
+        }
+        _todos.add(pos, todo)
+        notifyItemInserted(pos)
     }
 
 
-    fun submitList(list: List<Todo>?) {
-        val tmp = list as MutableList
-        tmp.add(Todo(id = -1))
-        tmp.add(Todo(id = -2))
-        _todos = tmp
+    fun submitList(list: List<Todo>?,addPadding:Boolean=true,withAddButton:Boolean=true) {
+        _todos.clear()
+
+        list?.let {
+            _todos.addAll(it)
+        }
+        Log.d(TAG, "submitList: size: ${_todos.size}")
+
+        if (withAddButton){
+            _todos.add(Todo(id = -1))
+            padding+=1
+        }
+        if (addPadding){
+            _todos.add(Todo(id = -2))
+            padding+=1
+        }
+
         notifyDataSetChanged()
     }
 
@@ -90,8 +115,10 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
     }
 
 
+
+
     override fun onItemSwap(fromPosition: Int, toPosition: Int) {
-        if (toPosition < _todos.size - 2 && fromPosition < _todos.size - 2) {
+        if (toPosition < _todos.size - padding && fromPosition < _todos.size - padding) {
             listener?.swapItems(_todos[fromPosition].copy(), _todos[toPosition].copy())
         }
     }

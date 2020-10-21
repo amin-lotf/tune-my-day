@@ -72,6 +72,6 @@ data class DetailedSchedule(
     @Relation(
         parentColumn = "id",
         entityColumn = "schedule_id")
-    val alarms:List<AlarmEntity>,
+    var alarms:List<AlarmEntity>,
 
 )

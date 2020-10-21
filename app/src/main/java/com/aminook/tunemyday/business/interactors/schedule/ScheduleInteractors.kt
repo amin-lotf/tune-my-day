@@ -12,5 +12,6 @@ class ScheduleInteractors @Inject constructor(
     val getSchedule: GetSchedule,
     val deleteSchedule: DeleteSchedule,
     val getDailySchedules: GetDailySchedules,
-    val getDetailedSchedule: GetDetailedSchedule
+    val getDetailedSchedule: GetDetailedSchedule,
+    val getNotificationScheduleByAlarmId: GetNotificationScheduleByAlarmId
 )

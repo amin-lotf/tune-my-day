@@ -16,6 +16,7 @@ import com.aminook.tunemyday.business.domain.model.Color
 import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule
 import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
+import com.aminook.tunemyday.framework.presentation.MainActivity
 import com.aminook.tunemyday.framework.presentation.addschedule.AddEditScheduleFragmentDirections
 import com.aminook.tunemyday.framework.presentation.common.ProgramColorsAdapter
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
@@ -24,6 +25,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_add_program.*
 import kotlinx.android.synthetic.main.dialog_add_program.view.*
 import kotlinx.android.synthetic.main.fragment_program_list.*
@@ -65,6 +67,10 @@ class ProgramListFragment : BaseFragment(R.layout.fragment_program_list),
 
         subscribeObservers()
 
+        (requireActivity() as MainActivity).fab_schedule.setOnClickListener {
+            val action = R.id.action_taskListFragment_to_addProgramFragment
+            findNavController().navigate(action)
+        }
 
     }
 
@@ -96,6 +102,7 @@ class ProgramListFragment : BaseFragment(R.layout.fragment_program_list),
 
     override fun onDestroyView() {
         programListAdapter = null
+        (requireActivity() as MainActivity).fab_schedule.setOnClickListener(null)
         super.onDestroyView()
     }
 

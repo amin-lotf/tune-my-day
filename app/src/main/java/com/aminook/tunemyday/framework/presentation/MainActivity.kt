@@ -12,6 +12,7 @@ import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
 import androidx.fragment.app.FragmentFactory
 import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -44,6 +45,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_add_program.*
 import kotlinx.android.synthetic.main.dialog_add_program.view.*
+import kotlinx.android.synthetic.main.fragment_view_todo.*
 
 import javax.inject.Inject
 
@@ -76,11 +78,6 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-    }
-
-    override fun onResume() {
-        super.onResume()
         setupNavigation()
         subscribeObservers()
     }
@@ -126,26 +123,20 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
 
             fab_schedule.animate().translationY(0f)
 
-            if (destination.id == R.id.weeklyListFragment || destination.id == R.id.taskListFragment) {
+            if (destination.id == R.id.weeklyListFragment ||
+                destination.id == R.id.taskListFragment ||
+                destination.id == R.id.viewTodoFragment
+            ) {
                 fab_schedule.show()
-                fab_schedule.setOnClickListener {
-                    if (destination.id == R.id.weeklyListFragment) {
-                        val action =
-                            WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
-                                scheduleRequestType = SCHEDULE_REQUEST_NEW
-                            )
-                        navController.navigate(action)
-                    } else if (destination.id == R.id.taskListFragment) {
-                        val action = R.id.action_taskListFragment_to_addProgramFragment
-                        navController.navigate(action)
-                    }
-                    fab_schedule.visibility = View.INVISIBLE
-                }
+
             } else {
                 fab_schedule.visibility = View.INVISIBLE
             }
 
-            if (destination.id == R.id.weeklyListFragment || destination.id == R.id.dailyFragment || destination.id == R.id.taskListFragment) {
+            if (destination.id == R.id.weeklyListFragment ||
+                destination.id == R.id.dailyFragment ||
+                destination.id == R.id.taskListFragment
+            ) {
                 bottom_navigation.visibility = View.VISIBLE
             } else {
                 bottom_navigation.visibility = View.GONE

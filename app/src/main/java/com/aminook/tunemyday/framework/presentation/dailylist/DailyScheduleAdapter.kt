@@ -59,14 +59,7 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
         //listener?.setTodoAdapter(holder,schedule)
     }
 
-    override fun submitList(list: List<Schedule>?) {
-//        val tmp= mutableListOf<Schedule>()
-//        if (!list.isNullOrEmpty()){
-//            tmp.addAll(list)
-//            tmp.add(Schedule(id = -1L))
-//        }
-        super.submitList(list)
-    }
+
 
     override fun getItemViewType(position: Int): Int {
 

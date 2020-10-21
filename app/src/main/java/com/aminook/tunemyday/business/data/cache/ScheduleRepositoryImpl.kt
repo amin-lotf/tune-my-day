@@ -30,6 +30,15 @@ class ScheduleRepositoryImpl @Inject constructor(
 ) : ScheduleRepository {
     private val TAG = "aminjoon"
 
+    override suspend fun getNotificationScheduleByAlarmId(alarmId: Long): Schedule {
+        val entity=daoService.alarmDao.getAlarmNotificationById(alarmId)
+        val detailedScheduleEntity=entity.detailedSchedule.apply {
+            alarms= listOf(entity.alarm)
+        }
+
+        return mappers.detailedScheduleCacheMapper.mapFromEntity(detailedScheduleEntity)
+    }
+
     override fun scheduleUpComingAlarms(alarms: List<Alarm>): Boolean {
         val alarmIds = alarms.map { it.id }
         return try {

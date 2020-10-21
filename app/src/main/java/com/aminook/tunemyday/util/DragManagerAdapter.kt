@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
+import com.aminook.tunemyday.framework.presentation.common.TodoAdapter
 
 class DragManageAdapter<T>(adapter: T, val context: Context, dragDirs: Int, swipeDirs: Int)
     : ItemTouchHelper.SimpleCallback(dragDirs, swipeDirs) where T:ItemMoveCallback
@@ -34,6 +35,7 @@ class DragManageAdapter<T>(adapter: T, val context: Context, dragDirs: Int, swip
         x: Int,
         y: Int
     ) {
+
         nameAdapter.onItemSwap(viewHolder.adapterPosition,target.adapterPosition)
         super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y)
 
@@ -54,44 +56,44 @@ class DragManageAdapter<T>(adapter: T, val context: Context, dragDirs: Int, swip
         actionState: Int,
         isCurrentlyActive: Boolean
     ) {
-        if (dY==0f) {
-            val itemView = viewHolder.itemView
-            val icon = ContextCompat.getDrawable(
-                viewHolder.itemView.context,
-                R.drawable.ic_delete
-            )
-            val background = ColorDrawable(ContextCompat.getColor(context, R.color.colorDelete))
-
-            val iconMargin = (itemView.height - icon!!.intrinsicHeight) / 2
-            val iconTop = itemView.top + (itemView.height - icon.intrinsicHeight) / 2
-            val iconBottom = iconTop + icon.intrinsicHeight
-
-            val iconLeft = itemView.right - iconMargin - icon.intrinsicWidth
-            val iconRight = itemView.right - iconMargin
-
-            icon.setBounds(
-                iconLeft,
-                iconTop,
-                iconRight,
-                iconBottom
-            )
-
-            background.setBounds(
-                (itemView.right + dX).toInt(),
-                itemView.top,
-                itemView.right,
-                itemView.bottom
-            )
-
-            if (dX.toInt() == 0) { // view is unSwiped
-                background.setBounds(0, 0, 0, 0)
-            }
-
-            background.draw(c)
-
-            if (-dX > (icon.intrinsicWidth + iconMargin)) // Draw icon only on full visibility
-                icon.draw(c)
-        }
+//        if (dY==0f) {
+//            val itemView = viewHolder.itemView
+//            val icon = ContextCompat.getDrawable(
+//                viewHolder.itemView.context,
+//                R.drawable.ic_delete
+//            )
+//            val background = ColorDrawable(ContextCompat.getColor(context, R.color.colorDelete))
+//
+//            val iconMargin = (itemView.height - icon!!.intrinsicHeight) / 2
+//            val iconTop = itemView.top + (itemView.height - icon.intrinsicHeight) / 2
+//            val iconBottom = iconTop + icon.intrinsicHeight
+//
+//            val iconLeft = itemView.right - iconMargin - icon.intrinsicWidth
+//            val iconRight = itemView.right - iconMargin
+//
+//            icon.setBounds(
+//                iconLeft,
+//                iconTop,
+//                iconRight,
+//                iconBottom
+//            )
+//
+//            background.setBounds(
+//                (itemView.right + dX).toInt(),
+//                itemView.top,
+//                itemView.right,
+//                itemView.bottom
+//            )
+//
+//            if (dX.toInt() == 0) { // view is unSwiped
+//                background.setBounds(0, 0, 0, 0)
+//            }
+//
+//            background.draw(c)
+//
+//            if (-dX > (icon.intrinsicWidth + iconMargin)) // Draw icon only on full visibility
+//                icon.draw(c)
+//        }
 
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
     }

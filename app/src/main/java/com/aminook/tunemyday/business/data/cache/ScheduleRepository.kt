@@ -1,10 +1,7 @@
 package com.aminook.tunemyday.business.data.cache
 
 import com.aminook.tunemyday.business.domain.model.*
-import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
-import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
-import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
-import com.aminook.tunemyday.framework.datasource.cache.model.TodoEntity
+import com.aminook.tunemyday.framework.datasource.cache.model.*
 import kotlinx.coroutines.flow.Flow
 
 interface ScheduleRepository {
@@ -16,6 +13,7 @@ interface ScheduleRepository {
     suspend fun getUpcomingAlarmIdsByRoutine(routineId: Long):List<Long>
     suspend fun getAlarmsById(alarmIds:List<Long>):List<Alarm>
     suspend fun getAlarmById(alarmId:Long):Alarm
+    suspend fun getNotificationScheduleByAlarmId(alarmId:Long):Schedule
 
     suspend fun insertRoutine(routineEntity: RoutineEntity,curRoutine: Long):Long
     fun getRoutine(routineId:Long):Flow<RoutineEntity>

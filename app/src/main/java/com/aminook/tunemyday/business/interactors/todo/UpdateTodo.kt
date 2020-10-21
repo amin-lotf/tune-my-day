@@ -35,7 +35,7 @@ class UpdateTodo @Inject constructor(
                                 UIComponentType.None,
                             messageType = MessageType.Success
                         ),
-                        data = todo
+                        data = todo.copy()
                     )
                 } else {
                     DataState.error(

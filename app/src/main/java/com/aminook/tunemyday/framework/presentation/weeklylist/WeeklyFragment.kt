@@ -9,11 +9,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Schedule
+import com.aminook.tunemyday.framework.presentation.MainActivity
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_weekly.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -36,17 +38,19 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
             it.getInt(DAY_INDEX_PARAM).let { index ->
                 viewModel.fragmentDayIndex = index
             }
-            it.getLong(ROUTINE_INDEX_PARAM).let { index->
-                viewModel.fragmentRoutineIndex=index
+            it.getLong(ROUTINE_INDEX_PARAM).let { index ->
+                viewModel.fragmentRoutineIndex = index
             }
         }
-//        CoroutineScope(IO).launch {
-//            delay(200)
-//           withContext(Main){
-               setupAdapter()
-//           }
-//        }
+        setupAdapter()
 
+        (requireActivity() as MainActivity).fab_schedule.setOnClickListener {
+            val action =
+                WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
+                    scheduleRequestType = SCHEDULE_REQUEST_NEW
+                )
+            findNavController().navigate(action)
+        }
     }
 
 
@@ -114,10 +118,13 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
         findNavController().navigate(action)
     }
 
-    override fun onDestroy() {
-        shortDailyScheduleAdapter?.setOnClickListener(null)
+    override fun onDestroyView() {
+       // shortDailyScheduleAdapter?.setOnClickListener(null)
+        (requireActivity() as MainActivity).fab_schedule.setOnClickListener(null)
         shortDailyScheduleAdapter=null
-        super.onDestroy()
+        super.onDestroyView()
     }
+
+
 
 }

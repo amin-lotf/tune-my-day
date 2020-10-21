@@ -1,9 +1,8 @@
-package com.aminook.tunemyday.business.interactors.todo
+package com.aminook.tunemyday.business.interactors.schedule
 
-import android.service.autofill.Dataset
 import com.aminook.tunemyday.business.data.cache.CacheResponseHandler
 import com.aminook.tunemyday.business.data.cache.ScheduleRepository
-import com.aminook.tunemyday.business.domain.model.Todo
+import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.DataState
 import com.aminook.tunemyday.business.domain.state.MessageType
 import com.aminook.tunemyday.business.domain.state.Response
@@ -15,47 +14,46 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class InsertTodo @Inject constructor(
+class GetNotificationScheduleByAlarmId @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
-     operator fun invoke(todo:Todo): Flow<DataState<Todo>?> {
-        val cacheResponse=object :CacheResponseHandler<Long,Todo>(){
-            override  fun handleSuccess(resultObj: Long): DataState<Todo>? {
-                return if (resultObj>0){
+
+     operator fun invoke(alarmId:Long): Flow<DataState<Schedule>?> {
+
+        val cacheResponse=object :CacheResponseHandler<Schedule,Schedule>(){
+            override  fun handleSuccess(resultObj: Schedule): DataState<Schedule>? {
+                return if (resultObj.id!=0L){
                     DataState.data(
                         response = Response(
-                            message = INSERT_TODO_SUCCESS,
+                            message = NOTIFICATION_SCHEDULE_RETRIEVED_SUCCESS,
                             uiComponentType = UIComponentType.None,
                             messageType = MessageType.Success
                         ),
-                        data = todo.copy(id = resultObj)
-                    )
-                }else{
+                        data = resultObj)
+                }
+                else{
                     DataState.error(
                         response = Response(
-                            message = INSERT_TODO_FAIL,
-                            uiComponentType = UIComponentType.Toast,
+                            message = NOTIFICATION_SCHEDULE_RETRIEVED_FAIL,
+                            uiComponentType = UIComponentType.None,
                             messageType = MessageType.Error
                         )
                     )
-
                 }
+
             }
 
         }
 
-        return  cacheResponse.getResult {
+        return cacheResponse.getResult {
             flow {
-                emit(
-                    scheduleRepository.insertTodo(todo)
-                )
+               emit( scheduleRepository.getNotificationScheduleByAlarmId(alarmId))
             }
         }
-
     }
 
     companion object{
-        const val INSERT_TODO_SUCCESS="Task added to the checklist"
-        const val INSERT_TODO_FAIL="Failed to add the task"
+        const val NOTIFICATION_SCHEDULE_RETRIEVED_SUCCESS=" schedule retrieved successfully"
+        const val NOTIFICATION_SCHEDULE_RETRIEVED_FAIL=" schedule does not exist"
     }
 }

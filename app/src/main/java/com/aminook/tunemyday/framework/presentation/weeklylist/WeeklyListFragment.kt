@@ -184,15 +184,14 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
 
     }
 
-
-    override fun onPause() {
+    override fun onDestroyView() {
         viewModel.saveDayIndex(weekly_tab_layout.selectedTabPosition)
         Log.d(TAG, "onPause weekly list: weekly")
         layout_weekly_parent.visibility = View.INVISIBLE
         txt_weekly_no_routine.visibility = View.INVISIBLE
         weekly_view_pager.adapter=null
         weeklyViewPagerAdapter=null
-        super.onPause()
+        super.onDestroyView()
     }
 
 

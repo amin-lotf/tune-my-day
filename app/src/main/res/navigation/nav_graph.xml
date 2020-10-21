@@ -68,12 +68,19 @@
             app:argType="com.aminook.tunemyday.business.domain.model.Time"
             app:nullable="true"
             android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_addScheduleFragment_to_viewTodoFragment"
+            app:destination="@id/viewTodoFragment" />
     </fragment>
     <fragment
         android:id="@+id/dailyFragment"
         android:name="com.aminook.tunemyday.framework.presentation.dailylist.DailyFragment"
         android:label="fragment_daily"
-        tools:layout="@layout/fragment_daily" />
+        tools:layout="@layout/fragment_daily" >
+        <action
+            android:id="@+id/action_dailyFragment_to_viewTodoFragment"
+            app:destination="@id/viewTodoFragment" />
+    </fragment>
     <fragment
         android:id="@+id/routineFragment"
         android:name="com.aminook.tunemyday.framework.presentation.routine.RoutineFragment"
@@ -100,6 +107,16 @@
             android:name="fromAddSchedule"
             app:argType="boolean"
             android:defaultValue="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/viewTodoFragment"
+        android:name="com.aminook.tunemyday.framework.datasource.viewtodos.ViewTodoFragment"
+        android:label="fragment_view_todo"
+        tools:layout="@layout/fragment_view_todo" >
+        <argument
+            android:name="scheduleId"
+            app:argType="long"
+            android:defaultValue="0L" />
     </fragment>
 
 </navigation>
