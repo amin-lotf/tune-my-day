@@ -2,11 +2,13 @@ package com.aminook.tunemyday.framework.presentation
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
@@ -56,6 +58,9 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
     private val TAG = "aminjoon"
     private val mainViewModel: MainViewModel by viewModels()
 
+
+    private var anchorSnackToFab=false
+
     @Inject
     lateinit var colors: List<Color>
 
@@ -80,6 +85,12 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
         setContentView(R.layout.activity_main)
         setupNavigation()
         subscribeObservers()
+    }
+
+    override fun onResume() {
+
+
+        super.onResume()
     }
 
 
@@ -122,6 +133,20 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
         navController.addOnDestinationChangedListener { controller, destination, _ ->
 
             fab_schedule.animate().translationY(0f)
+
+            if (destination.id==R.id.viewTodoFragment){
+                val lp=fab_schedule.layoutParams as CoordinatorLayout.LayoutParams
+                lp.anchorGravity=Gravity.BOTTOM or  Gravity.END
+                lp.anchorId=layout_weekly_schedule.id
+                fab_schedule.layoutParams=lp
+                anchorSnackToFab=true
+            }else{
+                val lp=fab_schedule.layoutParams as CoordinatorLayout.LayoutParams
+                lp.anchorGravity=Gravity.TOP or  Gravity.END
+                lp.anchorId=bottom_navigation.id
+                fab_schedule.layoutParams=lp
+                anchorSnackToFab=false
+            }
 
             if (destination.id == R.id.weeklyListFragment ||
                 destination.id == R.id.taskListFragment ||
@@ -242,8 +267,18 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
             message,
             Snackbar.LENGTH_LONG
         )
-
-
+        //snackbar.setAnchorView(fab_schedule.id)
+        val lp=snackbar.view.layoutParams as CoordinatorLayout.LayoutParams
+        if(anchorSnackToFab){
+            lp.anchorId=layout_weekly_schedule.id
+            lp.anchorGravity=Gravity.BOTTOM
+            lp.gravity = Gravity.BOTTOM
+        }else{
+            lp.anchorId=bottom_navigation.id
+            lp.anchorGravity=Gravity.TOP
+            lp.gravity = Gravity.TOP
+        }
+        snackbar.view.layoutParams=lp
         snackbar.setAction(
             R.string.text_undo,
             SnackbarUndoListener(snackbarUndoCallback)
@@ -257,6 +292,8 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
         })
         Log.d(TAG, "displaySnackbar: ")
         snackbar.show()
+
+
 
     }
 

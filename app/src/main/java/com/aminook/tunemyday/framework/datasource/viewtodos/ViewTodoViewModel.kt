@@ -1,5 +1,6 @@
 package com.aminook.tunemyday.framework.datasource.viewtodos
 
+import android.util.Log
 import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
 import androidx.hilt.lifecycle.ViewModelInject
@@ -33,6 +34,7 @@ class ViewTodoViewModel @ViewModelInject constructor(
     @DataStoreCache dataStoreCache: DataStore<Preferences>,
     @DataStoreSettings dataStoreSettings: DataStore<Preferences>
 ) : BaseViewModel(dataStoreCache, dataStoreSettings) {
+    private val TAG="aminjoon"
     var dayIndex = 0
     var _schedule = Schedule()
     val activeScope = viewModelScope.coroutineContext + Default
@@ -178,5 +180,10 @@ class ViewTodoViewModel @ViewModelInject constructor(
 
     }
 
+
+    override fun onCleared() {
+        Log.d(TAG, "onCleared: view todo ")
+        super.onCleared()
+    }
 
 }

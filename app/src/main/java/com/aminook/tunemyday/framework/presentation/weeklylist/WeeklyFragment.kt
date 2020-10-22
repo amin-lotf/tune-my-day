@@ -32,6 +32,7 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
     private val viewModel: WeeklyViewModel by viewModels()
     private var shortDailyScheduleAdapter:ShortDailyScheduleAdapter?= null
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         arguments?.let {
@@ -39,6 +40,7 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
                 viewModel.fragmentDayIndex = index
             }
             it.getLong(ROUTINE_INDEX_PARAM).let { index ->
+                Log.d(TAG, "onViewCreated: weekly routineId: $index")
                 viewModel.fragmentRoutineIndex = index
             }
         }
@@ -54,8 +56,7 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
     }
 
 
-
-
+    
     private fun setupAdapter() {
         shortDailyScheduleAdapter= ShortDailyScheduleAdapter(requireContext(),viewModel.fragmentDayIndex)
         shortDailyScheduleAdapter?.setOnClickListener(this)
@@ -94,6 +95,7 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
         @JvmStatic
         fun newInstance(dayIndex: Int, routineIndex: Long) =
             WeeklyFragment().apply {
+                Log.d(TAG, "newInstance: routineId $routineIndex")
                 arguments = Bundle().apply {
                     putInt(DAY_INDEX_PARAM, dayIndex)
                     putLong(ROUTINE_INDEX_PARAM, routineIndex)
@@ -118,12 +120,13 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
         findNavController().navigate(action)
     }
 
-    override fun onDestroyView() {
-       // shortDailyScheduleAdapter?.setOnClickListener(null)
-        (requireActivity() as MainActivity).fab_schedule.setOnClickListener(null)
+
+    override fun onPause() {
         shortDailyScheduleAdapter=null
-        super.onDestroyView()
+        super.onPause()
     }
+
+
 
 
 

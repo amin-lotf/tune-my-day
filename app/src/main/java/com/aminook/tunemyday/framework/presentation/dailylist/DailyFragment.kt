@@ -45,7 +45,6 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         dailyViewModel.getRoutineIndex().observeOnce(viewLifecycleOwner) {
             if (it != 0L) {
                 dailyViewModel.getDailySchedules(it)
@@ -53,14 +52,12 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
         }
         top_toolbar_daily.title = "Today"
         Log.d(TAG, "onViewCreated: ")
-
-    }
-
-    override fun onResume() {
-        super.onResume()
         initializeAdapters()
         subscribeObservers()
+
+
     }
+
 
     private fun subscribeObservers() {
         dailyViewModel.stateMessage.observe(viewLifecycleOwner) { event ->
@@ -289,8 +286,9 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
     }
 
-    override fun onDestroyView() {
+    override fun onDestroy() {
         addTodoBtmSheetDialog= null
-        super.onDestroyView()
+        super.onDestroy()
     }
+
 }

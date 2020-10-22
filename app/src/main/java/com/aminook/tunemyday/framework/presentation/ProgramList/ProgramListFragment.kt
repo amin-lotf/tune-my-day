@@ -38,9 +38,18 @@ class ProgramListFragment : BaseFragment(R.layout.fragment_program_list),
 
     private var programListAdapter: ProgramListAdapter? = null
     private val viewModel: ProgramListViewModel by viewModels()
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
+
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume: program list")
+            (requireActivity() as MainActivity).fab_schedule.setOnClickListener {
+                Log.d(TAG, "onResume: set fab")
+                val action = R.id.action_taskListFragment_to_addProgramFragment
+                findNavController().navigate(action)
+
+        }
         programListAdapter = ProgramListAdapter().apply {
             setListener(this@ProgramListFragment)
 
@@ -67,10 +76,7 @@ class ProgramListFragment : BaseFragment(R.layout.fragment_program_list),
 
         subscribeObservers()
 
-        (requireActivity() as MainActivity).fab_schedule.setOnClickListener {
-            val action = R.id.action_taskListFragment_to_addProgramFragment
-            findNavController().navigate(action)
-        }
+
 
     }
 
@@ -99,11 +105,12 @@ class ProgramListFragment : BaseFragment(R.layout.fragment_program_list),
         findNavController().navigate(action)
     }
 
-
-    override fun onDestroyView() {
+    override fun onPause() {
         programListAdapter = null
-        (requireActivity() as MainActivity).fab_schedule.setOnClickListener(null)
-        super.onDestroyView()
+        super.onPause()
     }
+
+
+
 
 }

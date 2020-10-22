@@ -43,17 +43,15 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
     var weeklyViewPagerAdapter: WeeklyViewPagerAdapter?=null
 
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-    }
 
     override fun onResume() {
-        super.onResume()
         Log.d(TAG, "onResume: ")
+        Log.d(TAG, "onViewCreated: ")
         weekly_view_pager.adapter=null
         subscribeObservers()
         setupToolbar()
+        super.onResume()
+
     }
 
     private fun subscribeObservers() {
@@ -64,16 +62,16 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
         }
 
 
-
+        Log.d(TAG, "subscribeObservers: routineId before sub")
         viewModel.getRoutineIndex().observe(viewLifecycleOwner) {
-            Log.d(TAG, "subscribeObservers: new routine id: $it")
-            viewModel.getRoutine(it).observe(viewLifecycleOwner){
-                if (it != null && it.id != 0L) {
-                    Log.d(TAG, "subscribeObservers: routine : $it")
-                    toolbar_weekly_schedule.title=it.name
+            Log.d(TAG, "subscribeObservers: new routineId id: $it")
+            viewModel.getRoutine(it).observe(viewLifecycleOwner){routine->
+                if (routine != null && routine.id != 0L) {
+                    Log.d(TAG, "subscribeObservers: routinId : $it")
+                    toolbar_weekly_schedule.title=routine.name
                     txt_weekly_no_routine.visibility = View.GONE
                     layout_weekly_parent.visibility = View.INVISIBLE
-                    setupWeeklyViewPager(it)
+                    setupWeeklyViewPager(routine)
 
                 } else {
                     toolbar_weekly_schedule.title="Weekly schedule"
@@ -134,6 +132,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
     }
 
     private fun setupWeeklyViewPager(routine:RoutineEntity) {
+        Log.d(TAG, "setupWeeklyViewPager: routineId ${routine.id}")
                weeklyViewPagerAdapter= WeeklyViewPagerAdapter(childFragmentManager,viewLifecycleOwner.lifecycle,routine.id)
                weekly_view_pager.apply {
                    this.adapter = weeklyViewPagerAdapter
@@ -184,15 +183,18 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
 
     }
 
-    override fun onDestroyView() {
+    override fun onPause() {
+        Log.d(TAG, "onPause: routineId ")
+        weekly_view_pager.adapter=null
+        weeklyViewPagerAdapter=null
+        Log.d(TAG, "onDestroyView: routineId")
         viewModel.saveDayIndex(weekly_tab_layout.selectedTabPosition)
         Log.d(TAG, "onPause weekly list: weekly")
         layout_weekly_parent.visibility = View.INVISIBLE
         txt_weekly_no_routine.visibility = View.INVISIBLE
-        weekly_view_pager.adapter=null
-        weeklyViewPagerAdapter=null
-        super.onDestroyView()
+        super.onPause()
     }
+
 
 
 

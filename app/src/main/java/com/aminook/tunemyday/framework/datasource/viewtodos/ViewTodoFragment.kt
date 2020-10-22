@@ -42,18 +42,25 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
     private val viewModel:ViewTodoViewModel by viewModels()
     private lateinit var addTodoBtmSheetDialog: BottomSheetDialog
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         layout_nested_view_todo.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
         layout_const_view_todo.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-        (requireActivity() as MainActivity).fab_schedule.setOnClickListener {
-            showAddTodo()
-        }
+
         initializeFinishedTodoAdapter()
         initializeUnFinishedTodoAdapter()
         setupToolbar()
         subscribeObservers()
+    }
+
+
+    override fun onResume() {
+        (requireActivity() as MainActivity).fab_schedule.setOnClickListener {
+            showAddTodo()
+        }
+        super.onResume()
+
+
     }
 
 
@@ -78,7 +85,9 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
                         addPadding = true,
                         withAddButton = false
                     )
+
                 }
+
             }
         }
         else{
@@ -325,11 +334,10 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
     }
 
 
-    override fun onDestroyView() {
-        unfinishedTodoAdapter=null
+    override fun onPause() {
         (requireActivity() as MainActivity).fab_schedule.setOnClickListener(null)
-        finishedTodoAdapter=null
-        super.onDestroyView()
+        super.onPause()
     }
+
 
 }
