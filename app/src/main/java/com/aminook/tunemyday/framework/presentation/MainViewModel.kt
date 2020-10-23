@@ -3,6 +3,7 @@ package com.aminook.tunemyday.framework.presentation
 import android.util.Log
 import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
+import androidx.datastore.preferences.edit
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
@@ -19,6 +20,8 @@ import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
+import com.aminook.tunemyday.util.SCREEN_TYPE
+import com.aminook.tunemyday.util.SCREEN_WEEKLY
 import com.aminook.tunemyday.util.TodoCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +46,21 @@ class MainViewModel @ViewModelInject constructor(
     var buffRoutineId:Long=0
 
 
+
+    fun getScreenType():LiveData<String>{
+        return dataStoreSettings.data
+            .map { settings->
+                settings[SCREEN_TYPE]?: SCREEN_WEEKLY
+            }.asLiveData()
+    }
+
+    fun setScreenType(type:String){
+        CoroutineScope(activeScope).launch {
+            dataStoreSettings.edit { settings->
+                settings[SCREEN_TYPE]=type
+            }
+        }
+    }
 
     fun undoDeletedProgram(program: ProgramDetail) {
         CoroutineScope(Dispatchers.Default).launch {

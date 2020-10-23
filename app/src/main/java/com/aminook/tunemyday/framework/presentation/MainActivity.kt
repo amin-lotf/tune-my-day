@@ -2,52 +2,38 @@ package com.aminook.tunemyday.framework.presentation
 
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.ContextCompat
 import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
 import androidx.fragment.app.FragmentFactory
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.work.Data
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Color
-import com.aminook.tunemyday.business.domain.model.Program
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.*
 import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
-import com.aminook.tunemyday.framework.datasource.cache.model.ProgramEntity
-import com.aminook.tunemyday.framework.presentation.common.ProgramColorsAdapter
-import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragmentDirections
-import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
+import com.aminook.tunemyday.util.SCREEN_DAILY
+import com.aminook.tunemyday.util.SCREEN_WEEKLY
 import com.aminook.tunemyday.util.TodoCallback
 import com.aminook.tunemyday.util.observeOnce
-import com.aminook.tunemyday.worker.AlarmWorker
-import com.aminook.tunemyday.worker.AlarmWorker.Companion.ACTION_TYPE
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.dialog_add_program.*
-import kotlinx.android.synthetic.main.dialog_add_program.view.*
-import kotlinx.android.synthetic.main.fragment_view_todo.*
+import kotlinx.android.synthetic.main.bottom_sheet_add_routine.view.*
+import kotlinx.android.synthetic.main.bottom_sheet_main.*
+import kotlinx.android.synthetic.main.bottom_sheet_main.view.*
 
 import javax.inject.Inject
 
@@ -59,13 +45,12 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
     private val mainViewModel: MainViewModel by viewModels()
 
 
-    private var anchorSnackToFab=false
+    private lateinit var mainBottomSheet: BottomSheetDialog
+    var isDialogShowing = false
 
     @Inject
     lateinit var colors: List<Color>
 
-    private var programColorsAdapter: ProgramColorsAdapter? = null
-    private lateinit var addProgramBtmSheetDialog: BottomSheetDialog
 
     @Inject
     lateinit var appFragmentFactory: FragmentFactory
@@ -83,14 +68,86 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setupNavigation()
+        setupBottomAppBar()
         subscribeObservers()
     }
 
-    override fun onResume() {
+    private fun setupBottomAppBar() {
 
 
-        super.onResume()
+        bottom_app_bar.setNavigationOnClickListener {
+
+            if (!isDialogShowing) {
+                mainViewModel.getScreenType().observeOnce(this@MainActivity) { screenType ->
+
+                    mainBottomSheet = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
+
+                    val view =
+                        layoutInflater.inflate(R.layout.bottom_sheet_main, btm_sheet_main).apply {
+
+                            when (screenType) {
+                                SCREEN_DAILY -> {
+                                    this.txt_schedule_type.text = "Switch to weekly schedules"
+                                    this.txt_schedule_type.setOnClickListener {
+                                        navController.navigate(R.id.action_global_weekly)
+                                        mainViewModel.setScreenType(SCREEN_WEEKLY)
+                                        mainBottomSheet.dismiss()
+                                    }
+
+                                }
+                                SCREEN_WEEKLY -> {
+                                    this.txt_schedule_type.text = "Switch to daily schedules"
+                                    this.txt_schedule_type.setOnClickListener {
+                                        navController.navigate(R.id.action_global_daily)
+                                        mainViewModel.setScreenType(SCREEN_DAILY)
+                                        mainBottomSheet.dismiss()
+                                    }
+
+                                }
+                                else -> {
+                                    this.txt_schedule_type.visibility = View.GONE
+                                    this.line_under_schedule_type.visibility = View.GONE
+                                }
+                            }
+
+
+                            this.txt_load_weekly.setOnClickListener {
+                                navController.navigate(R.id.action_global_history)
+                                mainBottomSheet.dismiss()
+                            }
+
+                            this.txt_show_activity.setOnClickListener {
+                                navController.navigate(R.id.action_global_activities)
+                                mainBottomSheet.dismiss()
+                            }
+
+                            this.txt_add_weekly.setOnClickListener {
+                                navController.navigate(R.id.action_global_add_routine)
+                                mainBottomSheet.dismiss()
+                            }
+
+                        }
+
+
+                    mainBottomSheet.apply {
+
+
+                        setOnShowListener {
+                            isDialogShowing = true
+                        }
+                        setOnDismissListener {
+                            isDialogShowing = false
+                        }
+                    }
+                    mainBottomSheet.setContentView(view)
+                    mainBottomSheet.show()
+                }
+            }
+
+
+        }
+
+
     }
 
 
@@ -99,6 +156,10 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
             event?.getContentIfNotHandled()?.let { stateMessage ->
                 onResponseReceived(stateMessage.response, null)
             }
+        }
+
+        mainViewModel.getScreenType().observeOnce(this) { screenType ->
+            setupNavigation(screenType)
         }
 
         mainViewModel.getRoutineIndex().observe(this) {
@@ -117,55 +178,52 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
                     }
                     mainViewModel.scheduleUpcomingAlarms(alarms)
                 }
+            } else {
+                if (this::navController.isInitialized &&
+                    navController.currentDestination?.id != R.id.noDataFragment
+                ) {
+                    navController.navigate(R.id.action_global_no_data)
+                }
             }
         }
     }
 
 
-    private fun setupNavigation() {
+    private fun setupNavigation(screenType: String) {
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.main_nav_host) as NavHostFragment
 
+
         navController = navHostFragment.navController
-        navController.setGraph(R.navigation.nav_graph)
-        bottom_navigation.setupWithNavController(navController)
-        bottom_navigation.setOnNavigationItemReselectedListener {}
+        val navGraph = navController.navInflater.inflate(R.navigation.nav_graph)
+
+        when (screenType) {
+            SCREEN_DAILY -> navGraph.startDestination = R.id.dailyFragment
+            SCREEN_WEEKLY -> navGraph.startDestination = R.id.weeklyListFragment
+            else -> navGraph.startDestination = R.id.noDataFragment
+        }
+        navController.graph = navGraph
+
         navController.addOnDestinationChangedListener { controller, destination, _ ->
 
-            fab_schedule.animate().translationY(0f)
+           when(destination.id){
+               R.id.weeklyListFragment,
+               R.id.dailyFragment->{
+                   bottom_app_bar.performShow()
+                   fab_schedule.show()
+               }
 
-            if (destination.id==R.id.viewTodoFragment){
-                val lp=fab_schedule.layoutParams as CoordinatorLayout.LayoutParams
-                lp.anchorGravity=Gravity.BOTTOM or  Gravity.END
-                lp.anchorId=layout_weekly_schedule.id
-                fab_schedule.layoutParams=lp
-                anchorSnackToFab=true
-            }else{
-                val lp=fab_schedule.layoutParams as CoordinatorLayout.LayoutParams
-                lp.anchorGravity=Gravity.TOP or  Gravity.END
-                lp.anchorId=bottom_navigation.id
-                fab_schedule.layoutParams=lp
-                anchorSnackToFab=false
-            }
+               R.id.taskListFragment,
+                   R.id.routineFragment->{
+                   bottom_app_bar.performHide()
+                   fab_schedule.show()
+               }
+               else-> {
+                   bottom_app_bar.performHide()
+                   fab_schedule.hide()
+               }
+           }
 
-            if (destination.id == R.id.weeklyListFragment ||
-                destination.id == R.id.taskListFragment ||
-                destination.id == R.id.viewTodoFragment
-            ) {
-                fab_schedule.show()
-
-            } else {
-                fab_schedule.visibility = View.INVISIBLE
-            }
-
-            if (destination.id == R.id.weeklyListFragment ||
-                destination.id == R.id.dailyFragment ||
-                destination.id == R.id.taskListFragment
-            ) {
-                bottom_navigation.visibility = View.VISIBLE
-            } else {
-                bottom_navigation.visibility = View.GONE
-            }
         }
     }
 
@@ -268,17 +326,17 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
             Snackbar.LENGTH_LONG
         )
         //snackbar.setAnchorView(fab_schedule.id)
-        val lp=snackbar.view.layoutParams as CoordinatorLayout.LayoutParams
-        if(anchorSnackToFab){
-            lp.anchorId=layout_weekly_schedule.id
-            lp.anchorGravity=Gravity.BOTTOM
-            lp.gravity = Gravity.BOTTOM
-        }else{
-            lp.anchorId=bottom_navigation.id
-            lp.anchorGravity=Gravity.TOP
-            lp.gravity = Gravity.TOP
-        }
-        snackbar.view.layoutParams=lp
+        val lp = snackbar.view.layoutParams as CoordinatorLayout.LayoutParams
+//        if(anchorSnackToFab){
+//            lp.anchorId=layout_weekly_schedule.id
+//            lp.anchorGravity=Gravity.BOTTOM
+//            lp.gravity = Gravity.BOTTOM
+//        }else{
+//            lp.anchorId=bottom_navigation.id
+//            lp.anchorGravity=Gravity.TOP
+//            lp.gravity = Gravity.TOP
+//        }
+        snackbar.view.layoutParams = lp
         snackbar.setAction(
             R.string.text_undo,
             SnackbarUndoListener(snackbarUndoCallback)
@@ -292,7 +350,6 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
         })
         Log.d(TAG, "displaySnackbar: ")
         snackbar.show()
-
 
 
     }

@@ -35,18 +35,15 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
 
     private lateinit var addRoutineBtmSheetDialog: BottomSheetDialog
     private val viewModel: WeeklyListViewModel by viewModels()
-
+    var weeklyViewPagerAdapter: WeeklyViewPagerAdapter?=null
     @Inject
     lateinit var days: List<Day>
 
 
-    var weeklyViewPagerAdapter: WeeklyViewPagerAdapter?=null
 
 
 
     override fun onResume() {
-        Log.d(TAG, "onResume: ")
-        Log.d(TAG, "onViewCreated: ")
         weekly_view_pager.adapter=null
         subscribeObservers()
         setupToolbar()
@@ -61,28 +58,14 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
             }
         }
 
-
-        Log.d(TAG, "subscribeObservers: routineId before sub")
         viewModel.getRoutineIndex().observe(viewLifecycleOwner) {
-            Log.d(TAG, "subscribeObservers: new routineId id: $it")
             viewModel.getRoutine(it).observe(viewLifecycleOwner){routine->
                 if (routine != null && routine.id != 0L) {
-                    Log.d(TAG, "subscribeObservers: routinId : $it")
                     toolbar_weekly_schedule.title=routine.name
-                    txt_weekly_no_routine.visibility = View.GONE
-                    layout_weekly_parent.visibility = View.INVISIBLE
                     setupWeeklyViewPager(routine)
-
-                } else {
-                    toolbar_weekly_schedule.title="Weekly schedule"
-                    layout_weekly_parent.visibility = View.GONE
-                    txt_weekly_no_routine.visibility = View.VISIBLE
                 }
             }
-
         }
-
-
     }
 
 
@@ -95,12 +78,10 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
                 }
 
                 R.id.action_load_weekly -> {
-                    Log.d(TAG, "setupToolbar: before nav ${viewModel.routineId}")
                     val action =
                         WeeklyListFragmentDirections.actionWeeklyListFragmentToRoutineFragment(
                             viewModel.routineId
                         )
-                    Log.d(TAG, "setupToolbar: before nav ${action.arguments}")
                     findNavController().navigate(action)
                     true
                 }
@@ -112,7 +93,6 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
     }
 
     private fun showAddRoutineDialog() {
-
         addRoutineBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.ThemeOverlay_DialogStyle)
         addRoutineBtmSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
         val view =
@@ -132,7 +112,6 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
     }
 
     private fun setupWeeklyViewPager(routine:RoutineEntity) {
-        Log.d(TAG, "setupWeeklyViewPager: routineId ${routine.id}")
                weeklyViewPagerAdapter= WeeklyViewPagerAdapter(childFragmentManager,viewLifecycleOwner.lifecycle,routine.id)
                weekly_view_pager.apply {
                    this.adapter = weeklyViewPagerAdapter
@@ -154,44 +133,21 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
             setSelectedTabIndicatorColor(
                 ContextCompat.getColor(requireContext(), R.color.label4)
             )
-
-            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                override fun onTabSelected(tab: TabLayout.Tab?) {
-                    Log.d(TAG, "onTabSelected: ${tab?.position}")
-                }
-
-                override fun onTabUnselected(tab: TabLayout.Tab?) {
-                }
-
-                override fun onTabReselected(tab: TabLayout.Tab?) {
-
-                }
-
-            })
         }
         viewModel.getDayIndex().observeOnce(viewLifecycleOwner){
-            Log.d(TAG, "setupTabLayout: dayIndex: $it")
             weekly_view_pager.postDelayed( {
                 weekly_view_pager.currentItem=it
             },10)
             layout_weekly_parent.postDelayed({
                 layout_weekly_parent.visibility = View.VISIBLE
             }, 200)
-
         }
-
-
     }
 
     override fun onPause() {
-        Log.d(TAG, "onPause: routineId ")
         weekly_view_pager.adapter=null
         weeklyViewPagerAdapter=null
-        Log.d(TAG, "onDestroyView: routineId")
         viewModel.saveDayIndex(weekly_tab_layout.selectedTabPosition)
-        Log.d(TAG, "onPause weekly list: weekly")
-        layout_weekly_parent.visibility = View.INVISIBLE
-        txt_weekly_no_routine.visibility = View.INVISIBLE
         super.onPause()
     }
 

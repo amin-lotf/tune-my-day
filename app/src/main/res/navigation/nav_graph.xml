@@ -5,6 +5,32 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/weeklyListFragment">
 
+    <action android:id="@+id/action_global_history"
+        app:destination="@id/routineFragment"/>
+
+    <action android:id="@+id/action_global_no_data"
+        app:destination="@id/noDataFragment"
+        app:popUpToInclusive="true"
+        app:popUpTo="@id/noDataFragment"
+        />
+
+    <action android:id="@+id/action_global_daily"
+        app:destination="@id/dailyFragment"
+        app:popUpTo="@id/dailyFragment"
+        app:popUpToInclusive="true"/>
+
+    <action android:id="@+id/action_global_weekly"
+        app:destination="@id/weeklyListFragment"
+        app:popUpTo="@id/weeklyListFragment"
+        app:popUpToInclusive="true"
+        />
+
+    <action android:id="@+id/action_global_activities"
+        app:destination="@id/taskListFragment"/>
+
+    <action android:id="@+id/action_global_add_routine"
+        app:destination="@id/addRoutineFragment"/>
+
     <fragment
         android:id="@+id/weeklyListFragment"
         android:name="com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragment"
@@ -118,5 +144,15 @@
             app:argType="long"
             android:defaultValue="0L" />
     </fragment>
+    <fragment
+        android:id="@+id/noDataFragment"
+        android:name="com.aminook.tunemyday.framework.presentation.common.NoDataFragment"
+        android:label="fragment_no_data"
+        tools:layout="@layout/fragment_no_data" />
+    <fragment
+        android:id="@+id/addRoutineFragment"
+        android:name="com.aminook.tunemyday.framework.addroutine.AddRoutineFragment"
+        android:label="fragment_add_routine"
+        tools:layout="@layout/fragment_add_routine" />
 
 </navigation>

@@ -15,7 +15,6 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
 
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintTop_toTopOf="parent">
 
         <fragment
@@ -25,7 +24,7 @@
             android:layout_height="match_parent"
             app:defaultNavHost="true"
 
-            app:navGraph="@navigation/nav_graph" />
+           />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -34,31 +33,20 @@
         android:id="@+id/fab_schedule"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:backgroundTint="@color/colorAccent"
-        app:srcCompat="@drawable/ic_add"
-        android:tint="@color/colorPrimary"
-        app:layout_anchor="@id/bottom_navigation"
-        app:layout_anchorGravity="top|end"
-        style="@style/Widget.MaterialComponents.FloatingActionButton"
-        app:layout_behavior=".util.BottomNavigationFABBehavior"
-        app:rippleColor="@color/colorPrimary"
+        app:srcCompat="@drawable/ic_add_dark"
+        app:layout_anchor="@id/bottom_app_bar"
+        style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
+        app:tint="@color/colorAccent"
+        app:layout_behavior=".util.BottomNavigationBehavior"
         app:useCompatPadding="true" />
-
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottom_app_bar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/colorWhite"
-        android:elevation="0dp"
-        app:itemIconTint="@drawable/bottom_nav_selector"
-        app:itemTextColor="@drawable/bottom_nav_selector"
-        app:labelVisibilityMode="unlabeled"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        app:navigationIcon="@drawable/ic_menu"
+        app:hideOnScroll="true"
+        />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

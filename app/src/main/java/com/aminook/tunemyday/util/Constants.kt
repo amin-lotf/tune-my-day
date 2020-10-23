@@ -8,3 +8,7 @@ const val SCHEDULE_REQUEST_EDIT="request edit Schedule"
 const val SCHEDULE_REQUEST_DELETE="request delete Schedule"
 val DAY_INDEX= preferencesKey<Int>("dayIndex")
 val ROUTINE_INDEX= preferencesKey<Long>("routineIndex")
+val SCREEN_TYPE= preferencesKey<String>("mainScreenType")
+val SCREEN_DAILY="Show daily"
+val SCREEN_WEEKLY="show weekly"
+val SCREEN_BLANK="no active schedule"

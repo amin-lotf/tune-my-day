@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".framework.addroutine.AddRoutineFragment">
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_add_routine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_add_routine"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:menu="@menu/save_menu"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            style="@style/ToolbarTheme"
+            app:navigationIcon="@drawable/ic_close"
+            app:title="Create new plan"/>
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <EditText
+        android:id="@+id/edt_add_routine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/app_bar_add_routine"
+        android:hint="Enter plan title"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

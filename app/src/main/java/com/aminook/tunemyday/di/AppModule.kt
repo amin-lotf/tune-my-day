@@ -86,7 +86,8 @@ abstract class AppModule {
             val white=ContextCompat.getColor(context, R.color.colorWhite)
             val black=ContextCompat.getColor(context, R.color.colorDark)
             return mutableListOf(
-                Color(ContextCompat.getColor(context, R.color.label1), true,black),
+                Color(ContextCompat.getColor(context, R.color.label9), true,white),
+                Color(ContextCompat.getColor(context, R.color.label1), false,black),
                 Color(ContextCompat.getColor(context, R.color.label2), false,black),
                 Color(ContextCompat.getColor(context, R.color.label3), false,black),
                 Color(ContextCompat.getColor(context, R.color.label4), false,black),
@@ -94,7 +95,6 @@ abstract class AppModule {
                 Color(ContextCompat.getColor(context, R.color.label6), false,black),
                 Color(ContextCompat.getColor(context, R.color.label7), false,black),
                 Color(ContextCompat.getColor(context, R.color.label8), false,white),
-                Color(ContextCompat.getColor(context, R.color.label9), false,white),
                 Color(ContextCompat.getColor(context, R.color.label10), false,black),
                 Color(ContextCompat.getColor(context, R.color.label11), false,black),
                 Color(ContextCompat.getColor(context, R.color.label12), false,black),

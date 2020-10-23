@@ -77,9 +77,9 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
                 super.onScrolled(recyclerView, dx, dy)
 
                 if(dy>0){
-                    (requireActivity().findViewById<FloatingActionButton>(R.id.fab_schedule)).hide()
+                   // (requireActivity().findViewById<FloatingActionButton>(R.id.fab_schedule)).hide()
                 }else{
-                    (requireActivity().findViewById<FloatingActionButton>(R.id.fab_schedule)).show()
+                    //(requireActivity().findViewById<FloatingActionButton>(R.id.fab_schedule)).show()
                 }
             }
         })
