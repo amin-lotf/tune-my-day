@@ -40,39 +40,28 @@ class ProgramListFragment : BaseFragment(R.layout.fragment_program_list),
     private val viewModel: ProgramListViewModel by viewModels()
 
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupToolbar()
+    }
+
+    private fun setupToolbar() {
+        toolbar_program_list.setNavigationOnClickListener {
+            findNavController().popBackStack()
+        }
+    }
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume: program list")
-            (requireActivity() as MainActivity).fab_schedule.setOnClickListener {
-                Log.d(TAG, "onResume: set fab")
-                val action = R.id.action_taskListFragment_to_addProgramFragment
-                findNavController().navigate(action)
-
-        }
         programListAdapter = ProgramListAdapter().apply {
             setListener(this@ProgramListFragment)
-
         }
-
         recycler_programs_detail.apply {
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
             setHasFixedSize(true)
             adapter = programListAdapter
         }
-
-        recycler_programs_detail.addOnScrollListener(object : RecyclerView.OnScrollListener(){
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-
-                if(dy>0){
-                    (requireActivity().findViewById<FloatingActionButton>(R.id.fab_schedule)).hide()
-                }else{
-                    (requireActivity().findViewById<FloatingActionButton>(R.id.fab_schedule)).show()
-                }
-            }
-        })
 
         subscribeObservers()
 

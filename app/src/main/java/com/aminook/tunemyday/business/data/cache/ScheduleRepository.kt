@@ -19,7 +19,7 @@ interface ScheduleRepository {
     fun getRoutine(routineId:Long):Flow<RoutineEntity>
     fun getAllRoutines():Flow<List<RoutineEntity>>
     suspend fun updateRoutine(routineEntity: RoutineEntity):Int
-    suspend fun deleteRoutine(routineEntity: RoutineEntity,curRoutine: Long):Int
+    suspend fun deleteRoutine(routineId: Long,curRoutine: Long):Int
 
     suspend fun updateProgram(program: Program):Int
     suspend fun insertProgram(program: Program):Long

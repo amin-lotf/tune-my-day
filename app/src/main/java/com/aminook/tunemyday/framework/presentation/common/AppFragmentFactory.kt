@@ -2,8 +2,8 @@ package com.aminook.tunemyday.framework.presentation.common
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
-import com.aminook.tunemyday.framework.addroutine.AddRoutineFragment
-import com.aminook.tunemyday.framework.datasource.viewtodos.ViewTodoFragment
+import com.aminook.tunemyday.framework.presentation.addroutine.AddRoutineFragment
+import com.aminook.tunemyday.framework.presentation.viewtodos.ViewTodoFragment
 import com.aminook.tunemyday.framework.presentation.addschedule.AddEditScheduleFragment
 import com.aminook.tunemyday.framework.presentation.addschedule.AlarmDialog
 import com.aminook.tunemyday.framework.presentation.addtodo.AddToDoFragment
@@ -38,11 +38,11 @@ class AppFragmentFactory @Inject constructor() : FragmentFactory() {
 
             AddProgramFragment::class.java.name->AddProgramFragment()
 
-            ViewTodoFragment::class.java.name->ViewTodoFragment()
+            ViewTodoFragment::class.java.name-> ViewTodoFragment()
 
             NoDataFragment::class.java.name->NoDataFragment()
 
-            AddRoutineFragment::class.java.name->AddRoutineFragment()
+            AddRoutineFragment::class.java.name-> AddRoutineFragment()
 
             else->WeeklyListFragment()
         }

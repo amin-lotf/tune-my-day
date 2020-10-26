@@ -1,4 +1,4 @@
-package com.aminook.tunemyday.framework.datasource.viewtodos
+package com.aminook.tunemyday.framework.presentation.viewtodos
 
 import android.animation.LayoutTransition
 import android.os.Bundle
@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Todo
 import com.aminook.tunemyday.business.domain.state.SnackbarUndoCallback
+
 import com.aminook.tunemyday.framework.presentation.MainActivity
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.framework.presentation.common.TodoAdapter
@@ -39,7 +40,7 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
     private var unfinishedTodoAdapter:TodoAdapter?=null
     private var finishedTodoAdapter:TodoAdapter?=null
 
-    private val viewModel:ViewTodoViewModel by viewModels()
+    private val viewModel: ViewTodoViewModel by viewModels()
     private lateinit var addTodoBtmSheetDialog: BottomSheetDialog
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -55,9 +56,6 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
 
 
     override fun onResume() {
-        (requireActivity() as MainActivity).fab_schedule.setOnClickListener {
-            showAddTodo()
-        }
         super.onResume()
 
 
@@ -72,7 +70,7 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
             }
         }
 
-        val args:ViewTodoFragmentArgs by navArgs()
+        val args: ViewTodoFragmentArgs by navArgs()
         if (args.scheduleId!=0L){
             viewModel.getSchedule(args.scheduleId).observeOnce(viewLifecycleOwner){
                 it?.let { schedule->
@@ -335,7 +333,6 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
 
 
     override fun onPause() {
-        (requireActivity() as MainActivity).fab_schedule.setOnClickListener(null)
         super.onPause()
     }
 

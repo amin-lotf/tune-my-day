@@ -134,13 +134,13 @@ class ScheduleRepositoryImpl @Inject constructor(
         return daoService.routineDao.updateRoutine(routineEntity)
     }
 
-    override suspend fun deleteRoutine(routineEntity: RoutineEntity, curRoutine: Long): Int {
-        Log.d(TAG, "deleteRoutine: delete id:${routineEntity.id}  cur:$curRoutine")
-        if (routineEntity.id == curRoutine) {
+    override suspend fun deleteRoutine(routineId: Long, curRoutine: Long): Int {
+
+        if (routineId == curRoutine) {
             cancelCurrentRoutineAlarms(curRoutine)
         }
 
-        return daoService.routineDao.deleteRoutine(routineEntity)
+        return daoService.routineDao.deleteRoutine(routineId)
     }
 
     override suspend fun insertProgram(program: Program): Long {

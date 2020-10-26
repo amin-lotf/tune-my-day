@@ -54,13 +54,7 @@ class WeeklyListViewModel @ViewModelInject constructor(
     val curDayIndex: LiveData<Int>
         get() = _dayIndex
 
-    fun saveRoutineIndex(routineId: Long) {
-        CoroutineScope(activeScope).launch {
-            dataStoreCache.edit { cache ->
-                cache[ROUTINE_INDEX] = routineId
-            }
-        }
-    }
+
 
 
 
@@ -90,19 +84,7 @@ class WeeklyListViewModel @ViewModelInject constructor(
         }
 
 
-    fun addRoutine(routineName: String) {
 
-        val routine = RoutineEntity(routineName)
-        CoroutineScope(activeScope).launch {
-            routineInteractors.insertRoutine(routine,routineId)
-                .map {
-                    processResponse(it?.stateMessage)
-                    it?.data?.let { routineId ->
-                        saveRoutineIndex(routineId)
-                    }
-                }.collect()
-        }
-    }
 
     override fun onCleared() {
         Log.d(TAG, "onCleared: weeklyList ViewModel")

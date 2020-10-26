@@ -19,7 +19,7 @@ interface RoutineDao {
     @Update
     suspend fun updateRoutine(routineEntity: RoutineEntity):Int
 
-    @Delete
-    suspend fun deleteRoutine(routineEntity: RoutineEntity):Int
+    @Query("delete from routines where id=:routineId")
+    suspend fun deleteRoutine(routineId: Long):Int
 
 }

@@ -8,22 +8,7 @@
     <action android:id="@+id/action_global_history"
         app:destination="@id/routineFragment"/>
 
-    <action android:id="@+id/action_global_no_data"
-        app:destination="@id/noDataFragment"
-        app:popUpToInclusive="true"
-        app:popUpTo="@id/noDataFragment"
-        />
 
-    <action android:id="@+id/action_global_daily"
-        app:destination="@id/dailyFragment"
-        app:popUpTo="@id/dailyFragment"
-        app:popUpToInclusive="true"/>
-
-    <action android:id="@+id/action_global_weekly"
-        app:destination="@id/weeklyListFragment"
-        app:popUpTo="@id/weeklyListFragment"
-        app:popUpToInclusive="true"
-        />
 
     <action android:id="@+id/action_global_activities"
         app:destination="@id/taskListFragment"/>
@@ -39,17 +24,15 @@
         <action
             android:id="@+id/action_weeklyListFragment_to_addScheduleFragment"
             app:destination="@id/addScheduleFragment" />
-        <argument
-            android:name="requestType"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:name="schedule_id"
-            app:argType="long"
-            android:defaultValue="0L" />
+
         <action
             android:id="@+id/action_weeklyListFragment_to_routineFragment"
             app:destination="@id/routineFragment" />
+        <action
+            android:id="@+id/action_weeklyListFragment_to_dailyFragment"
+            app:destination="@id/dailyFragment"
+            app:popUpTo="@+id/weeklyListFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/taskListFragment"
@@ -106,6 +89,14 @@
         <action
             android:id="@+id/action_dailyFragment_to_viewTodoFragment"
             app:destination="@id/viewTodoFragment" />
+        <action
+            android:id="@+id/action_dailyFragment_to_addScheduleFragment"
+            app:destination="@id/addScheduleFragment" />
+        <action
+            android:id="@+id/action_dailyFragment_to_weeklyListFragment"
+            app:destination="@id/weeklyListFragment"
+            app:popUpTo="@+id/dailyFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/routineFragment"
@@ -116,6 +107,19 @@
             android:name="curRoutineId"
             app:argType="long"
             android:defaultValue="0L" />
+        <action
+            android:id="@+id/action_routineFragment_to_addRoutineFragment"
+            app:destination="@id/addRoutineFragment" />
+        <action
+            android:id="@+id/action_routineFragment_to_noDataFragment"
+            app:destination="@id/noDataFragment"
+            app:popUpTo="@+id/noDataFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_routineFragment_to_weeklyListFragment"
+            app:destination="@id/weeklyListFragment"
+            app:popUpTo="@+id/weeklyListFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/addProgramFragment"
@@ -126,9 +130,6 @@
             android:name="ProgramId"
             app:argType="long"
             android:defaultValue="0L" />
-        <action
-            android:id="@+id/action_addProgramFragment_to_addScheduleFragment"
-            app:destination="@id/addScheduleFragment" />
         <argument
             android:name="fromAddSchedule"
             app:argType="boolean"
@@ -136,7 +137,7 @@
     </fragment>
     <fragment
         android:id="@+id/viewTodoFragment"
-        android:name="com.aminook.tunemyday.framework.datasource.viewtodos.ViewTodoFragment"
+        android:name="com.aminook.tunemyday.framework.presentation.viewtodos.ViewTodoFragment"
         android:label="fragment_view_todo"
         tools:layout="@layout/fragment_view_todo" >
         <argument
@@ -148,11 +149,30 @@
         android:id="@+id/noDataFragment"
         android:name="com.aminook.tunemyday.framework.presentation.common.NoDataFragment"
         android:label="fragment_no_data"
-        tools:layout="@layout/fragment_no_data" />
+        tools:layout="@layout/fragment_no_data" >
+        <action
+            android:id="@+id/action_noDataFragment_to_addRoutineFragment"
+            app:destination="@id/addRoutineFragment" />
+    </fragment>
     <fragment
         android:id="@+id/addRoutineFragment"
-        android:name="com.aminook.tunemyday.framework.addroutine.AddRoutineFragment"
+        android:name="com.aminook.tunemyday.framework.presentation.addroutine.AddRoutineFragment"
         android:label="fragment_add_routine"
-        tools:layout="@layout/fragment_add_routine" />
+        tools:layout="@layout/fragment_add_routine" >
+        <argument
+            android:name="routineName"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue=" " />
+        <argument
+            android:name="routineId"
+            app:argType="long"
+            android:defaultValue="0L" />
+        <action
+            android:id="@+id/action_addRoutineFragment_to_weeklyListFragment"
+            app:destination="@id/weeklyListFragment"
+            app:popUpTo="@+id/weeklyListFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 
 </navigation>

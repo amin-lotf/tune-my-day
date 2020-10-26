@@ -2,6 +2,7 @@ package com.aminook.tunemyday.framework.presentation
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -14,6 +15,7 @@ import androidx.fragment.app.FragmentFactory
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Color
 import com.aminook.tunemyday.business.domain.model.Schedule
@@ -21,10 +23,12 @@ import com.aminook.tunemyday.business.domain.state.*
 import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
-import com.aminook.tunemyday.util.SCREEN_DAILY
-import com.aminook.tunemyday.util.SCREEN_WEEKLY
-import com.aminook.tunemyday.util.TodoCallback
-import com.aminook.tunemyday.util.observeOnce
+import com.aminook.tunemyday.framework.presentation.ProgramList.ProgramListFragmentDirections
+import com.aminook.tunemyday.framework.presentation.common.NoDataFragmentDirections
+import com.aminook.tunemyday.framework.presentation.dailylist.DailyFragmentDirections
+import com.aminook.tunemyday.framework.presentation.routine.RoutineFragmentDirections
+import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragmentDirections
+import com.aminook.tunemyday.util.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -89,7 +93,10 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
                                 SCREEN_DAILY -> {
                                     this.txt_schedule_type.text = "Switch to weekly schedules"
                                     this.txt_schedule_type.setOnClickListener {
-                                        navController.navigate(R.id.action_global_weekly)
+//                                        val navOptions = NavOptions.Builder().setPopUpTo(
+//                                            R.id.weeklyListFragment, true
+//                                        ).build()
+                                        navController.navigate(R.id.action_dailyFragment_to_weeklyListFragment)
                                         mainViewModel.setScreenType(SCREEN_WEEKLY)
                                         mainBottomSheet.dismiss()
                                     }
@@ -97,8 +104,15 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
                                 }
                                 SCREEN_WEEKLY -> {
                                     this.txt_schedule_type.text = "Switch to daily schedules"
+
                                     this.txt_schedule_type.setOnClickListener {
-                                        navController.navigate(R.id.action_global_daily)
+                                        mainViewModel.setDayIndex(
+                                            mainViewModel.dateUtil.curDayIndex
+                                        )
+//                                        val navOptions = NavOptions.Builder().setPopUpTo(
+//                                            R.id.dailyFragment, true
+//                                        ).build()
+                                        navController.navigate(R.id.action_weeklyListFragment_to_dailyFragment)
                                         mainViewModel.setScreenType(SCREEN_DAILY)
                                         mainBottomSheet.dismiss()
                                     }
@@ -122,8 +136,9 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
                             }
 
                             this.txt_add_weekly.setOnClickListener {
-                                navController.navigate(R.id.action_global_add_routine)
                                 mainBottomSheet.dismiss()
+                                navController.navigate(R.id.action_global_add_routine)
+
                             }
 
                         }
@@ -159,18 +174,30 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
         }
 
         mainViewModel.getScreenType().observeOnce(this) { screenType ->
+            Log.d(TAG, "subscribeObservers: observe screen")
             setupNavigation(screenType)
         }
 
         mainViewModel.getRoutineIndex().observe(this) {
             mainViewModel.routineId = it
-
+            Log.d(TAG, "subscribeObservers: routine id: $it")
             if (it != 0L) {
-                if (it != mainViewModel.buffRoutineId && mainViewModel.buffRoutineId != 0L) {
-                    mainViewModel.cancelPrevRoutineAlarms(mainViewModel.buffRoutineId)
+                Log.d(TAG, "subscribeObservers: before check buffer")
+                mainViewModel.buffRoutineId?.let { buffered ->
+                    Log.d(TAG, "subscribeObservers: after check buffer")
+                    if (it != buffered) {
+                        Log.d(
+                            TAG,
+                            "subscribeObservers: inside routine id: ${mainViewModel.buffRoutineId}"
+                        )
+                        mainViewModel.setScreenType(SCREEN_WEEKLY)
+                        Log.d(TAG, "subscribeObservers: it is initialized")
+                        mainViewModel.buffRoutineId?.let {
+                            mainViewModel.cancelPrevRoutineAlarms(it)
+                        }
+                    }
                 }
 
-                mainViewModel.buffRoutineId = it
                 mainViewModel.getUpcomingAlarms().observe(this) { alarms ->
                     Log.d(TAG, "doWorkk subscribeObservers: get upComings size: ${alarms.size}")
                     alarms.forEach {
@@ -179,12 +206,30 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
                     mainViewModel.scheduleUpcomingAlarms(alarms)
                 }
             } else {
-                if (this::navController.isInitialized &&
-                    navController.currentDestination?.id != R.id.noDataFragment
-                ) {
-                    navController.navigate(R.id.action_global_no_data)
-                }
+                mainViewModel.setScreenType(SCREEN_BLANK)
+//                if (this::navController.isInitialized &&
+//                    navController.currentDestination?.id != R.id.noDataFragment &&
+//                    navController.currentDestination?.id != R.id.routineFragment &&
+//                    navController.currentDestination?.id != R.id.addRoutineFragment
+//                ) {
+//                    val navOptions = NavOptions.Builder().setPopUpTo(
+//                        R.id.noDataFragment, true
+//                    ).build()
+//                    navController.navigate(R.id.action_global_no_data, null, navOptions)
+//                }
+
             }
+            mainViewModel.buffRoutineId = it
+        }
+    }
+
+    override fun onBackPressed() {
+        if (mainViewModel.buffRoutineId == 0L && navController.currentDestination?.id == R.id.routineFragment) {
+            val action=RoutineFragmentDirections.actionRoutineFragmentToNoDataFragment()
+            navController.navigate(action)
+        } else {
+
+            super.onBackPressed()
         }
     }
 
@@ -206,24 +251,67 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
 
         navController.addOnDestinationChangedListener { controller, destination, _ ->
 
-           when(destination.id){
-               R.id.weeklyListFragment,
-               R.id.dailyFragment->{
-                   bottom_app_bar.performShow()
-                   fab_schedule.show()
-               }
+            when (destination.id) {
+                R.id.weeklyListFragment,
+                R.id.dailyFragment,
+                R.id.noDataFragment -> {
+                    bottom_app_bar.visibility = View.VISIBLE
+                    bottom_app_bar.performShow()
+                    fab_schedule.show()
+                    setupFabClickListener(destination.id)
 
-               R.id.taskListFragment,
-                   R.id.routineFragment->{
-                   bottom_app_bar.performHide()
-                   fab_schedule.show()
-               }
-               else-> {
-                   bottom_app_bar.performHide()
-                   fab_schedule.hide()
-               }
-           }
+                }
 
+
+                R.id.taskListFragment,
+                R.id.routineFragment -> {
+                    bottom_app_bar.visibility = View.GONE
+                    fab_schedule.show()
+                    setupFabClickListener(destination.id)
+                }
+
+                else -> {
+                    bottom_app_bar.performHide()
+                    bottom_app_bar.visibility = View.GONE
+                    fab_schedule.hide()
+                }
+            }
+
+        }
+    }
+
+    private fun setupFabClickListener(fragmentId: Int) {
+        fab_schedule.setOnClickListener {
+            val action = when (fragmentId) {
+                R.id.noDataFragment -> {
+                    NoDataFragmentDirections.actionNoDataFragmentToAddRoutineFragment()
+                }
+
+                R.id.weeklyListFragment -> {
+                    WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
+                        SCHEDULE_REQUEST_NEW
+                    )
+                }
+                R.id.dailyFragment -> {
+                    DailyFragmentDirections.actionDailyFragmentToAddScheduleFragment(
+                        SCHEDULE_REQUEST_NEW
+                    )
+                }
+
+                R.id.taskListFragment -> {
+                    ProgramListFragmentDirections.actionTaskListFragmentToAddProgramFragment()
+                }
+
+                R.id.routineFragment -> {
+                    RoutineFragmentDirections.actionRoutineFragmentToAddRoutineFragment()
+                }
+
+                else -> {
+                    return@setOnClickListener
+                }
+            }
+
+            navController.navigate(action)
         }
     }
 

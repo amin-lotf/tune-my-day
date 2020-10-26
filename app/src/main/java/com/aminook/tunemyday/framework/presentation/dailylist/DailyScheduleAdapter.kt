@@ -233,21 +233,8 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
             override fun areItemsTheSame(oldItem: Schedule, newItem: Schedule): Boolean {
                 return oldItem.id == newItem.id
             }
-
             override fun areContentsTheSame(oldItem: Schedule, newItem: Schedule): Boolean {
-
-
-                Log.d(
-                    "aminjoon", "areContentsTheSame: ${
-                        oldItem.id == newItem.id
-                                && newItem.unfinishedTodos.containsAll(oldItem.unfinishedTodos)
-                    }"
-                )
                 return oldItem.id == newItem.id
-                        && newItem.unfinishedTodos.containsAll(oldItem.unfinishedTodos)
-                        && oldItem.unfinishedTodos.containsAll(newItem.unfinishedTodos)
-
-
             }
 
 

@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.aminook.tunemyday.R
-import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
 import com.aminook.tunemyday.framework.presentation.common.BaseViewHolder
 import kotlinx.android.synthetic.main.routine_item.view.*
@@ -58,11 +57,9 @@ class RoutineAdapter : ListAdapter<RoutineEntity, BaseViewHolder<RoutineEntity>>
                 listener?.onRoutineClick(item)
             }
 
-            itemView.img_delete_routine.setOnClickListener {
-                listener?.onDeleteRoutineClick(item)
-            }
+
             itemView.img_edit_routine.setOnClickListener {
-                listener?.onUpdateRouineClick(item)
+                listener?.onUpdateRoutineClick(item)
             }
 
         }
@@ -93,8 +90,7 @@ class RoutineAdapter : ListAdapter<RoutineEntity, BaseViewHolder<RoutineEntity>>
 
     interface RoutineAdapterListener {
         fun onRoutineClick(routineEntity: RoutineEntity)
-        fun onDeleteRoutineClick(routineEntity: RoutineEntity)
-        fun onUpdateRouineClick(routineEntity: RoutineEntity)
+        fun onUpdateRoutineClick(routineEntity: RoutineEntity)
 
     }
 

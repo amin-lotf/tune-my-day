@@ -15,7 +15,7 @@ interface ScheduleDao {
     fun testRelation(): Flow<List<FullSchedule>>
 
     @Transaction
-    @Query("select * from schedules where (startDay= :day or endDay=:day) and (`end`>=:curTime or endDay!=startDay)  and routine_id=:routineId order by startDay,start")
+    @Query("select * from schedules where (startDay= :day or endDay=:day) and (`end`>=:curTime or (startDay=:day and endDay!=startDay))  and routine_id=:routineId order by startDay,start")
     fun selectDailySchedule(day: Int, curTime:Int, routineId:Long): Flow<List<FullSchedule>>
 
     fun selectDailyScheduleDistinct(day: Int,startTime:Int, routineId:Long): Flow<List<FullSchedule>>{

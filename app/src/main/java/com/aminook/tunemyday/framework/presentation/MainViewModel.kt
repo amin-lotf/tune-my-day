@@ -19,10 +19,7 @@ import com.aminook.tunemyday.di.DataStoreCache
 import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
-import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
-import com.aminook.tunemyday.util.SCREEN_TYPE
-import com.aminook.tunemyday.util.SCREEN_WEEKLY
-import com.aminook.tunemyday.util.TodoCallback
+import com.aminook.tunemyday.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -43,8 +40,16 @@ class MainViewModel @ViewModelInject constructor(
     private val alarmRange = 2
     private val activeScope = Dispatchers.IO + viewModelScope.coroutineContext
 
-    var buffRoutineId:Long=0
+    var buffRoutineId:Long?=null
 
+
+    fun setDayIndex(index:Int){
+        CoroutineScope(activeScope).launch {
+            dataStoreSettings.edit { settings ->
+                settings[DAY_INDEX] = index
+            }
+        }
+    }
 
 
     fun getScreenType():LiveData<String>{
@@ -104,7 +109,7 @@ class MainViewModel @ViewModelInject constructor(
 
     fun deleteSchedule(schedule:Schedule){
         CoroutineScope(activeScope).launch {
-            delay(300) //delay added so the snackbar goes under the FAB
+            //delay(300) //delay added so the snackbar goes under the FAB
             scheduleInteractors.deleteSchedule(
                 schedule,
                 object : SnackbarUndoCallback {

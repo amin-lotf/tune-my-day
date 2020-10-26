@@ -30,9 +30,9 @@ import kotlinx.coroutines.flow.*
 class WeeklyViewModel @ViewModelInject constructor(
     val scheduleInteractors: ScheduleInteractors,
     val dateUtil: DateUtil,
-    @DataStoreCache  dataStoreCache: DataStore<Preferences>,
+    @DataStoreCache dataStoreCache: DataStore<Preferences>,
     @DataStoreSettings dataStoreSettings: DataStore<Preferences>
-) : BaseViewModel(dataStoreCache,dataStoreSettings) {
+) : BaseViewModel(dataStoreCache, dataStoreSettings) {
     private val TAG = "aminjoon"
     var fragmentDayIndex: Int = 0
     var fragmentRoutineIndex: Long = 0
@@ -40,8 +40,12 @@ class WeeklyViewModel @ViewModelInject constructor(
     private val weeklyListManager = WeeklyListManager()
 
 
-    fun getFragmentSchedules():LiveData<List<Schedule>> {
-        return scheduleInteractors.getDailySchedules(fragmentDayIndex, fragmentRoutineIndex, 0)
+    fun getFragmentSchedules(): LiveData<List<Schedule>> {
+        return scheduleInteractors.getDailySchedules(
+            fragmentDayIndex,
+            fragmentRoutineIndex,
+            dateUtil.getStartOfDayInSec(fragmentDayIndex) + 1 //add 1 to avoid schedules end at 00:00
+        )
             .debounce(200)
             .map { dataState ->
                 processResponse(dataState?.stateMessage)
@@ -49,7 +53,7 @@ class WeeklyViewModel @ViewModelInject constructor(
                 dataState?.data?.let { allSchedules ->
                     weeklyListManager.processSchedules(allSchedules)
 
-                }?: emptyList()
+                } ?: emptyList()
             }
             .flowOn(Default)
             .asLiveData()

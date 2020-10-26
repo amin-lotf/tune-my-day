@@ -34,6 +34,7 @@ class DateUtil @Inject constructor() {
             return 86400 * curDayIndex + hour * 60 * 60 + minute * 60 + second
         }
 
+
     val curTimeInMillis: Int
         get() {
             val today = Date()
@@ -59,6 +60,10 @@ class DateUtil @Inject constructor() {
             }
             return dayRange
         }
+
+    fun getStartOfDayInSec(dayIndex: Int):Int{
+            return 86400 * curDayIndex
+    }
 
     fun getDay(dayIndex: Int): Day {
         val calendar = Calendar.getInstance(Locale.US)

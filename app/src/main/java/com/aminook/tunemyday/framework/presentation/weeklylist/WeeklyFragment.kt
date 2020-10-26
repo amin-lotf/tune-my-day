@@ -40,21 +40,12 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
                 viewModel.fragmentDayIndex = index
             }
             it.getLong(ROUTINE_INDEX_PARAM).let { index ->
-                Log.d(TAG, "onViewCreated: weekly routineId: $index")
+
                 viewModel.fragmentRoutineIndex = index
             }
         }
         setupAdapter()
-
-        (requireActivity() as MainActivity).fab_schedule.setOnClickListener {
-            val action =
-                WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
-                    scheduleRequestType = SCHEDULE_REQUEST_NEW
-                )
-            findNavController().navigate(action)
-        }
     }
-
 
     
     private fun setupAdapter() {
@@ -62,7 +53,6 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
         shortDailyScheduleAdapter?.setOnClickListener(this)
 
         viewModel.getFragmentSchedules().observe(viewLifecycleOwner){
-            Log.d(TAG, "setupAdapter: size: ${it.size} ")
             shortDailyScheduleAdapter?.submitList(it)
         }
 
@@ -70,37 +60,6 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
             layoutManager=LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
             adapter=shortDailyScheduleAdapter
         }
-
-
-        daily_short_schedules_recycler.addOnScrollListener(object :RecyclerView.OnScrollListener(){
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-
-                if(dy>0){
-                   // (requireActivity().findViewById<FloatingActionButton>(R.id.fab_schedule)).hide()
-                }else{
-                    //(requireActivity().findViewById<FloatingActionButton>(R.id.fab_schedule)).show()
-                }
-            }
-        })
-
-    }
-
-
-    companion object {
-
-        const val DAY_INDEX_PARAM = "param1"
-        const val ROUTINE_INDEX_PARAM = "param2"
-
-        @JvmStatic
-        fun newInstance(dayIndex: Int, routineIndex: Long) =
-            WeeklyFragment().apply {
-                Log.d(TAG, "newInstance: routineId $routineIndex")
-                arguments = Bundle().apply {
-                    putInt(DAY_INDEX_PARAM, dayIndex)
-                    putLong(ROUTINE_INDEX_PARAM, routineIndex)
-                }
-            }
     }
 
     override fun onItemClick(schedule: Schedule) {
@@ -120,14 +79,22 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
         findNavController().navigate(action)
     }
 
-
     override fun onPause() {
         shortDailyScheduleAdapter=null
         super.onPause()
     }
 
-
-
-
-
+    companion object {
+        const val DAY_INDEX_PARAM = "param1"
+        const val ROUTINE_INDEX_PARAM = "param2"
+        @JvmStatic
+        fun newInstance(dayIndex: Int, routineIndex: Long) =
+            WeeklyFragment().apply {
+                Log.d(TAG, "newInstance: routineId $routineIndex")
+                arguments = Bundle().apply {
+                    putInt(DAY_INDEX_PARAM, dayIndex)
+                    putLong(ROUTINE_INDEX_PARAM, routineIndex)
+                }
+            }
+    }
 }

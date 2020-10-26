@@ -34,7 +34,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
     private val TAG = "aminjoon"
     private var fragmentIndex: Int? = null
     private val dailyViewModel: DailyViewModel by viewModels()
-
+    private  var dailyScheduleAdapter:DailyScheduleAdapter?=null
     private  var addTodoBtmSheetDialog: BottomSheetDialog?=null
 
     @Inject
@@ -45,17 +45,23 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        top_toolbar_daily.title = "Today"
+        Log.d(TAG, "onViewCreated: ")
+
+    }
+
+
+    override fun onResume() {
+        super.onResume()
         dailyViewModel.getRoutineIndex().observeOnce(viewLifecycleOwner) {
             if (it != 0L) {
                 dailyViewModel.getDailySchedules(it)
             }
         }
-        top_toolbar_daily.title = "Today"
-        Log.d(TAG, "onViewCreated: ")
+
         initializeAdapters()
         subscribeObservers()
-
-
     }
 
 
@@ -67,25 +73,27 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
         }
 
+        dailyViewModel.schedules.observe(viewLifecycleOwner) {
+            Log.d(TAG, "initializeAdapters: observe once")
+            dailyScheduleAdapter?.submitList(it)
+
+
+        }
+
 
 
     }
 
     private fun initializeAdapters() {
-        val dailyScheduleAdapter = DailyScheduleAdapter(
+        dailyScheduleAdapter = DailyScheduleAdapter(
             requireContext(),
             dailyViewModel.dateUtil.curDayIndex,
             dailyViewModel.dateUtil.currentDayInInt
         )
-        dailyScheduleAdapter.setListener(this)
+        dailyScheduleAdapter?.setListener(this)
 
 
-        dailyViewModel.schedules.observeOnce(viewLifecycleOwner) {
-            Log.d(TAG, "initializeAdapters: observe once")
-            dailyScheduleAdapter.submitList(it)
 
-
-        }
         (recycler_day_schedule.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         recycler_day_schedule.apply {
             layoutManager =
@@ -286,9 +294,12 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
     }
 
-    override fun onDestroy() {
-        addTodoBtmSheetDialog= null
-        super.onDestroy()
+    override fun onPause() {
+
+        addTodoBtmSheetDialog=null
+        dailyScheduleAdapter=null
+        super.onPause()
+
     }
 
 }

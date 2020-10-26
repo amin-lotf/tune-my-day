@@ -16,6 +16,7 @@ import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.framework.presentation.routine.manager.RoutineManager
 import com.aminook.tunemyday.util.ROUTINE_INDEX
+import com.aminook.tunemyday.util.SCREEN_TYPE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
@@ -53,37 +54,17 @@ class RoutineViewModel @ViewModelInject constructor(
             .asLiveData()
     }
 
-    fun updateRoutine(routineEntity: RoutineEntity) {
 
+
+    fun setScreenType(type:String){
         CoroutineScope(activeScope).launch {
-            routineInteractors.updateRoutine(routineEntity).map {
-                processResponse(it?.stateMessage)
-            }.collect()
+            dataStoreSettings.edit { settings->
+                settings[SCREEN_TYPE]=type
+            }
         }
     }
 
 
-
-    fun deleteRoutine(routineEntity: RoutineEntity) {
-        CoroutineScope(activeScope).launch {
-            routineInteractors.deleteRoutine(routineEntity,routineId).map {
-                processResponse(it?.stateMessage)
-            }.collect()
-        }
-    }
-
-    fun addRoutine(routineName: String) {
-        val routine = RoutineEntity(routineName)
-        CoroutineScope(activeScope).launch {
-            routineInteractors.insertRoutine(routine,routineId)
-                .map {
-                    processResponse(it?.stateMessage)
-                    it?.data?.let { routineId ->
-                        saveRoutineIndex(routineId)
-                    }
-                }.collect()
-        }
-    }
 
     fun saveRoutineIndex(routineId: Long) {
         _routineLoaded.value=false

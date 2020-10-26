@@ -33,7 +33,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
 
     private val TAG = "aminjoon"
 
-    private lateinit var addRoutineBtmSheetDialog: BottomSheetDialog
+
     private val viewModel: WeeklyListViewModel by viewModels()
     var weeklyViewPagerAdapter: WeeklyViewPagerAdapter?=null
     @Inject
@@ -41,12 +41,9 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
 
 
 
-
-
     override fun onResume() {
         weekly_view_pager.adapter=null
         subscribeObservers()
-        setupToolbar()
         super.onResume()
 
     }
@@ -57,56 +54,12 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
                 onResponseReceived(stateMessage.response)
             }
         }
-
         viewModel.getRoutineIndex().observe(viewLifecycleOwner) {
             viewModel.getRoutine(it).observe(viewLifecycleOwner){routine->
                 if (routine != null && routine.id != 0L) {
                     toolbar_weekly_schedule.title=routine.name
                     setupWeeklyViewPager(routine)
                 }
-            }
-        }
-    }
-
-
-    private fun setupToolbar() {
-        toolbar_weekly_schedule.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.action_new_weekly -> {
-                    showAddRoutineDialog()
-                    true
-                }
-
-                R.id.action_load_weekly -> {
-                    val action =
-                        WeeklyListFragmentDirections.actionWeeklyListFragmentToRoutineFragment(
-                            viewModel.routineId
-                        )
-                    findNavController().navigate(action)
-                    true
-                }
-
-                else -> false
-
-            }
-        }
-    }
-
-    private fun showAddRoutineDialog() {
-        addRoutineBtmSheetDialog = BottomSheetDialog(requireContext(), R.style.ThemeOverlay_DialogStyle)
-        addRoutineBtmSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
-        val view =
-            layoutInflater.inflate(R.layout.bottom_sheet_add_routine, btn_sheet_add_routine)
-        addRoutineBtmSheetDialog.setContentView(view)
-
-        addRoutineBtmSheetDialog.show()
-        view.txt_add_routine.requestFocus()
-
-        view.btn_save_routine.setOnClickListener {
-            if (view.txt_add_routine.text.isNotBlank()) {
-
-                viewModel.addRoutine(view.txt_add_routine.text.toString())
-                addRoutineBtmSheetDialog.dismiss()
             }
         }
     }
@@ -134,6 +87,21 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
                 ContextCompat.getColor(requireContext(), R.color.label4)
             )
         }
+
+        weekly_tab_layout.addOnTabSelectedListener(object :TabLayout.OnTabSelectedListener{
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                viewModel.saveDayIndex(weekly_tab_layout.selectedTabPosition)
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+            }
+
+        })
+
         viewModel.getDayIndex().observeOnce(viewLifecycleOwner){
             weekly_view_pager.postDelayed( {
                 weekly_view_pager.currentItem=it
@@ -147,7 +115,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
     override fun onPause() {
         weekly_view_pager.adapter=null
         weeklyViewPagerAdapter=null
-        viewModel.saveDayIndex(weekly_tab_layout.selectedTabPosition)
+
         super.onPause()
     }
 
