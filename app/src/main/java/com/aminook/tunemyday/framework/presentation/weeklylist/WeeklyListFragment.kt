@@ -15,6 +15,9 @@ import com.aminook.tunemyday.business.domain.model.Color
 import com.aminook.tunemyday.business.domain.model.Day
 import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
+import com.aminook.tunemyday.util.SCREEN_BLANK
+import com.aminook.tunemyday.util.SCREEN_DAILY
+import com.aminook.tunemyday.util.SCREEN_WEEKLY
 import com.aminook.tunemyday.util.observeOnce
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -29,20 +32,20 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
+class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list) {
 
     private val TAG = "aminjoon"
 
 
     private val viewModel: WeeklyListViewModel by viewModels()
-    var weeklyViewPagerAdapter: WeeklyViewPagerAdapter?=null
+    var weeklyViewPagerAdapter: WeeklyViewPagerAdapter? = null
+
     @Inject
     lateinit var days: List<Day>
 
 
-
     override fun onResume() {
-        weekly_view_pager.adapter=null
+        weekly_view_pager.adapter = null
         subscribeObservers()
         super.onResume()
 
@@ -54,22 +57,49 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
                 onResponseReceived(stateMessage.response)
             }
         }
-        viewModel.getRoutineIndex().observe(viewLifecycleOwner) {
-            viewModel.getRoutine(it).observe(viewLifecycleOwner){routine->
-                if (routine != null && routine.id != 0L) {
-                    toolbar_weekly_schedule.title=routine.name
-                    setupWeeklyViewPager(routine)
+
+        viewModel.getScreenType().observeOnce(viewLifecycleOwner) { screenType ->
+            when (screenType) {
+                SCREEN_WEEKLY -> {
+                    setupWeeklyListFragment()
+                }
+                SCREEN_DAILY -> {
+                    val action =
+                        WeeklyListFragmentDirections.actionWeeklyListFragmentToDailyFragment()
+                    findNavController().navigate(action)
+                }
+                SCREEN_BLANK -> {
+                    val action =
+                        WeeklyListFragmentDirections.actionWeeklyListFragmentToNoDataFragment()
+                    findNavController().navigate(action)
                 }
             }
         }
     }
 
-    private fun setupWeeklyViewPager(routine:RoutineEntity) {
-               weeklyViewPagerAdapter= WeeklyViewPagerAdapter(childFragmentManager,viewLifecycleOwner.lifecycle,routine.id)
-               weekly_view_pager.apply {
-                   this.adapter = weeklyViewPagerAdapter
-               }
-               setupTabLayout()
+    private fun setupWeeklyListFragment() {
+        app_bar_weekly_list.visibility = View.VISIBLE
+        viewModel.getRoutineIndex().observe(viewLifecycleOwner) {
+            viewModel.getRoutine(it).observe(viewLifecycleOwner) { routine ->
+                if (routine != null && routine.id != 0L) {
+                    toolbar_weekly_schedule.title = routine.name
+                    setupWeeklyViewPager(routine)
+                } else {
+                    val action =
+                        WeeklyListFragmentDirections.actionWeeklyListFragmentToNoDataFragment()
+                    findNavController().navigate(action)
+                }
+            }
+        }
+    }
+
+    private fun setupWeeklyViewPager(routine: RoutineEntity) {
+        weeklyViewPagerAdapter =
+            WeeklyViewPagerAdapter(childFragmentManager, viewLifecycleOwner.lifecycle, routine.id)
+        weekly_view_pager.apply {
+            this.adapter = weeklyViewPagerAdapter
+        }
+        setupTabLayout()
     }
 
     private fun setupTabLayout() {
@@ -88,7 +118,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
             )
         }
 
-        weekly_tab_layout.addOnTabSelectedListener(object :TabLayout.OnTabSelectedListener{
+        weekly_tab_layout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 viewModel.saveDayIndex(weekly_tab_layout.selectedTabPosition)
             }
@@ -102,10 +132,10 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
 
         })
 
-        viewModel.getDayIndex().observeOnce(viewLifecycleOwner){
-            weekly_view_pager.postDelayed( {
-                weekly_view_pager.currentItem=it
-            },10)
+        viewModel.getDayIndex().observeOnce(viewLifecycleOwner) {
+            weekly_view_pager.postDelayed({
+                weekly_view_pager.currentItem = it
+            }, 10)
             layout_weekly_parent.postDelayed({
                 layout_weekly_parent.visibility = View.VISIBLE
             }, 200)
@@ -113,13 +143,11 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list){
     }
 
     override fun onPause() {
-        weekly_view_pager.adapter=null
-        weeklyViewPagerAdapter=null
+        weekly_view_pager.adapter = null
+        weeklyViewPagerAdapter = null
 
         super.onPause()
     }
-
-
 
 
 }

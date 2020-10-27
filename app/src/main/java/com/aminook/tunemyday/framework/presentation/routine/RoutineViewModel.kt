@@ -16,7 +16,9 @@ import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.framework.presentation.routine.manager.RoutineManager
 import com.aminook.tunemyday.util.ROUTINE_INDEX
+import com.aminook.tunemyday.util.SCREEN_BLANK
 import com.aminook.tunemyday.util.SCREEN_TYPE
+import com.aminook.tunemyday.util.SCREEN_WEEKLY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Default
@@ -56,21 +58,13 @@ class RoutineViewModel @ViewModelInject constructor(
 
 
 
-    fun setScreenType(type:String){
-        CoroutineScope(activeScope).launch {
-            dataStoreSettings.edit { settings->
-                settings[SCREEN_TYPE]=type
-            }
-        }
-    }
-
 
 
     fun saveRoutineIndex(routineId: Long) {
-        _routineLoaded.value=false
         CoroutineScope(activeScope).launch {
             dataStoreCache.edit { cache ->
                 cache[ROUTINE_INDEX] = routineId
+                cache[SCREEN_TYPE]= if (routineId==0L) SCREEN_BLANK else SCREEN_WEEKLY
                 withContext(Main) {
                     _routineLoaded.value = true
                 }

@@ -15,8 +15,7 @@ import com.aminook.tunemyday.framework.datasource.cache.mappers.DetailedSchedule
 import com.aminook.tunemyday.framework.datasource.cache.mappers.TodoCacheMapper
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.framework.presentation.common.TodoAdapter
-import com.aminook.tunemyday.util.TodoCallback
-import com.aminook.tunemyday.util.observeOnce
+import com.aminook.tunemyday.util.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -48,6 +47,16 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
         top_toolbar_daily.title = "Today"
         Log.d(TAG, "onViewCreated: ")
+        dailyViewModel.getScreenType().observe(viewLifecycleOwner){screenType->
+            when(screenType){
+                SCREEN_WEEKLY ->{
+                    findNavController().navigateWithSourcePopUp(R.id.dailyFragment,R.id.weeklyListFragment)
+                }
+                SCREEN_BLANK ->{
+                    findNavController().navigateWithSourcePopUp(R.id.dailyFragment,R.id.noDataFragment)
+                }
+            }
+        }
 
     }
 

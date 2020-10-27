@@ -25,7 +25,6 @@ abstract class BaseFragment constructor(
 ) : Fragment(layoutRes) {
 
     var uiController: UIController? = null
-    var alarmController: AlarmController? = null
     var onDeleteListener:OnDeleteListener?=null
 
     override fun onAttach(context: Context) {
@@ -60,7 +59,6 @@ abstract class BaseFragment constructor(
         try {
             (requireActivity() as MainActivity).let {
                 uiController = it
-                alarmController = it
                 onDeleteListener=it
             }
         } catch (e: ClassCastException) {
@@ -70,7 +68,6 @@ abstract class BaseFragment constructor(
 
     override fun onDestroy() {
         uiController = null
-        alarmController = null
         onDeleteListener=null
         super.onDestroy()
     }

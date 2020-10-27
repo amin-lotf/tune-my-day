@@ -4,6 +4,8 @@ import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
 import androidx.datastore.preferences.edit
 import androidx.hilt.lifecycle.ViewModelInject
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aminook.tunemyday.business.interactors.routine.DeleteRoutine
 import com.aminook.tunemyday.business.interactors.routine.RoutineInteractors
@@ -12,30 +14,43 @@ import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.util.ROUTINE_INDEX
+import com.aminook.tunemyday.util.SCREEN_BLANK
+import com.aminook.tunemyday.util.SCREEN_TYPE
+import com.aminook.tunemyday.util.SCREEN_WEEKLY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class AddRoutineViewModel @ViewModelInject constructor(
     val routineInteractors: RoutineInteractors,
     @DataStoreCache dataStoreCache: DataStore<Preferences>,
     @DataStoreSettings dataStoreSettings: DataStore<Preferences>
-) : BaseViewModel(dataStoreCache,dataStoreSettings) {
+) : BaseViewModel(dataStoreCache, dataStoreSettings) {
 
-    val activeScope=viewModelScope.coroutineContext+Default
-    var routineInEditId:Long=0
+    val activeScope = viewModelScope.coroutineContext + Default
+    var routineInEditId: Long = 0
+
+    private var _activeRoutineUpdated = MutableLiveData<Boolean>()
+
+    val activeRoutineUpdated: LiveData<Boolean>
+        get() = _activeRoutineUpdated
 
 
+    private suspend fun saveNewCache(routineId: Long) {
 
-
-    private suspend fun saveRoutineIndex(routineId: Long) {
-
-            dataStoreCache.edit { cache ->
-                cache[ROUTINE_INDEX] = routineId
+        dataStoreCache.edit { cache ->
+            cache[ROUTINE_INDEX] = routineId
+            cache[SCREEN_TYPE]= if (routineId==0L) SCREEN_BLANK else SCREEN_WEEKLY
+            withContext(Main){
+                _activeRoutineUpdated.value=true
             }
+        }
+
 
     }
 
@@ -43,10 +58,10 @@ class AddRoutineViewModel @ViewModelInject constructor(
 
         val routine = RoutineEntity(routineName)
         CoroutineScope(activeScope).launch {
-            routineInteractors.insertRoutine(routine,routineId)
+            routineInteractors.insertRoutine(routine, routineId)
                 .map {
                     it?.data?.let { routineId ->
-                        saveRoutineIndex(routineId)
+                      saveNewCache(routineId)
                     }
                     processResponse(it?.stateMessage)
                 }.collect()
@@ -55,7 +70,7 @@ class AddRoutineViewModel @ViewModelInject constructor(
 
     fun updateRoutine(routineName: String) {
         val routine = RoutineEntity(routineName).apply {
-            id=routineInEditId
+            id = routineInEditId
         }
         CoroutineScope(activeScope).launch {
             routineInteractors.updateRoutine(routine).map {
@@ -64,7 +79,7 @@ class AddRoutineViewModel @ViewModelInject constructor(
         }
     }
 
-    fun deleteRoutine() {
+    fun deleteRoutine(activeRoutineId: Long) {
         CoroutineScope(activeScope).launch {
             routineInteractors.deleteRoutine(
                 routineInEditId,
@@ -72,8 +87,8 @@ class AddRoutineViewModel @ViewModelInject constructor(
             ).map {
                 processResponse(it?.stateMessage)
 
-                if (it?.data== DeleteRoutine.ROUTINE_DELETE_SUCCESS){
-                    saveRoutineIndex(0)
+                if (it?.data == DeleteRoutine.ROUTINE_DELETE_SUCCESS && activeRoutineId == routineInEditId) {
+                    saveNewCache(0)
                 }
             }.collect()
         }

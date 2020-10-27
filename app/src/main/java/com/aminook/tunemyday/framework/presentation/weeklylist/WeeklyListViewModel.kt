@@ -18,8 +18,7 @@ import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.framework.presentation.weeklylist.manager.WeeklyListManager
-import com.aminook.tunemyday.util.DAY_INDEX
-import com.aminook.tunemyday.util.ROUTINE_INDEX
+import com.aminook.tunemyday.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.collect
@@ -53,6 +52,7 @@ class WeeklyListViewModel @ViewModelInject constructor(
 
     val curDayIndex: LiveData<Int>
         get() = _dayIndex
+
 
 
 

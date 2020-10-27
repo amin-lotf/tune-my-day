@@ -10,6 +10,7 @@ import com.aminook.tunemyday.framework.presentation.addtodo.AddToDoFragment
 import com.aminook.tunemyday.framework.presentation.ProgramList.ProgramListFragment
 import com.aminook.tunemyday.framework.presentation.addprogram.AddProgramFragment
 import com.aminook.tunemyday.framework.presentation.dailylist.DailyFragment
+import com.aminook.tunemyday.framework.presentation.nodata.NoDataFragment
 import com.aminook.tunemyday.framework.presentation.routine.RoutineFragment
 import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragment
 import javax.inject.Inject
@@ -40,7 +41,7 @@ class AppFragmentFactory @Inject constructor() : FragmentFactory() {
 
             ViewTodoFragment::class.java.name-> ViewTodoFragment()
 
-            NoDataFragment::class.java.name->NoDataFragment()
+            NoDataFragment::class.java.name-> NoDataFragment()
 
             AddRoutineFragment::class.java.name-> AddRoutineFragment()
 

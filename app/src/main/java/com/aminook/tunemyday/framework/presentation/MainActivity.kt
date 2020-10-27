@@ -1,31 +1,26 @@
 package com.aminook.tunemyday.framework.presentation
 
 import android.os.Bundle
-import android.util.Log
-import android.view.Gravity
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
-import androidx.fragment.app.FragmentFactory
 import androidx.navigation.NavController
-import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.aminook.tunemyday.R
-import com.aminook.tunemyday.business.domain.model.Color
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.*
 import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import com.aminook.tunemyday.framework.presentation.ProgramList.ProgramListFragmentDirections
-import com.aminook.tunemyday.framework.presentation.common.NoDataFragmentDirections
+
 import com.aminook.tunemyday.framework.presentation.dailylist.DailyFragmentDirections
+import com.aminook.tunemyday.framework.presentation.nodata.NoDataFragmentDirections
 import com.aminook.tunemyday.framework.presentation.routine.RoutineFragmentDirections
 import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragmentDirections
 import com.aminook.tunemyday.util.*
@@ -35,7 +30,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.bottom_sheet_add_routine.view.*
 import kotlinx.android.synthetic.main.bottom_sheet_main.*
 import kotlinx.android.synthetic.main.bottom_sheet_main.view.*
 
@@ -43,21 +37,13 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDeleteListener {
+class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
 
     private val TAG = "aminjoon"
     private val mainViewModel: MainViewModel by viewModels()
 
-
     private lateinit var mainBottomSheet: BottomSheetDialog
     var isDialogShowing = false
-
-    @Inject
-    lateinit var colors: List<Color>
-
-
-    @Inject
-    lateinit var appFragmentFactory: FragmentFactory
 
     @Inject
     lateinit var dateUtil: DateUtil
@@ -73,17 +59,14 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setupBottomAppBar()
+        setupNavigation()
         subscribeObservers()
     }
 
     private fun setupBottomAppBar() {
-
-
         bottom_app_bar.setNavigationOnClickListener {
-
             if (!isDialogShowing) {
                 mainViewModel.getScreenType().observeOnce(this@MainActivity) { screenType ->
-
                     mainBottomSheet = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
 
                     val view =
@@ -93,11 +76,18 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
                                 SCREEN_DAILY -> {
                                     this.txt_schedule_type.text = "Switch to weekly schedules"
                                     this.txt_schedule_type.setOnClickListener {
-//                                        val navOptions = NavOptions.Builder().setPopUpTo(
-//                                            R.id.weeklyListFragment, true
-//                                        ).build()
-                                        navController.navigate(R.id.action_dailyFragment_to_weeklyListFragment)
+                                        navController.navigateWithSourcePopUp(
+                                            R.id.dailyFragment,
+                                            R.id.weeklyListFragment
+                                        )
                                         mainViewModel.setScreenType(SCREEN_WEEKLY)
+                                        mainBottomSheet.dismiss()
+                                    }
+                                    this.txt_load_weekly.setOnClickListener {
+                                        navController.navigateWithSourcePopUp(
+                                            R.id.dailyFragment,
+                                            R.id.routineFragment
+                                        )
                                         mainBottomSheet.dismiss()
                                     }
 
@@ -106,28 +96,35 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
                                     this.txt_schedule_type.text = "Switch to daily schedules"
 
                                     this.txt_schedule_type.setOnClickListener {
+                                        mainViewModel.setScreenType(SCREEN_DAILY)
                                         mainViewModel.setDayIndex(
                                             mainViewModel.dateUtil.curDayIndex
                                         )
-//                                        val navOptions = NavOptions.Builder().setPopUpTo(
-//                                            R.id.dailyFragment, true
-//                                        ).build()
                                         navController.navigate(R.id.action_weeklyListFragment_to_dailyFragment)
-                                        mainViewModel.setScreenType(SCREEN_DAILY)
+
+                                        mainBottomSheet.dismiss()
+                                    }
+
+                                    this.txt_load_weekly.setOnClickListener {
+                                        navController.navigateWithSourcePopUp(
+                                            R.id.weeklyListFragment,
+                                            R.id.routineFragment
+                                        )
                                         mainBottomSheet.dismiss()
                                     }
 
                                 }
-                                else -> {
+                                SCREEN_BLANK -> {
                                     this.txt_schedule_type.visibility = View.GONE
                                     this.line_under_schedule_type.visibility = View.GONE
+                                    this.txt_load_weekly.setOnClickListener {
+                                        navController.navigateWithSourcePopUp(
+                                            R.id.noDataFragment,
+                                            R.id.routineFragment
+                                        )
+                                        mainBottomSheet.dismiss()
+                                    }
                                 }
-                            }
-
-
-                            this.txt_load_weekly.setOnClickListener {
-                                navController.navigate(R.id.action_global_history)
-                                mainBottomSheet.dismiss()
                             }
 
                             this.txt_show_activity.setOnClickListener {
@@ -142,11 +139,7 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
                             }
 
                         }
-
-
                     mainBottomSheet.apply {
-
-
                         setOnShowListener {
                             isDialogShowing = true
                         }
@@ -158,11 +151,7 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
                     mainBottomSheet.show()
                 }
             }
-
-
         }
-
-
     }
 
 
@@ -173,82 +162,36 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
             }
         }
 
-        mainViewModel.getScreenType().observeOnce(this) { screenType ->
-            Log.d(TAG, "subscribeObservers: observe screen")
-            setupNavigation(screenType)
-        }
-
         mainViewModel.getRoutineIndex().observe(this) {
             mainViewModel.routineId = it
-            Log.d(TAG, "subscribeObservers: routine id: $it")
             if (it != 0L) {
-                Log.d(TAG, "subscribeObservers: before check buffer")
                 mainViewModel.buffRoutineId?.let { buffered ->
-                    Log.d(TAG, "subscribeObservers: after check buffer")
                     if (it != buffered) {
-                        Log.d(
-                            TAG,
-                            "subscribeObservers: inside routine id: ${mainViewModel.buffRoutineId}"
-                        )
-                        mainViewModel.setScreenType(SCREEN_WEEKLY)
-                        Log.d(TAG, "subscribeObservers: it is initialized")
-                        mainViewModel.buffRoutineId?.let {
-                            mainViewModel.cancelPrevRoutineAlarms(it)
+                        mainViewModel.cancelPrevRoutineAlarms(buffered)
+                        mainViewModel.getUpcomingAlarms().observe(this) { alarms ->
+                            mainViewModel.scheduleUpcomingAlarms(alarms)
                         }
                     }
                 }
-
-                mainViewModel.getUpcomingAlarms().observe(this) { alarms ->
-                    Log.d(TAG, "doWorkk subscribeObservers: get upComings size: ${alarms.size}")
-                    alarms.forEach {
-                        Log.d(TAG, "doWorkk subscribeObservers: id :${it.id}  ")
-                    }
-                    mainViewModel.scheduleUpcomingAlarms(alarms)
-                }
-            } else {
-                mainViewModel.setScreenType(SCREEN_BLANK)
-//                if (this::navController.isInitialized &&
-//                    navController.currentDestination?.id != R.id.noDataFragment &&
-//                    navController.currentDestination?.id != R.id.routineFragment &&
-//                    navController.currentDestination?.id != R.id.addRoutineFragment
-//                ) {
-//                    val navOptions = NavOptions.Builder().setPopUpTo(
-//                        R.id.noDataFragment, true
-//                    ).build()
-//                    navController.navigate(R.id.action_global_no_data, null, navOptions)
-//                }
-
             }
             mainViewModel.buffRoutineId = it
         }
     }
 
     override fun onBackPressed() {
-        if (mainViewModel.buffRoutineId == 0L && navController.currentDestination?.id == R.id.routineFragment) {
-            val action=RoutineFragmentDirections.actionRoutineFragmentToNoDataFragment()
-            navController.navigate(action)
+        if (navController.currentDestination?.id == R.id.routineFragment) {
+            navController.navigateWithSourcePopUp(R.id.routineFragment, R.id.weeklyListFragment)
         } else {
-
             super.onBackPressed()
         }
     }
 
 
-    private fun setupNavigation(screenType: String) {
+    private fun setupNavigation() {
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.main_nav_host) as NavHostFragment
 
-
         navController = navHostFragment.navController
-        val navGraph = navController.navInflater.inflate(R.navigation.nav_graph)
-
-        when (screenType) {
-            SCREEN_DAILY -> navGraph.startDestination = R.id.dailyFragment
-            SCREEN_WEEKLY -> navGraph.startDestination = R.id.weeklyListFragment
-            else -> navGraph.startDestination = R.id.noDataFragment
-        }
-        navController.graph = navGraph
-
         navController.addOnDestinationChangedListener { controller, destination, _ ->
 
             when (destination.id) {
@@ -259,9 +202,7 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
                     bottom_app_bar.performShow()
                     fab_schedule.show()
                     setupFabClickListener(destination.id)
-
                 }
-
 
                 R.id.taskListFragment,
                 R.id.routineFragment -> {
@@ -284,7 +225,7 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
         fab_schedule.setOnClickListener {
             val action = when (fragmentId) {
                 R.id.noDataFragment -> {
-                    NoDataFragmentDirections.actionNoDataFragmentToAddRoutineFragment()
+                    NoDataFragmentDirections.actionGlobalAddRoutine()
                 }
 
                 R.id.weeklyListFragment -> {
@@ -340,18 +281,6 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
                 is UIComponentType.Dialog -> {
                     displayDialog(response)
                 }
-
-//                is UIComponentType.AreYouSureDialog -> {
-//
-//                    response.message?.let {
-//                        dialogInView = areYouSureDialog(
-//                            message = it,
-//                            callback = response.uiComponentType.callback
-//                        )
-//                    }
-//                }
-
-
                 else -> {
                 }
             }
@@ -413,18 +342,6 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
             message,
             Snackbar.LENGTH_LONG
         )
-        //snackbar.setAnchorView(fab_schedule.id)
-        val lp = snackbar.view.layoutParams as CoordinatorLayout.LayoutParams
-//        if(anchorSnackToFab){
-//            lp.anchorId=layout_weekly_schedule.id
-//            lp.anchorGravity=Gravity.BOTTOM
-//            lp.gravity = Gravity.BOTTOM
-//        }else{
-//            lp.anchorId=bottom_navigation.id
-//            lp.anchorGravity=Gravity.TOP
-//            lp.gravity = Gravity.TOP
-//        }
-        snackbar.view.layoutParams = lp
         snackbar.setAction(
             R.string.text_undo,
             SnackbarUndoListener(snackbarUndoCallback)
@@ -436,7 +353,6 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
 
             }
         })
-        Log.d(TAG, "displaySnackbar: ")
         snackbar.show()
 
 
@@ -482,21 +398,6 @@ class MainActivity : AppCompatActivity(), UIController, AlarmController, OnDelet
         super.onPause()
     }
 
-    override fun setupAlarms(modifiedAlarmsIndex: List<Long>) {
-
-//        val data = Data.Builder()
-//            .putLongArray(MODIFIED_ALARMS_INDEX, modifiedAlarmsIndex.toLongArray())
-//            .putString(ACTION_TYPE, TYPE_NEW_SCHEDULE)
-//            .build()
-//
-//        val alarmWorker = OneTimeWorkRequest.Builder(AlarmWorker::class.java)
-//            .setInputData(data)
-//            .build()
-//
-//        Log.d(TAG, "setupAlarms: ")
-//        WorkManager.getInstance(applicationContext)
-//            .enqueueUniqueWork("setAlarms", ExistingWorkPolicy.REPLACE, alarmWorker)
-    }
 
     override fun onProgramDeleteListener(program: ProgramDetail) {
         mainViewModel.deleteProgram(program)

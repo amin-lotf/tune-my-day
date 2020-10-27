@@ -10,6 +10,8 @@ import android.view.animation.Interpolator
 import android.view.animation.Transformation
 import android.view.inputmethod.InputMethodManager
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
@@ -40,6 +42,21 @@ fun <T> RecyclerView.Adapter<*>.autoNotify(
 fun ConstraintLayout.setTransition(){
     this.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
     this.layoutTransition.setDuration(300)
+}
+
+
+fun NavController.navigateWithSourcePopUp(from:Int, to:Int){
+    val navOption=NavOptions.Builder()
+        .setPopUpTo(from,true)
+        .build()
+    navigate(to,null,navOption)
+}
+
+fun NavController.navigateWithDestinationPopUp(from:Int, to:Int){
+    val navOption=NavOptions.Builder()
+        .setPopUpTo(to,true)
+        .build()
+    navigate(to,null,navOption)
 }
 
 

@@ -12,6 +12,8 @@ import com.aminook.tunemyday.R
 import com.aminook.tunemyday.framework.datasource.cache.model.RoutineEntity
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.util.SCREEN_WEEKLY
+import com.aminook.tunemyday.util.navigateWithDestinationPopUp
+import com.aminook.tunemyday.util.navigateWithSourcePopUp
 import com.aminook.tunemyday.util.observeOnce
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -30,22 +32,15 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val args:RoutineFragmentArgs by navArgs()
-        viewModel.routineId=args.curRoutineId
+        val args: RoutineFragmentArgs by navArgs()
+        viewModel.routineId = args.curRoutineId
 
         subscribeObservers()
         toolbar_routines.setNavigationOnClickListener {
-           viewModel.getRoutineIndex().observe(viewLifecycleOwner){
-               if (it==0L){
-                   val action=RoutineFragmentDirections.actionRoutineFragmentToNoDataFragment()
-                   findNavController().navigate(action)
-               }else {
-                   findNavController().popBackStack()
-               }
-           }
+            findNavController().popBackStack()
+                findNavController().navigateWithSourcePopUp(R.id.routineFragment,R.id.weeklyListFragment)
         }
     }
-
 
 
     override fun onResume() {
@@ -67,14 +62,13 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
     private fun subscribeObservers() {
         viewModel.stateMessage.observe(viewLifecycleOwner) { event ->
             event?.getContentIfNotHandled()?.let { stateMessage ->
-               onResponseReceived(stateMessage.response)
+                onResponseReceived(stateMessage.response)
             }
         }
 
         viewModel.routineLoaded.observe(viewLifecycleOwner) {
             if (it == true) {
-                val action=RoutineFragmentDirections.actionRoutineFragmentToWeeklyListFragment()
-                findNavController().navigate(action)
+                findNavController().navigateWithSourcePopUp(R.id.routineFragment,R.id.weeklyListFragment)
             }
         }
 
@@ -90,7 +84,7 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
     }
 
     override fun onUpdateRoutineClick(routineEntity: RoutineEntity) {
-        val action=RoutineFragmentDirections.actionRoutineFragmentToAddRoutineFragment(
+        val action = RoutineFragmentDirections.actionRoutineFragmentToAddRoutineFragment(
             routineName = routineEntity.name,
             routineId = routineEntity.id
         )
@@ -99,7 +93,7 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
 
 
     override fun onPause() {
-        routineAdapter=null
+        routineAdapter = null
         super.onPause()
     }
 

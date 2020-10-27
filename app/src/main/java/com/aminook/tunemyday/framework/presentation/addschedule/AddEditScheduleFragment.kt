@@ -219,7 +219,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
                 onResponseReceived(stateMessage.response)
                 if (stateMessage.response.message == INSERT_SCHEDULE_SUCCESS) {
                     Log.d(TAG, "add schedule subscribeObservers: INSERT_SCHEDULE_SUCCESS")
-                    alarmController?.setupAlarms(viewModel.modifiedAlarmIndexes)
+                    //alarmController?.setupAlarms(viewModel.modifiedAlarmIndexes)
                     findNavController().popBackStack()
                 }
             }

@@ -52,20 +52,8 @@ class MainViewModel @ViewModelInject constructor(
     }
 
 
-    fun getScreenType():LiveData<String>{
-        return dataStoreSettings.data
-            .map { settings->
-                settings[SCREEN_TYPE]?: SCREEN_WEEKLY
-            }.asLiveData()
-    }
 
-    fun setScreenType(type:String){
-        CoroutineScope(activeScope).launch {
-            dataStoreSettings.edit { settings->
-                settings[SCREEN_TYPE]=type
-            }
-        }
-    }
+
 
     fun undoDeletedProgram(program: ProgramDetail) {
         CoroutineScope(Dispatchers.Default).launch {
