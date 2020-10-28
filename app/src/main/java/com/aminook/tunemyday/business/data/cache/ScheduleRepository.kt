@@ -6,11 +6,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface ScheduleRepository {
 
-    fun scheduleUpComingAlarms(alarms:List<Alarm>):Boolean
     suspend fun cancelCurrentRoutineAlarms(routineId: Long): Boolean
     suspend fun scheduleCurrentRoutineAlarms(routineId: Long): Boolean
-    fun getUpcomingAlarms(routineId: Long):Flow<List<Alarm>>
-    suspend fun getUpcomingAlarmIdsByRoutine(routineId: Long):List<Long>
+    suspend fun rescheduleAlarmsForNewRoutine(prevRoutineId:Long,currentRoutineId:Long):Boolean
+
+    suspend fun scheduleUpcomingAlarmsByRoutine(routineId: Long): Boolean
     suspend fun getAlarmsById(alarmIds:List<Long>):List<Alarm>
     suspend fun getAlarmById(alarmId:Long):Alarm
     suspend fun getNotificationScheduleByAlarmId(alarmId:Long):Schedule

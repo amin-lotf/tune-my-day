@@ -205,7 +205,8 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
                 }
 
                 R.id.taskListFragment,
-                R.id.routineFragment -> {
+                R.id.routineFragment,
+                R.id.viewTodoFragment-> {
                     bottom_app_bar.visibility = View.GONE
                     fab_schedule.show()
                     setupFabClickListener(destination.id)
@@ -222,6 +223,9 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
     }
 
     private fun setupFabClickListener(fragmentId: Int) {
+        if(fragmentId==R.id.viewTodoFragment){
+            return
+        }
         fab_schedule.setOnClickListener {
             val action = when (fragmentId) {
                 R.id.noDataFragment -> {

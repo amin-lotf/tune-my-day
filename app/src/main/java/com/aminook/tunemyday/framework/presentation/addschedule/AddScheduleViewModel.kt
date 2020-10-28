@@ -31,9 +31,9 @@ class AddScheduleViewModel @ViewModelInject constructor(
     val scheduleInteractors: ScheduleInteractors,
     val todoInteractors: TodoInteractors,
     val dateUtil: DateUtil,
-    @DataStoreCache  dataStoreCache: DataStore<Preferences>,
+    @DataStoreCache dataStoreCache: DataStore<Preferences>,
     @DataStoreSettings dataStoreSettings: DataStore<Preferences>
-) : BaseViewModel(dataStoreCache,dataStoreSettings) {
+) : BaseViewModel(dataStoreCache, dataStoreSettings) {
     private val TAG = "aminjoon"
     val addScheduleManager = AddScheduleManager()
     var conflictedSchedules = listOf<Schedule>()
@@ -42,14 +42,11 @@ class AddScheduleViewModel @ViewModelInject constructor(
     private var _allPrograms = MutableLiveData<List<Program>>()
     private var job: Job? = null
     private var _requestType: String = SCHEDULE_REQUEST_NEW
-    private val _todos = MutableLiveData<List<Todo>>()
     private val _scheduleValidated = MutableLiveData<Boolean>()
 
-    private val _scheduleInEditId=MutableLiveData<Long>()
 
-    val scheduleInEditId:LiveData<Long>
-    get() = _scheduleInEditId
-
+    val scheduleLoaded: LiveData<Boolean>
+        get() = addScheduleManager.getScheduleStatus()
 
 
     val scheduleValidated: LiveData<Boolean>
@@ -83,76 +80,8 @@ class AddScheduleViewModel @ViewModelInject constructor(
     val alarmModifiedPosition: Int
         get() = addScheduleManager.alarmModifiedPosition
 
-
-
-    fun addTodo(todo: Todo): LiveData<List<Todo>> {
-
-        return todoInteractors.insertAndRetrieveTodos(todo)
-            .map {
-                processResponse(it?.stateMessage)
-                it?.data ?: emptyList()
-            }
-            .flowOn(Dispatchers.Default)
-            .asLiveData()
-    }
-
-    fun createTodo(
-        scheduleId: Long,
-        task: String,
-        isOneTime: Boolean = false
-    ): LiveData<List<Todo>> {
-        val todo = Todo(
-            title = task,
-            scheduleId = scheduleId,
-            programId = addScheduleManager.buffSchedule.program.id,
-            isOneTime = isOneTime,
-            priorityIndex = dateUtil.curDateInInt,
-            dateAdded = dateUtil.curDateInInt
-        )
-        Log.d(TAG, "createTodo: todo ${todo.title} : ${todo.priorityIndex}   ")
-        return addTodo(todo)
-    }
-
- //  fun updateTodo(todo: Todo): LiveData<List<Todo>> {
-////        return todoInteractors.updateTodo(todo)
-////            .map {
-////                processResponse(it?.stateMessage)
-////                it?.data ?: emptyList()
-////            }
-////            .flowOn(Dispatchers.Default)
-////            .asLiveData()
-//    }
-
-    fun updateTodos(todos: List<Todo>, scheduleId: Long): LiveData<List<Todo>> {
-        return todoInteractors.updateTodos(todos, scheduleId)
-            .map {
-                processResponse(it?.stateMessage)
-                it?.data ?: emptyList()
-            }
-            .flowOn(Default)
-            .asLiveData()
-    }
-
-
-    fun deleteTodo(
-        todo: Todo,
-        undoCallback: SnackbarUndoCallback,
-        onDismissCallback: TodoCallback
-    ) {
-        CoroutineScope(activeScope).launch {
-            todoInteractors.deleteTodo(
-                todo = todo,
-                undoCallback = undoCallback,
-                onDismissCallback = onDismissCallback
-            )
-                .map {
-                    processResponse(it?.stateMessage)
-
-                }
-                .single()
-        }
-
-    }
+    val numberOfTodos:LiveData<Int>
+    get() = addScheduleManager.numberOfTodos
 
 
     fun validateSchedule() {
@@ -160,19 +89,23 @@ class AddScheduleViewModel @ViewModelInject constructor(
         if (addScheduleManager.buffSchedule.program.name.isEmpty()) {
             handleLocalError("Please choose an activity")
         } else {
+            Log.d(
+                TAG,
+                "saveSchedule validate: startDay:${addScheduleManager.buffSchedule.startDay} EndDay: ${addScheduleManager.buffSchedule.endDay}"
+            )
             job = CoroutineScope(activeScope).launch {
                 scheduleInteractors.validateSchedule(
                     schedule = addScheduleManager.buffSchedule, object : AreYouSureCallback {
                         override fun proceed() {
-                            _scheduleValidated.value=true
+                            _scheduleValidated.value = true
                         }
 
                         override fun cancel() {
-                            _scheduleValidated.value=false
+                            _scheduleValidated.value = false
                         }
                     }
                 ).map { dataState ->
-//
+
                     processResponse(dataState?.stateMessage)
 
                     dataState?.data?.let {
@@ -197,15 +130,18 @@ class AddScheduleViewModel @ViewModelInject constructor(
                     .collect()
 
             }
-            //  handleJob(job)
+
         }
     }
 
-     fun saveSchedule(confSchedules: List<Schedule> = conflictedSchedules) {
+    fun saveSchedule(confSchedules: List<Schedule> = conflictedSchedules) {
         if (addScheduleManager.buffSchedule.program.name.isEmpty()) {
             handleLocalError("Please choose an activity")
         } else {
-
+            Log.d(
+                TAG,
+                "saveSchedule: startDay:${addScheduleManager.buffSchedule.startDay} EndDay: ${addScheduleManager.buffSchedule.endDay}"
+            )
             CoroutineScope(activeScope).launch {
                 scheduleInteractors.insertSchedule(
                     addScheduleManager.buffSchedule,
@@ -232,13 +168,13 @@ class AddScheduleViewModel @ViewModelInject constructor(
                     try {
 
                         CoroutineScope(Default).launch {
-                            scheduleInteractors.getDetailedSchedule(scheduleId)
+                            scheduleInteractors.getSchedule(scheduleId)
                                 .map {
                                     processResponse(it?.stateMessage)
                                     try {
                                         withContext(Main) {
                                             it?.data?.let { schedule ->
-                                                _scheduleInEditId.value=scheduleId
+                                                Log.d(TAG, "processRequest: schedule received")
                                                 bufferChosenProgram(schedule.program)
                                                 catchDaysOfWeek(schedule.startDay)
                                                 updateBufferedDays(daysOfWeek[schedule.startDay])
@@ -252,11 +188,12 @@ class AddScheduleViewModel @ViewModelInject constructor(
                                                     schedule.endTime.minute,
                                                     TIME_END
                                                 )
-                                                schedule.alarms.forEach {
-                                                    setAlarm(it)
-                                                }
-                                                //_todos.value = schedule.todos
-                                                //addScheduleManager.addTodos(schedule.todos)
+                                                addScheduleManager.addAlarms(schedule.alarms)
+                                                addScheduleManager.setTodosSize(schedule.numberOfTodos)
+                                                addScheduleManager.addTodos(schedule.unfinishedTodos,false)
+                                                addScheduleManager.addTodos(schedule.finishedTodos,true)
+                                                addScheduleManager.setScheduleStatus(true)
+
                                             }
                                         }
                                     } catch (e: Throwable) {
@@ -264,7 +201,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
                                         print(e.stackTraceToString())
                                         addScheduleManager.setScheduleId(0)
                                     }
-                                }.collect ()
+                                }.collect()
 
                         }
                     } catch (e: Throwable) {
@@ -274,8 +211,8 @@ class AddScheduleViewModel @ViewModelInject constructor(
                 }
             }
             SCHEDULE_REQUEST_NEW -> {
-                val startTime=args.startTime
-                val endTime=args.endTime
+                val startTime = args.startTime
+                val endTime = args.endTime
                 CoroutineScope(activeScope).launch {
                     dataStoreSettings.data.map {
                         val index = it[DAY_INDEX] ?: dateUtil.curDayIndex
@@ -295,6 +232,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
                                     TIME_END
                                 )
                             }
+                            addScheduleManager.setScheduleStatus(true)
                         }
                     }.collect()
 
@@ -303,14 +241,6 @@ class AddScheduleViewModel @ViewModelInject constructor(
         }
     }
 
-     fun getTodos(scheduleId: Long):LiveData<List<Todo>> {
-            return todoInteractors.getScheduleTodos(scheduleId)
-                .debounce(350)
-                .map {
-                    processResponse(it?.stateMessage)
-                    it?.data?: emptyList()
-                }.asLiveData()
-    }
 
     fun removeAlarm(alarm: Alarm) {
         addScheduleManager.removeAlarm(alarm)
@@ -344,19 +274,6 @@ class AddScheduleViewModel @ViewModelInject constructor(
         }
     }
 
-
-    fun addProgram(program: Program) {
-        CoroutineScope(activeScope).launch {
-
-            programInteractors.insertProgram(program).collect { dataState ->
-
-                processResponse(dataState?.stateMessage)
-                dataState?.data?.let {
-                    bufferChosenProgram(it)
-                }
-            }
-        }
-    }
 
     fun bufferChosenProgram(program: Program) {
         addScheduleManager.addProgramToBuffer(program)

@@ -10,14 +10,21 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Dao
 interface AlarmDao {
 
-    @Query("select * from alarms where routine_id=:routineId and day in(:days) and ((day=:curDay and startInSec>:start) or day>:curDay)")
-    fun selectUpcomingAlarms(routineId:Long,days:List<Int>,curDay:Int,start:Int):Flow<List<AlarmEntity>>
-
     @Query("select id from alarms where day in(:days) and routine_id=:routineId")
     suspend fun selectUpcomingAlarmIds(days:List<Int>,routineId:Long):List<Long>
 
-    fun selectUpcomingAlarmsDistinct(routineId:Long,days:List<Int>,curDay:Int,start:Int)=
-        selectUpcomingAlarms(routineId,days,curDay,start).distinctUntilChanged()
+    //@Query("select * from alarms where routine_id=:routineId and day in(:days) and ((day=:curDay and startInSec>:start) or day>:curDay)")
+    @Query("select * from alarms where day in(:days) and routine_id=:routineId")
+    suspend fun selectUpcomingAlarms(days:List<Int>,routineId:Long):List<AlarmEntity>
+
+
+    @Query("select id from alarms where day in(:days)  and schedule_id=:scheduleId and routine_id=:routineId")
+    suspend fun selectScheduleUpcomingAlarmIds(days:List<Int>,scheduleId:Long,routineId:Long):List<Long>
+
+    @Query("select * from alarms where day in(:days)  and schedule_id=:scheduleId and routine_id=:routineId")
+    suspend fun selectScheduleUpcomingAlarms(days:List<Int>,scheduleId:Long,routineId:Long):List<AlarmEntity>
+
+
 
     @Query("select * from alarms where id in(:alarmIds) and ((day=:curDay and startInSec>:start) or day>:curDay)")
     suspend fun selectAlarms(alarmIds:List<Long>,curDay:Int,start:Int):List<AlarmEntity>

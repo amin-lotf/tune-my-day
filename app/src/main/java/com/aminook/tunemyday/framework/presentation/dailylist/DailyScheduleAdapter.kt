@@ -105,7 +105,7 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
             if (viewType == TYPE_SCHEDULE_DIFF_START) {
                 if (adapterPosition > 0) {
                     val prevSchedule = currentList[adapterPosition - 1]
-                    itemView.txt_daily_prev_end_time.text = prevSchedule.endTime.toString()
+                    itemView.txt_daily_prev_end_time.text = prevSchedule.endTimeFormatted.toString()
 
                 }
             }
@@ -116,7 +116,7 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
                     itemView.view_prev_day_last.visibility = View.VISIBLE
                     itemView.txt_start_of_day_last.visibility = View.VISIBLE
                 }
-                itemView.txt_daily_end_time.text = item.endTime.toString()
+                itemView.txt_daily_end_time.text = item.endTimeFormatted.toString()
 
                 if (item.endDay != todayIndex) {
                     itemView.txt_next_day_daily.visibility = View.VISIBLE
@@ -127,10 +127,10 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
 
             if (viewType == TYPE_LAST_SCHEDULE_DIFF_START) {
 
-                itemView.txt_daily_end_time_gap.text = item.endTime.toString()
+                itemView.txt_daily_end_time_gap.text = item.endTimeFormatted.toString()
                 if (adapterPosition > 0) {
                     val prevSchedule = currentList[adapterPosition - 1]
-                    itemView.txt_daily_prev_end_time_last.text = prevSchedule.endTime.toString()
+                    itemView.txt_daily_prev_end_time_last.text = prevSchedule.endTimeFormatted.toString()
 
                 }
                 if (item.endDay != todayIndex) {

@@ -5,19 +5,20 @@
     android:id="@+id/layout_nestet_daily"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".framework.presentation.dailylist.DailyFragment">
 
 
    <androidx.constraintlayout.widget.ConstraintLayout
        android:layout_width="match_parent"
-       android:layout_height="wrap_content">
+       android:layout_height="wrap_content"
+       >
       <com.google.android.material.appbar.AppBarLayout
           android:id="@+id/app_bar_daily"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           app:layout_constraintTop_toTopOf="parent"
+          app:elevation="0dp"
           >
          <com.google.android.material.appbar.MaterialToolbar
              android:id="@+id/top_toolbar_daily"
@@ -25,6 +26,10 @@
              android:layout_height="?attr/actionBarSize"
              app:title="Saturday"
              style="@style/ToolbarTheme"/>
+         <View
+             android:layout_width="match_parent"
+             android:layout_height="1dp"
+             android:background="@color/colorLineDark"/>
       </com.google.android.material.appbar.AppBarLayout>
       <androidx.recyclerview.widget.RecyclerView
           android:id="@+id/recycler_day_schedule"

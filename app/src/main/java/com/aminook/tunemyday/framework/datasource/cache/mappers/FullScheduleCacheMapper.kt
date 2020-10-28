@@ -19,7 +19,7 @@ class FullScheduleCacheMapper @Inject constructor(
     val dateUtil: DateUtil
 ) : EntityMapper<FullSchedule, Schedule> {
     override fun mapFromEntity(entity: FullSchedule?): Schedule {
-       try {
+        try {
             if (entity != null) {
                 val program = programCacheMapper.mapFromEntity(entity.program)
                 return Schedule(
@@ -35,21 +35,27 @@ class FullScheduleCacheMapper @Inject constructor(
 
                     val endHour = (entity.schedule.end / 3600) % 24
                     val endMinute = (entity.schedule.end - (entity.schedule.end / 3600) * 3600) / 60
-                    this.endTime = Time(endHour, endMinute)
+
+                    this.endTime = if (endHour == 0 && endMinute == 0) {
+                        Time(24, 0)
+                    } else {
+                        Time(endHour, endMinute)
+                    }
 
                     this.alarms.addAll(entity.alarms.map { alarmCacheMapper.mapFromEntity(it) })
- //                   this.unfinishedTodos.addAll(entity.todos.sortedBy { it.priorityIndex }.map {  todoCacheMapper.mapFromEntity(it)})
+                    //                   this.unfinishedTodos.addAll(entity.todos.sortedBy { it.priorityIndex }.map {  todoCacheMapper.mapFromEntity(it)})
 
                     entity.todos.sortedBy { it.priorityIndex }.onEach {
+                        numberOfTodos++
                         if (
                             !it.isDone ||
-                            (it.lastChecked!=dateUtil.currentDayInInt &&
-                                    it.lastChecked!=dateUtil.currentDayInInt-1 &&
-                                    it.lastChecked!=dateUtil.currentDayInInt+1)
-                        ){
-                            it.isDone=false
+                            (it.lastChecked != dateUtil.currentDayInInt &&
+                                    it.lastChecked != dateUtil.currentDayInInt - 1 &&
+                                    it.lastChecked != dateUtil.currentDayInInt + 1)
+                        ) {
+                            it.isDone = false
                             unfinishedTodos.add(todoCacheMapper.mapFromEntity(it))
-                        }else{
+                        } else {
                             finishedTodos.add(todoCacheMapper.mapFromEntity(it))
                         }
                     }
@@ -71,8 +77,7 @@ class FullScheduleCacheMapper @Inject constructor(
             } else {
                 return Schedule()
             }
-        }
-        catch (e:Throwable){
+        } catch (e: Throwable) {
             Log.d("aminjoon", "mapFromEntity: error in mapper ")
             e.printStackTrace()
             return Schedule()
@@ -88,33 +93,35 @@ class FullScheduleCacheMapper @Inject constructor(
             programId = domainModel.program.id,
             routineId = domainModel.routineId
         ).apply {
-            if (domainModel.id!=0L){
+            if (domainModel.id != 0L) {
                 this.id = domainModel.id
             }
 
         }
-        val alarms = domainModel.alarms.map {alarm->
+        val alarms = domainModel.alarms.map { alarm ->
             alarmCacheMapper.mapToEntity(alarm).apply {
                 this.scheduleId = domainModel.id
 
                 domainModel.program.let { program ->
                     this.programId = program.id
-                    this.programName=program.name
+                    this.programName = program.name
                 }
 
-                val alarmStart=domainModel.startInSec-alarm.hourBefore*3600-alarm.minuteBefore*60
-                if (alarmStart<0){
-                    this.day=6
-                    this.startInSec=604800-abs(alarmStart)
+                val alarmStart =
+                    domainModel.startInSec - alarm.hourBefore * 3600 - alarm.minuteBefore * 60
+                if (alarmStart < 0) {
+                    this.day = 6
+                    this.startInSec = 604800 - abs(alarmStart)
 
-                }else{
-                    this.day=  alarmStart/86400
-                    this.startInSec=alarmStart
+                } else {
+                    this.day = alarmStart / 86400
+                    this.startInSec = alarmStart
                 }
             }
         }
 
-        val todos=domainModel.unfinishedTodos.map { todoCacheMapper.mapToEntity(it) }
+        val todos = domainModel.unfinishedTodos.map { todoCacheMapper.mapToEntity(it) } +
+                domainModel.finishedTodos.map { todoCacheMapper.mapToEntity(it) }
 
         return FullSchedule(
             scheduleEntity,

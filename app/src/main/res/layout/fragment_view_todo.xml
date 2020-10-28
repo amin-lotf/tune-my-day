@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_nested_view_todo"
     android:layout_width="match_parent"
+    android:visibility="invisible"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".framework.presentation.viewtodos.ViewTodoFragment"
@@ -48,8 +49,10 @@
             tools:itemCount="3"/>
 
         <View
+            android:id="@+id/black_line_separator"
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/recycler_view_todo_unfinished"
             android:background="#8A8686"
             android:layout_marginTop="8dp"/>
@@ -62,12 +65,14 @@
             android:layout_marginTop="16dp"
             android:layout_marginStart="8dp"
             android:textColor="@color/colorDark"
+            android:visibility="gone"
             android:text="Completed"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_todo_finished"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/lbl_completed"
             android:layout_marginTop="8dp"
             tools:listitem="@layout/todo_item"

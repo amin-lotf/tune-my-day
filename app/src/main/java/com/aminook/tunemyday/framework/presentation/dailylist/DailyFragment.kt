@@ -45,6 +45,13 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        dailyViewModel.getRoutineIndex().observeOnce(viewLifecycleOwner) {
+            if (it != 0L) {
+                dailyViewModel.getDailySchedules(it)
+            }
+        }
+        initializeAdapters()
+        subscribeObservers()
         top_toolbar_daily.title = "Today"
         Log.d(TAG, "onViewCreated: ")
         dailyViewModel.getScreenType().observe(viewLifecycleOwner){screenType->
@@ -58,19 +65,20 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
             }
         }
 
+
+
+
     }
 
 
     override fun onResume() {
         super.onResume()
-        dailyViewModel.getRoutineIndex().observeOnce(viewLifecycleOwner) {
-            if (it != 0L) {
-                dailyViewModel.getDailySchedules(it)
-            }
+
+        if (dailyScheduleAdapter==null){
+            initializeAdapters()
+            subscribeObservers()
         }
 
-        initializeAdapters()
-        subscribeObservers()
     }
 
 
@@ -85,7 +93,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
         dailyViewModel.schedules.observe(viewLifecycleOwner) {
             Log.d(TAG, "initializeAdapters: observe once")
             dailyScheduleAdapter?.submitList(it)
-
+            layout_nestet_daily.scrollTo(layout_nestet_daily.x.toInt(),layout_nestet_daily.layoutParams.height)
 
         }
 

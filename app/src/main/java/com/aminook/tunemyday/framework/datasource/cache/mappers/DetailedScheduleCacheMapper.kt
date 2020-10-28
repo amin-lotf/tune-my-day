@@ -17,7 +17,7 @@ class DetailedScheduleCacheMapper @Inject constructor(
     val todoCacheMapper: TodoCacheMapper
 ) : EntityMapper<DetailedSchedule, Schedule> {
     override fun mapFromEntity(entity: DetailedSchedule?): Schedule {
-       try {
+        try {
             if (entity != null) {
                 val program = programCacheMapper.mapFromEntity(entity.program)
                 return Schedule(
@@ -33,7 +33,11 @@ class DetailedScheduleCacheMapper @Inject constructor(
 
                     val endHour = (entity.schedule.end / 3600) % 24
                     val endMinute = (entity.schedule.end - (entity.schedule.end / 3600) * 3600) / 60
-                    this.endTime = Time(endHour, endMinute)
+                    this.endTime = if (endHour == 0 && endMinute == 0) {
+                        Time(24, 0)
+                    } else {
+                        Time(endHour, endMinute)
+                    }
 
                     this.alarms.addAll(entity.alarms.map { alarmCacheMapper.mapFromEntity(it) })
 
@@ -49,8 +53,7 @@ class DetailedScheduleCacheMapper @Inject constructor(
             } else {
                 return Schedule()
             }
-        }
-        catch (e:Throwable){
+        } catch (e: Throwable) {
             Log.d("aminjoon", "mapFromEntity: error in mapper ")
             e.printStackTrace()
             return Schedule()
@@ -66,28 +69,29 @@ class DetailedScheduleCacheMapper @Inject constructor(
             programId = domainModel.program.id,
             routineId = domainModel.routineId
         ).apply {
-            if (domainModel.id!=0L){
+            if (domainModel.id != 0L) {
                 this.id = domainModel.id
             }
 
         }
-        val alarms = domainModel.alarms.map {alarm->
+        val alarms = domainModel.alarms.map { alarm ->
             alarmCacheMapper.mapToEntity(alarm).apply {
                 this.scheduleId = domainModel.id
 
                 domainModel.program.let { program ->
                     this.programId = program.id
-                    this.programName=program.name
+                    this.programName = program.name
                 }
 
-                val alarmStart=domainModel.startInSec-alarm.hourBefore*3600-alarm.minuteBefore*60
-                if (alarmStart<0){
-                    this.day=6
-                    this.startInSec=604800-abs(alarmStart)
+                val alarmStart =
+                    domainModel.startInSec - alarm.hourBefore * 3600 - alarm.minuteBefore * 60
+                if (alarmStart < 0) {
+                    this.day = 6
+                    this.startInSec = 604800 - abs(alarmStart)
 
-                }else{
-                    this.day=  alarmStart/86400
-                    this.startInSec=alarmStart
+                } else {
+                    this.day = alarmStart / 86400
+                    this.startInSec = alarmStart
                 }
             }
         }

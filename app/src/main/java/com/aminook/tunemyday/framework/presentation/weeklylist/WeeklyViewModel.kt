@@ -44,7 +44,7 @@ class WeeklyViewModel @ViewModelInject constructor(
         return scheduleInteractors.getDailySchedules(
             fragmentDayIndex,
             fragmentRoutineIndex,
-            dateUtil.getStartOfDayInSec(fragmentDayIndex) + 1 //add 1 to avoid schedules end at 00:00
+            dateUtil.getStartOfDayInSec(fragmentDayIndex)
         )
             .debounce(200)
             .map { dataState ->

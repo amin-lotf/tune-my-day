@@ -3,12 +3,8 @@ package com.aminook.tunemyday.framework.presentation.viewtodos
 import android.animation.LayoutTransition
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -17,7 +13,6 @@ import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Todo
 import com.aminook.tunemyday.business.domain.state.SnackbarUndoCallback
 
-import com.aminook.tunemyday.framework.presentation.MainActivity
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.framework.presentation.common.TodoAdapter
 import com.aminook.tunemyday.util.DragManageAdapter
@@ -39,6 +34,7 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
 
     private var unfinishedTodoAdapter:TodoAdapter?=null
     private var finishedTodoAdapter:TodoAdapter?=null
+    private var isSummary=false
 
     private val viewModel: ViewTodoViewModel by viewModels()
     private lateinit var addTodoBtmSheetDialog: BottomSheetDialog
@@ -47,42 +43,64 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
         super.onViewCreated(view, savedInstanceState)
         layout_nested_view_todo.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
         layout_const_view_todo.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-
-        initializeFinishedTodoAdapter()
+        val args: ViewTodoFragmentArgs by navArgs()
+        isSummary=args.isSummary
         initializeUnFinishedTodoAdapter()
-        setupToolbar()
-        subscribeObservers()
-    }
 
+        if (!isSummary) {
+            black_line_separator.visibility=View.VISIBLE
+            lbl_completed.visibility=View.VISIBLE
+            recycler_view_todo_finished.visibility=View.VISIBLE
+            initializeFinishedTodoAdapter()
+        }else{
+            lbl_remaining.text="Tasks"
+        }
+
+        setupToolbar()
+        subscribeObservers(args.scheduleId)
+    }
 
     override fun onResume() {
         super.onResume()
+        setupFab()
+    }
 
-
+    private fun setupFab() {
+        requireActivity().fab_schedule.setOnClickListener {
+            showAddTodo()
+        }
     }
 
 
-
-    private fun subscribeObservers() {
+    private fun subscribeObservers(scheduleId: Long) {
         viewModel.stateMessage.observe(viewLifecycleOwner) { event ->
             event?.getContentIfNotHandled()?.let { stateMessage ->
                 onResponseReceived(stateMessage.response)
             }
         }
 
-        val args: ViewTodoFragmentArgs by navArgs()
-        if (args.scheduleId!=0L){
-            viewModel.getSchedule(args.scheduleId).observeOnce(viewLifecycleOwner){
+        viewModel.scheduleLoaded.observe(viewLifecycleOwner){loaded->
+            if (loaded){
+                layout_nested_view_todo.visibility=View.VISIBLE
+            }
+        }
+
+
+        if (scheduleId!=0L){
+            viewModel.getSchedule(scheduleId,isSummary).observeOnce(viewLifecycleOwner){
                 it?.let { schedule->
                     toolbar_view_todor.title=schedule.program.name
                     unfinishedTodoAdapter?.submitList(schedule.unfinishedTodos,
                         addPadding = true,
                         withAddButton = false
                     )
-                    finishedTodoAdapter?.submitList(schedule.finishedTodos,
-                        addPadding = true,
-                        withAddButton = false
-                    )
+                    if (!isSummary) {
+                        finishedTodoAdapter?.submitList(
+                            schedule.finishedTodos,
+                            addPadding = true,
+                            withAddButton = false
+                        )
+                    }
 
                 }
 
@@ -152,7 +170,7 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
     }
 
     private fun initializeUnFinishedTodoAdapter() {
-        unfinishedTodoAdapter= TodoAdapter(currentDay = viewModel.dateUtil.currentDayInInt)
+        unfinishedTodoAdapter= TodoAdapter(currentDay = viewModel.dateUtil.currentDayInInt,isSummary = isSummary)
         unfinishedTodoAdapter?.setListener(this)
         unfinishedTodoAdapter?.let {
             recycler_view_todo_unfinished.apply {
@@ -333,6 +351,7 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
 
 
     override fun onPause() {
+        requireActivity().fab_schedule.setOnClickListener(null)
         super.onPause()
     }
 

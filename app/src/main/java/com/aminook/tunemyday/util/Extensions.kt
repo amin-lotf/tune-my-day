@@ -3,13 +3,12 @@ package com.aminook.tunemyday.util
 import android.animation.LayoutTransition
 import android.app.Activity
 import android.content.Context
+import android.os.Build
 import android.view.View
-import android.view.animation.AccelerateInterpolator
-import android.view.animation.Animation
-import android.view.animation.Interpolator
-import android.view.animation.Transformation
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.widget.NestedScrollView
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.recyclerview.widget.DiffUtil
@@ -39,24 +38,80 @@ fun <T> RecyclerView.Adapter<*>.autoNotify(
     diff.dispatchUpdatesTo(this)
 }
 
+fun NestedScrollView.setTransition(){
+    val tr=LayoutTransition()
+    tr.enableTransitionType(LayoutTransition.CHANGING)
+    tr.setStartDelay(LayoutTransition.CHANGING, 3000)
+    layoutTransition=tr
+//    this.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+//    this.layoutTransition.setDuration(300)
+//    this.layoutTransition.setStartDelay()
+}
+
 fun ConstraintLayout.setTransition(){
-    this.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-    this.layoutTransition.setDuration(300)
+    val tr=LayoutTransition()
+    tr.enableTransitionType(LayoutTransition.CHANGING)
+    tr.setStartDelay(LayoutTransition.CHANGING, 3000)
+    layoutTransition=tr
+//    this.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+//    this.layoutTransition.setDuration(300)
+//    this.layoutTransition.setStartDelay()
 }
 
+// fun setHeightChangeAnimation(animatedLayout: ViewGroup) {
+//
+//        var vg = animatedLayout
+//        while (vg is ViewGroup) {
+//            vg = vg.parent as ViewGroup
+//            if (vg is ViewGroup && vg.layoutParams.height != ViewGroup.LayoutParams.WRAP_CONTENT) {
+//                val animatedLayoutLt = animatedLayout.layoutTransition
+//                val lt = LayoutTransition()
+//                lt.enableTransitionType(LayoutTransition.CHANGING)
+//                lt.setDuration(animatedLayoutLt.getDuration(LayoutTransition.CHANGE_APPEARING))
+//                lt.setStartDelay(
+//                    LayoutTransition.CHANGING,
+//                    animatedLayoutLt.getStartDelay(LayoutTransition.APPEARING)
+//                )
+//                val finalVg = vg
+//                val oldLt = finalVg.layoutTransition
+//                lt.addTransitionListener(object : LayoutTransition.TransitionListener {
+//                    override fun startTransition(
+//                        transition: LayoutTransition,
+//                        container: ViewGroup,
+//                        view: View,
+//                        transitionType: Int
+//                    ) {
+//                    }
+//
+//                    override fun endTransition(
+//                        transition: LayoutTransition,
+//                        container: ViewGroup,
+//                        view: View,
+//                        transitionType: Int
+//                    ) {
+//                        finalVg.layoutTransition = oldLt
+//                    }
+//                })
+//                finalVg.layoutTransition = lt
+//                break
+//            }
+//
+//    }
+//}
 
-fun NavController.navigateWithSourcePopUp(from:Int, to:Int){
+
+fun NavController.navigateWithSourcePopUp(from: Int, to: Int){
     val navOption=NavOptions.Builder()
-        .setPopUpTo(from,true)
+        .setPopUpTo(from, true)
         .build()
-    navigate(to,null,navOption)
+    navigate(to, null, navOption)
 }
 
-fun NavController.navigateWithDestinationPopUp(from:Int, to:Int){
+fun NavController.navigateWithDestinationPopUp(from: Int, to: Int){
     val navOption=NavOptions.Builder()
-        .setPopUpTo(to,true)
+        .setPopUpTo(to, true)
         .build()
-    navigate(to,null,navOption)
+    navigate(to, null, navOption)
 }
 
 

@@ -151,7 +151,6 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
                     if (item.isDone) {
                         itemView.chk_todo.apply {
                             isChecked = true
-                            Log.d(TAG, "bind: is checked")
                             itemView.txt_todo_title.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
                         }
                     } else {

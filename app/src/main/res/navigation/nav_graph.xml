@@ -94,6 +94,9 @@
         <action
             android:id="@+id/action_dailyFragment_to_addScheduleFragment"
             app:destination="@id/addScheduleFragment" />
+        <action
+            android:id="@+id/action_dailyFragment_to_addToDoFragment"
+            app:destination="@id/addToDoFragment" />
     </fragment>
     <fragment
         android:id="@+id/routineFragment"
@@ -131,6 +134,13 @@
             android:name="scheduleId"
             app:argType="long"
             android:defaultValue="0L" />
+        <argument
+            android:name="isSummary"
+            app:argType="boolean"
+            android:defaultValue="false" />
+        <action
+            android:id="@+id/action_viewTodoFragment_to_addToDoFragment"
+            app:destination="@id/addToDoFragment" />
     </fragment>
     <fragment
         android:id="@+id/noDataFragment"
@@ -153,6 +163,16 @@
             android:defaultValue=" " />
         <argument
             android:name="routineId"
+            app:argType="long"
+            android:defaultValue="0L" />
+    </fragment>
+    <fragment
+        android:id="@+id/addToDoFragment"
+        android:name="com.aminook.tunemyday.framework.presentation.addtodo.AddToDoFragment"
+        android:label="fragment_add_to_do"
+        tools:layout="@layout/fragment_add_to_do" >
+        <argument
+            android:name="TodoId"
             app:argType="long"
             android:defaultValue="0L" />
     </fragment>

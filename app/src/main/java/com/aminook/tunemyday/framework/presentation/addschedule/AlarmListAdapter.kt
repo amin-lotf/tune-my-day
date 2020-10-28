@@ -1,5 +1,6 @@
 package com.aminook.tunemyday.framework.presentation.addschedule
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -51,7 +52,9 @@ class AlarmListAdapter() : RecyclerView.Adapter<AlarmListAdapter.ViewHolder>() {
         fun bind(alarm: Alarm) {
             itemView.add_schedule_notification.text = alarm.toString()
             itemView.add_schedule_remove_alarm.setOnClickListener {
-                listener?.onRemoveClick(alarm)
+                alarm.index=this@AlarmListAdapter.alarms.indexOf(alarm)
+                Log.d(TAG, "bind: alarm: ${alarm.index}")
+                listener?.onRemoveAlarmClick(alarm)
             }
             itemView.setOnClickListener {
                 listener?.onAlarmClick(alarm)
@@ -60,7 +63,7 @@ class AlarmListAdapter() : RecyclerView.Adapter<AlarmListAdapter.ViewHolder>() {
     }
 
     interface AlarmClickListener {
-        fun onRemoveClick(alarm: Alarm)
+        fun onRemoveAlarmClick(alarm: Alarm)
         fun onAlarmClick(alarm: Alarm)
     }
 }

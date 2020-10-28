@@ -4,14 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginTop="8dp"
+    android:layout_marginTop="10dp"
     android:layout_marginEnd="8dp"
     android:layout_marginStart="8dp"
-    android:layout_marginBottom="2dp"
+    android:layout_marginBottom="4dp"
     android:checkable="true"
     app:cardElevation="0dp"
-    app:strokeColor="@color/stroke_color"
-    app:strokeWidth="1dp"
+
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -24,7 +23,8 @@
             android:layout_height="wrap_content"
             android:text="1 day 2 hours 30mins before start"
             android:textStyle="bold"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/colorFontDark"
+            android:fontFamily="@font/open_sans"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/add_schedule_remove_alarm"

@@ -103,7 +103,7 @@ class ShortDailyScheduleAdapter(val context: Context,val curDay:Int) :
             itemView.layout_child_schedule_item.setBackgroundColor(item.program.color)
             itemView.layout_child_schedule_item.background.alpha = 10
             itemView.schedule_hour_start.text = item.startTime.toString()
-            itemView.schedule_hour_end.text = item.endTime.toString()
+            itemView.schedule_hour_end.text = item.endTimeFormatted.toString()
             itemView.schedule_duration.text = item.duration
             if (item.hasToDo) {
                 itemView.schedule_todo__on.visibility = View.VISIBLE

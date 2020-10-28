@@ -17,7 +17,23 @@ class AddScheduleManager {
     private var _endTime = MutableLiveData<Time>()
     private var _listChanged = MutableLiveData<String>()
     private var _alarmModifiedPosition = 0
+    private val _scheduleLoaded = MutableLiveData<Boolean>()
+    private val _numberOfTodos = MutableLiveData<Int>()
 
+
+    init {
+
+        _scheduleLoaded.value = false
+    }
+
+    fun getScheduleStatus(): LiveData<Boolean> = _scheduleLoaded
+
+    fun setScheduleStatus(status: Boolean) {
+        _scheduleLoaded.value = status
+    }
+
+    val numberOfTodos: LiveData<Int>
+        get() = _numberOfTodos
 
     val buffSchedule: Schedule
         get() = _buffSchedule
@@ -55,24 +71,29 @@ class AddScheduleManager {
 
     }
 
-//    fun processTodoList(todos: List<Todo>?): List<Todo> {
-//        val tmpTodos = mutableListOf<Todo>()
-//        todos?.let {
-//            tmpTodos.addAll(it)
-//           // tmpTodos.add(Todo(id = -1))
-//        }
-//        return tmpTodos
-//    }
+    fun setTodosSize(size:Int){
+        _buffSchedule.numberOfTodos=size
+        _numberOfTodos.value=size
+    }
 
-    fun addTodos(todos: List<Todo>? = null) {
-        buffSchedule.unfinishedTodos.apply {
-            clear()
-            addAll(todos ?: emptyList())
+    fun addTodos(todos:List<Todo>,isFinished:Boolean){
+        if(isFinished){
+            _buffSchedule.finishedTodos.clear()
+            _buffSchedule.finishedTodos.addAll(todos)
+        }else{
+            _buffSchedule.unfinishedTodos.clear()
+            _buffSchedule.unfinishedTodos.addAll(todos)
         }
     }
 
+
     fun setRoutineId(routineId: Long) {
         _buffSchedule.routineId = routineId
+    }
+
+    fun addAlarms(alarms: List<Alarm>) {
+        _buffSchedule.alarms.addAll(alarms)
+        _listChanged.value = ALARM_LIST_ADDED
     }
 
     fun addAlarm(alarm: Alarm) {
@@ -85,8 +106,6 @@ class AddScheduleManager {
             _buffSchedule.alarms.add(alarm)
             _buffSchedule.alarms.sortWith(compareBy<Alarm> { it.hourBefore }.thenBy { it.minuteBefore })
             val index = _buffSchedule.alarms.indexOf(alarm)
-            alarm.index = index
-
             _alarmModifiedPosition = index
             _listChanged.value = ALARM_ADDED
         } else {
@@ -133,9 +152,10 @@ class AddScheduleManager {
                 _startTime.value = _buffSchedule.startTime
             }
             TIME_END -> {
-                _buffSchedule.endTime.hour = hour
+                val tmpHour = if (hour == 0 && minute == 0) 24 else hour
+                _buffSchedule.endTime.hour = tmpHour
                 _buffSchedule.endTime.minute = minute
-                _endTime.value = _buffSchedule.endTime
+                _endTime.value = _buffSchedule.endTimeFormatted
             }
         }
     }
