@@ -13,11 +13,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CancelUpcomingAlarmsByRoutine @Inject constructor(
+class ScheduleAlarmsForCurrentRoutine @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-    operator fun invoke(routineId:Long):Flow<DataState<Boolean>?>{
+    operator fun invoke(currentRoutineId:Long):Flow<DataState<Boolean>?>{
         val cacheResponse=object :CacheResponseHandler<Boolean,Boolean>(){
             override fun handleSuccess(resultObj: Boolean): DataState<Boolean>? {
                 return if (resultObj){
@@ -44,7 +44,7 @@ class CancelUpcomingAlarmsByRoutine @Inject constructor(
         return cacheResponse.getResult {
             flow {
                 emit(
-                    scheduleRepository.cancelCurrentRoutineAlarms(routineId)
+                    scheduleRepository.scheduleUpcomingAlarmsByRoutine(currentRoutineId)
                 )
             }
         }

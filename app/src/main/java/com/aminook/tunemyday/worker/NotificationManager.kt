@@ -6,17 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.work.*
-import com.aminook.tunemyday.business.domain.model.Alarm
 import com.aminook.tunemyday.business.domain.util.DateUtil
-import com.aminook.tunemyday.business.interactors.alarm.GetAlarmsById
 import com.aminook.tunemyday.framework.datasource.cache.model.AlarmEntity
 import com.aminook.tunemyday.framework.presentation.MainActivity
 import com.aminook.tunemyday.worker.AlarmWorker.Companion.ACTION_TYPE
 import com.aminook.tunemyday.worker.AlarmWorker.Companion.ALARMS_IDS
 import com.aminook.tunemyday.worker.AlarmWorker.Companion.ALARM_WORKER_NAME
-import com.aminook.tunemyday.worker.AlarmWorker.Companion.TYPE_ADD_ALARMS
 import com.aminook.tunemyday.worker.AlarmWorker.Companion.TYPE_DELETE_ALARMS
-import kotlinx.coroutines.flow.collect
 import kotlin.math.roundToLong
 
 

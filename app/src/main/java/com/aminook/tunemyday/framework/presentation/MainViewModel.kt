@@ -65,9 +65,9 @@ class MainViewModel @ViewModelInject constructor(
         }
     }
 
-    fun cancelPrevRoutineAlarms(routineId:Long){
+    fun rescheduleAlarmsForNewRoutine(prevRoutineId:Long,currentRoutineId:Long){
         CoroutineScope(activeScope).launch {
-            alarmInteractors.cancelUpcomingAlarmsByRoutine(routineId)
+            alarmInteractors.rescheduleAlarmsForNewRoutine(prevRoutineId,currentRoutineId)
                 .map {
                     processResponse(it?.stateMessage)
                 }.single()
@@ -121,7 +121,6 @@ class MainViewModel @ViewModelInject constructor(
     }
 
 
-
     private fun saveSchedule(schedule: Schedule) {
         CoroutineScope(activeScope).launch {
             scheduleInteractors.insertSchedule(schedule, listOf(), SCHEDULE_REQUEST_NEW,routineId).collect{ dataState->
@@ -129,28 +128,6 @@ class MainViewModel @ViewModelInject constructor(
 
             }
         }
-    }
-
-    fun scheduleUpcomingAlarms(alarms:List<Alarm>){
-        CoroutineScope(activeScope).launch {
-            alarmInteractors.scheduleUpcomingAlarms(alarms)
-                .map {
-                    processResponse(it?.stateMessage)
-                }.collect()
-        }
-    }
-
-
-    fun getUpcomingAlarms():LiveData<List<Alarm>> {
-            return alarmInteractors.getUpcomingAlarms(
-               routineId
-            )
-                .map { dataState ->
-                Log.d(TAG, "doWorkk catchDaysOfWeek: ")
-                processResponse(dataState?.stateMessage)
-                dataState?.data?: emptyList()
-            }.asLiveData()
-
     }
 
 

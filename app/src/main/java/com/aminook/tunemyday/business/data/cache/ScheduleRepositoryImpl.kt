@@ -14,6 +14,7 @@ import com.aminook.tunemyday.framework.datasource.cache.model.*
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
 import com.aminook.tunemyday.worker.NotificationManager
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -40,7 +41,17 @@ class ScheduleRepositoryImpl @Inject constructor(
     }
 
     override suspend fun scheduleUpcomingAlarmsByRoutine(routineId: Long): Boolean {
-        TODO("Not yet implemented")
+        val dayRange = dateUtil.shortDayRange
+        return try {
+            val alarms=daoService.alarmDao.selectUpcomingAlarms(dayRange,routineId)
+            notificationManager.addAlarms(alarms)
+            true
+        }catch (e:Throwable){
+            e.printStackTrace()
+            FirebaseCrashlytics.getInstance().recordException(e)
+            false
+        }
+
     }
 
     override suspend fun rescheduleAlarmsForNewRoutine(
@@ -367,7 +378,7 @@ class ScheduleRepositoryImpl @Inject constructor(
     override suspend fun deleteSchedule(schedule: Schedule): Int {
         val alarmsToDelete = schedule.alarms.map { it.id }
 
-        notificationManager.removeNotifications_bck(alarmsToDelete)
+        notificationManager.cancelAlarms(alarmsToDelete)
 
         return daoService.scheduleDao.deleteSchedule(
             mappers.fullScheduleCacheMapper.mapToEntity(

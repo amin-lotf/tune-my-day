@@ -1,6 +1,5 @@
 package com.aminook.tunemyday.business.interactors.alarm
 
-import androidx.datastore.DataStore
 import com.aminook.tunemyday.business.data.cache.CacheResponseHandler
 import com.aminook.tunemyday.business.data.cache.ScheduleRepository
 import com.aminook.tunemyday.business.domain.model.Alarm
@@ -14,17 +13,17 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ScheduleUpcomingAlarms @Inject constructor(
+class RescheduleAlarmsForNewRoutine @Inject constructor(
     val scheduleRepository: ScheduleRepository
 ) {
 
-    operator fun invoke(alarms: List<Alarm>):Flow<DataState<Boolean>?>{
+    operator fun invoke(prevRoutineId:Long,currentRoutineId:Long):Flow<DataState<Boolean>?>{
         val cacheResponse=object :CacheResponseHandler<Boolean,Boolean>(){
             override fun handleSuccess(resultObj: Boolean): DataState<Boolean>? {
                 return if (resultObj){
                     DataState.data(
                         response = Response(
-                            message = SCHEDULE_ALARM_SUCCESS,
+                            message = CANCEL_ALARM_SUCCESS,
                             uiComponentType = UIComponentType.None,
                             messageType = MessageType.Success
                         ),
@@ -33,7 +32,7 @@ class ScheduleUpcomingAlarms @Inject constructor(
                 }else{
                     DataState.error(
                         response = Response(
-                            message = SCHEDULE_ALARM_FAIL,
+                            message = CANCEL_ALARM_FAIL,
                             uiComponentType = UIComponentType.Toast,
                             messageType = MessageType.Error
                         )
@@ -45,15 +44,15 @@ class ScheduleUpcomingAlarms @Inject constructor(
         return cacheResponse.getResult {
             flow {
                 emit(
-                    scheduleRepository.scheduleUpComingAlarms(alarms)
+                    scheduleRepository.rescheduleAlarmsForNewRoutine(prevRoutineId,currentRoutineId)
                 )
             }
         }
     }
 
     companion object{
-        const val SCHEDULE_ALARM_FAIL="Failed to set notification"
-        const val SCHEDULE_ALARM_SUCCESS="notification set"
+        const val CANCEL_ALARM_FAIL="Failed to cancel notifications"
+        const val CANCEL_ALARM_SUCCESS="notifications canceled"
     }
 
 }

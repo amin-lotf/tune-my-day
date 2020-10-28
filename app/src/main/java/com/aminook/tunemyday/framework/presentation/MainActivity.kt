@@ -167,10 +167,7 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
             if (it != 0L) {
                 mainViewModel.buffRoutineId?.let { buffered ->
                     if (it != buffered) {
-                        mainViewModel.cancelPrevRoutineAlarms(buffered)
-                        mainViewModel.getUpcomingAlarms().observe(this) { alarms ->
-                            mainViewModel.scheduleUpcomingAlarms(alarms)
-                        }
+                       mainViewModel.rescheduleAlarmsForNewRoutine(buffered,it)
                     }
                 }
             }
