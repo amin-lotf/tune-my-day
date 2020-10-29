@@ -3,6 +3,7 @@ package com.aminook.tunemyday.framework.presentation.addschedule.manager
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import com.aminook.tunemyday.business.domain.model.*
 
 
@@ -26,11 +27,19 @@ class AddScheduleManager {
         _scheduleLoaded.value = false
     }
 
+    fun initializeSchedule(){
+        _listChanged.value= ALARM_LIST_ADDED
+    }
+
+
     fun getScheduleStatus(): LiveData<Boolean> = _scheduleLoaded
 
     fun setScheduleStatus(status: Boolean) {
         _scheduleLoaded.value = status
     }
+
+
+
 
     val numberOfTodos: LiveData<Int>
         get() = _numberOfTodos

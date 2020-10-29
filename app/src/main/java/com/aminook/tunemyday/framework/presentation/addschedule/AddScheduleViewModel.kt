@@ -45,6 +45,9 @@ class AddScheduleViewModel @ViewModelInject constructor(
     private val _scheduleValidated = MutableLiveData<Boolean>()
 
 
+    val requestType:String
+    get() = _requestType
+
     val scheduleLoaded: LiveData<Boolean>
         get() = addScheduleManager.getScheduleStatus()
 
@@ -82,6 +85,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
 
     val numberOfTodos:LiveData<Int>
     get() = addScheduleManager.numberOfTodos
+
 
 
     fun validateSchedule() {

@@ -156,7 +156,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
 
     private fun subscribeObservers() {
-
+        viewModel.addScheduleManager.initializeSchedule()
         viewModel.stateMessage.observe(viewLifecycleOwner) { event ->
             event?.getContentIfNotHandled()?.let { stateMessage ->
                 onResponseReceived(stateMessage.response)
@@ -167,15 +167,28 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         }
 
 
-        viewModel.scheduleValidated.observe(viewLifecycleOwner){
-           if(it){
+        viewModel.scheduleValidated.observe(viewLifecycleOwner){scheduleValidated->
+           if(scheduleValidated){
                viewModel.saveSchedule()
            }
         }
 
         viewModel.scheduleLoaded.observe(viewLifecycleOwner){loaded->
             if (loaded){
-                Log.d(TAG, "subscribeObservers: schedule  loaded")
+                if (viewModel.requestType == SCHEDULE_REQUEST_EDIT) {
+                    toolbar_add_schedule.title = "Edit Schedule"
+
+                    toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = true
+                } else {
+                    toolbar_add_schedule.title = "New Schedule"
+                    if (add_schedule_name.text.isBlank()){
+                        add_schedule_name.text = "Choose an activity"
+                    }
+                    add_schedule_name.visibility=View.VISIBLE
+                    toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = false
+                    layout_todo_group.isVisible = false
+                }
+
                 scroll_view_add_schedule.visibility=View.VISIBLE
 
             }else{
