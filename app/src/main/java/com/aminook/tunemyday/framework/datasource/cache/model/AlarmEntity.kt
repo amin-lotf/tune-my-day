@@ -33,8 +33,6 @@ data class AlarmEntity(
   var programId: Long,
   @ColumnInfo(name = "routine_id",index = true)
   var routineId:Long,
-  //@ColumnInfo(name = "program_name")
-  var programName:String,
   val hourBefore: Int,
   val minBefore: Int,
   var day:Int,

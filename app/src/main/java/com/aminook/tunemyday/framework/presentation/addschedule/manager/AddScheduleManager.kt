@@ -71,16 +71,16 @@ class AddScheduleManager {
 
     }
 
-    fun setTodosSize(size:Int){
-        _buffSchedule.numberOfTodos=size
-        _numberOfTodos.value=size
+    fun setTodosSize(size: Int) {
+        _buffSchedule.numberOfTodos = size
+        _numberOfTodos.value = size
     }
 
-    fun addTodos(todos:List<Todo>,isFinished:Boolean){
-        if(isFinished){
+    fun addTodos(todos: List<Todo>, isFinished: Boolean) {
+        if (isFinished) {
             _buffSchedule.finishedTodos.clear()
             _buffSchedule.finishedTodos.addAll(todos)
-        }else{
+        } else {
             _buffSchedule.unfinishedTodos.clear()
             _buffSchedule.unfinishedTodos.addAll(todos)
         }
@@ -102,32 +102,12 @@ class AddScheduleManager {
             return
         }
         alarm.scheduleId = _buffSchedule.id
-        if (!alarm.inEditMode) {
-            _buffSchedule.alarms.add(alarm)
-            _buffSchedule.alarms.sortWith(compareBy<Alarm> { it.hourBefore }.thenBy { it.minuteBefore })
-            val index = _buffSchedule.alarms.indexOf(alarm)
-            _alarmModifiedPosition = index
-            _listChanged.value = ALARM_ADDED
-        } else {
-            if (alarm.index != -1) {
+        _buffSchedule.alarms.add(alarm)
+        _buffSchedule.alarms.sortWith(compareBy<Alarm> { it.hourBefore }.thenBy { it.minuteBefore })
+        val index = _buffSchedule.alarms.indexOf(alarm)
+        _alarmModifiedPosition = index
+        _listChanged.value = ALARM_ADDED
 
-                if (alarm.index < _buffSchedule.alarms.size) {
-
-                    _buffSchedule.alarms.removeAt(alarm.index)
-                    _alarmModifiedPosition = alarm.index
-                    _listChanged.value = ALARM_REMOVED
-
-                    _buffSchedule.alarms.add(alarm)
-
-                    _buffSchedule.alarms.sortWith(compareBy<Alarm> { it.hourBefore }.thenBy { it.minuteBefore })
-                    val newIndex = _buffSchedule.alarms.indexOf(alarm)
-                    alarm.index = newIndex
-                    _alarmModifiedPosition = newIndex
-                    _listChanged.value = ALARM_ADDED
-                }
-
-            }
-        }
     }
 
     fun getChosenDay() = _chosenDay
@@ -170,11 +150,11 @@ class AddScheduleManager {
 
 
     companion object {
-        val TIME_START = 0
-        val TIME_END = 1
-        val ALARM_LIST_ADDED = "list of alarms added"
-        val ALARM_ADDED = "item added to alarm list"
-        val ALARM_REMOVED = "item removed from alarm list"
+        const val TIME_START = 0
+        const val TIME_END = 1
+        const val ALARM_LIST_ADDED = "list of alarms added"
+        const val ALARM_ADDED = "item added to alarm list"
+        const val ALARM_REMOVED = "item removed from alarm list"
     }
 
 }

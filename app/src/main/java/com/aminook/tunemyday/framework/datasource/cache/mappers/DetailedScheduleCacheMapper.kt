@@ -80,7 +80,6 @@ class DetailedScheduleCacheMapper @Inject constructor(
 
                 domainModel.program.let { program ->
                     this.programId = program.id
-                    this.programName = program.name
                 }
 
                 val alarmStart =

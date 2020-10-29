@@ -232,6 +232,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
                                     TIME_END
                                 )
                             }
+                            addScheduleManager.addAlarms(emptyList())
                             addScheduleManager.setScheduleStatus(true)
                         }
                     }.collect()
@@ -311,6 +312,11 @@ class AddScheduleViewModel @ViewModelInject constructor(
                 .collect()
         }
 
+    }
+
+    override fun onCleared() {
+        Log.d(TAG, "onCleared: addSchedule viewmodel")
+        super.onCleared()
     }
 
 

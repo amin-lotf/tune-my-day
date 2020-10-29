@@ -6,6 +6,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -57,10 +58,8 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
         }
 
         if (intent?.action.equals(ACTION_CALL_FROM_WORKER)){
-            Log.d(TAG, "onReceive: ACTION_CALL_FROM_WORKER")
             val alarmId=intent?.getLongExtra(ALARM_ID,0)
             alarmId?.let { id->
-                Log.d(TAG, "onReceive: ACTION alarm id: $id")
                 try {
                     CoroutineScope(Default).launch {
                         scheduleInteractors.getNotificationScheduleByAlarmId(id).collect {dataState->
@@ -80,37 +79,6 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
             }
 
         }
-
-
-
-//        val scheduleId = intent?.getLongExtra(SCHEDULE_ID, -1)
-//        val alarmId = intent?.getLongExtra(ALARM_ID, -1)
-//        Log.d(TAG, "onReceive: id: $scheduleId")
-//        if (scheduleId!=null && scheduleId != -1L) {
-//            try {
-//                CoroutineScope(Default).launch {
-//                    scheduleInteractors.getSchedule(scheduleId).map { dataState->
-//
-//                       dataState?.data?.let {
-//                           Log.d(TAG, "onReceive broadcast: schedule id:${it.id}  program: ${it.program.name}")
-//                           withContext(Main) {
-//                               if (it.alarms.isNotEmpty()) {
-//                                   showNotification(
-//                                       context,
-//                                       it,
-//                                       it.alarms.filter { it.id == alarmId }[0]
-//                                   )
-//                               }
-//                           }
-//                       }
-//
-//                    }.single()
-//                }
-//            } catch (e: Throwable) {
-//                Log.d(TAG, "onReceive: ${e.printStackTrace()}")
-//            }
-//        }
-
     }
 
     fun showNotification(context: Context,schedule:Schedule){
@@ -118,7 +86,8 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
         val summaryNotification= NotificationCompat.Builder(context,CHANNEL_ID)
             .setContentTitle("Tune My Day")
             .setContentText("Upcoming Activity")
-            .setSmallIcon(R.drawable.ic_notification)
+            .setSmallIcon(R.drawable.ic_chevron_left)
+            .setColor(ContextCompat.getColor(context, R.color.colorWhite))
             .setGroup(GROUP_KEY)
             .setGroupSummary(true)
             .setAutoCancel(true)
@@ -136,12 +105,12 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
         )
 
         val notification=NotificationCompat.Builder(context.applicationContext, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification)
+
             .setContentTitle(
-                "${schedule.program.name} (${schedule.startTime})"
+                schedule.program.name
             )
 
-            .setContentText(getNotificationSmallFormat(alarm))
+            .setContentText(getNotificationSmallFormat(alarm,schedule))
             .setStyle(
                 NotificationCompat.BigTextStyle()
                     .bigText(
@@ -160,10 +129,10 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
     }
 
 
-    private fun getNotificationSmallFormat(alarm: Alarm):String{
+    private fun getNotificationSmallFormat(alarm: Alarm,schedule: Schedule):String{
         val h = if (alarm.hourBefore == 1) " hour" else " hours "
         val m = if (alarm.minuteBefore == 1) " minute" else " minutes"
-        return if (alarm.hourBefore == 0 && alarm.minuteBefore == 0) {
+        val firstPart= if (alarm.hourBefore == 0 && alarm.minuteBefore == 0) {
             "Starting now!"
         } else if (alarm.hourBefore == 0) {
             "Starts in ${alarm.minuteBefore}$m"
@@ -175,6 +144,9 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
             "Starts in ${alarm.hourBefore}$h ${alarm.minuteBefore}$m"
 
         }
+
+
+        return firstPart+" (${schedule.startTime})"
     }
 
     private fun getNotificationBigFormat(schedule: Schedule):String{

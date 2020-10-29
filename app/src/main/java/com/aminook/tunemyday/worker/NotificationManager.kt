@@ -22,47 +22,6 @@ class NotificationManager(
 ) {
     val TAG="aminjoon"
 
-    fun removeNotifications_bck(alarmIds: List<Long>) {
-        if (alarmIds.isEmpty()){
-            Log.d(TAG, "removeNotifications: doWorkk new empty")
-        }
-        val data = Data.Builder()
-            .putLongArray(ALARMS_IDS, alarmIds.toLongArray())
-            .putString(ACTION_TYPE, TYPE_DELETE_ALARMS)
-            .build()
-
-
-        val alarmWorkRequest = OneTimeWorkRequest.Builder(AlarmWorker::class.java)
-            .setInputData(data)
-            .build()
-        Log.d(TAG, "removeNotifications: doWorkk ")
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            ALARM_WORKER_NAME,
-            ExistingWorkPolicy.APPEND_OR_REPLACE,
-            alarmWorkRequest
-        )
-
-    }
-
-//    fun setNotifications_bck(alarmIds: List<Long>) {
-//        if (alarmIds.isEmpty()){
-//            Log.d(TAG, "setNotifications: doWorkk new empty")
-//        }
-//        val data = Data.Builder()
-//            .putLongArray(ALARMS_IDS, alarmIds.toLongArray())
-//            .putString(ACTION_TYPE, TYPE_ADD_ALARMS)
-//            .build()
-//
-//        val alarmWorker = OneTimeWorkRequest.Builder(AlarmWorker::class.java)
-//            .setInputData(data)
-//            .build()
-//        Log.d(TAG, "setNotifications: doWorkk ")
-//        WorkManager.getInstance(context).enqueueUniqueWork(
-//            ALARM_WORKER_NAME,
-//            ExistingWorkPolicy.APPEND_OR_REPLACE,
-//            alarmWorker
-//        )
-//    }
 
     fun addAlarms(alarms: List<AlarmEntity>) {
         val alarmManager = context.getSystemService(AlarmManager::class.java)
@@ -94,7 +53,7 @@ class NotificationManager(
                                             (
                                             alarm.day,
                                             alarm.startInSec
-                                        )
+                                        )+500
                                         ).toDouble().roundToLong(),
                                 pe2
                             )

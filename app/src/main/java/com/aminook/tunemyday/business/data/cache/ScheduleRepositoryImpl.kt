@@ -198,7 +198,7 @@ class ScheduleRepositoryImpl @Inject constructor(
         program.schedules.forEach { s ->
             alarmsToDelete.addAll(s.alarms.map { it.id })
         }
-        notificationManager.removeNotifications_bck(alarmsToDelete)
+        notificationManager.cancelAlarms(alarmsToDelete)
 
         return daoService.programDao.deleteProgram(program.program)
     }

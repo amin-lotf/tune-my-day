@@ -15,7 +15,6 @@ class AlarmCacheMapper @Inject  constructor():EntityMapper<AlarmEntity,Alarm>  {
                 scheduleId = entity.scheduleId,
                 programId = entity.programId,
                 routineId = entity.routineId,
-                programName = entity.programName,
                 hourBefore = entity.hourBefore,
                 minuteBefore = entity.minBefore,
                 day = entity.day,
@@ -33,7 +32,6 @@ class AlarmCacheMapper @Inject  constructor():EntityMapper<AlarmEntity,Alarm>  {
             hourBefore = domainModel.hourBefore,
             minBefore = domainModel.minuteBefore,
             day = domainModel.day,
-            programName =domainModel.programName,
             startInSec = domainModel.startInSec
         ).apply {
             if(domainModel.id!=0L) {

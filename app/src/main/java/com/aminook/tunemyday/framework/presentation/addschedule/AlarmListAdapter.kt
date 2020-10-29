@@ -56,14 +56,11 @@ class AlarmListAdapter() : RecyclerView.Adapter<AlarmListAdapter.ViewHolder>() {
                 Log.d(TAG, "bind: alarm: ${alarm.index}")
                 listener?.onRemoveAlarmClick(alarm)
             }
-            itemView.setOnClickListener {
-                listener?.onAlarmClick(alarm)
-            }
+
         }
     }
 
     interface AlarmClickListener {
         fun onRemoveAlarmClick(alarm: Alarm)
-        fun onAlarmClick(alarm: Alarm)
     }
 }

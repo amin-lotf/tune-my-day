@@ -73,6 +73,8 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 //        scroll_view_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
 //        layout_animate_add_schedule.layoutTransition.setStartDelay(LayoutTransition.CHANGING,1000)
 //        scroll_view_add_schedule.layoutTransition.setStartDelay(LayoutTransition.CHANGING,1000)
+        layout_animate_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+        scroll_view_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Long>(ADD_PROGRAM)?.observeOnce(
             viewLifecycleOwner
         ){
@@ -215,18 +217,16 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
             when (modificationType) {
                 ALARM_ADDED -> {
-                    layout_animate_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-                    scroll_view_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
 
+                    Log.d(TAG, "subscribeObservers: alarm added")
                     val modifiedPos = viewModel.alarmModifiedPosition
                     alarmAdapter?.notifyListChanged(ALARM_ADDED, modifiedPos)
 
                 }
                 ALARM_REMOVED -> {
-                    layout_animate_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-                    scroll_view_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
 
                     val modifiedPos = viewModel.alarmModifiedPosition
+                    Log.d(TAG, "subscribeObservers: alarm removed: pos: $modifiedPos")
                     alarmAdapter?.notifyListChanged(ALARM_REMOVED, modifiedPos)
 
                 }
@@ -330,6 +330,12 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
         view.chk_at_start.isChecked = alarm?.isAtStart ?: true
 
+        if (!view.chk_at_start.isChecked){
+            view.layout_custom_alarm_time.visibility = View.VISIBLE
+            view.edt_alarm_hour.isEnabled = true
+            view.edt_alarm_minute.isEnabled = true
+        }
+
         view.chk_at_start.setOnClickListener {
             if (view.chk_at_start.isChecked) {
                 requireActivity().hideKeyboard()
@@ -346,62 +352,64 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
                 view.layout_custom_alarm_time.visibility = View.VISIBLE
                 view.edt_alarm_hour.isEnabled = true
                 view.edt_alarm_minute.isEnabled = true
-
-                view.edt_alarm_hour.apply {
-
-                    alarm?.let {
-                        if (!it.isAtStart) {
-                            this@apply.setText(it.hourBefore.toString())
-                        }
-                    }
-
-                    this.addTextChangedListener(object : TimeTextWatcher(23) {
-                        override fun setText(input: String) {
-                            this@apply.setText(input)
-                        }
-
-                        override fun setSelection(index: Int) {
-                            this@apply.setSelection(index)
-                        }
-
-                    })
-
-                    this.setOnFocusChangeListener { _, hasFocus ->
-                        if (hasFocus) {
-                            this@apply.setText("")
-                        }
-                    }
-                }
-
-                view.edt_alarm_minute.apply {
-
-                    alarm?.let {
-                        if (!it.isAtStart) {
-                            this@apply.setText(it.minuteBefore.toString())
-                        }
-                    }
-
-                    this.addTextChangedListener(object : TimeTextWatcher(59) {
-                        override fun setText(input: String) {
-                            this@apply.setText(input)
-                        }
-
-                        override fun setSelection(index: Int) {
-                            this@apply.setSelection(index)
-                        }
-
-                    })
-
-                    this.setOnFocusChangeListener { _, hasFocus ->
-                        if (hasFocus && isEnabled) {
-                            this.setText("")
-                        }
-                    }
-                }
-
                 view.edt_alarm_hour.showKeyboard()
+                }
+
+
+        }
+
+        view.edt_alarm_hour.apply {
+
+            alarm?.let {
+                if (!it.isAtStart) {
+                    setText(it.hourBefore.toString())
+                }
+            }
+
+            this.addTextChangedListener(object : TimeTextWatcher(23) {
+                override fun setText(input: String) {
+                    setText(input)
+                }
+
+                override fun setSelection(index: Int) {
+                    setSelection(index)
+                }
+
+            })
+
+            this.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    setText("")
+                }
             }
         }
+
+        view.edt_alarm_minute.apply {
+
+            alarm?.let {
+                if (!it.isAtStart) {
+                    setText(it.minuteBefore.toString())
+                }
+            }
+
+            this.addTextChangedListener(object : TimeTextWatcher(59) {
+                override fun setText(input: String) {
+                    setText(input)
+                }
+
+                override fun setSelection(index: Int) {
+                    setSelection(index)
+                }
+
+            })
+
+            this.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus && isEnabled) {
+                    setText("")
+                }
+            }
+        }
+
 
         view.btn_add_alarm.setOnClickListener {
             var hour = 0
@@ -414,15 +422,14 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
             val alarmInEdit = if (alarm == null) {
                 Alarm(hourBefore = hour, minuteBefore = minute)
             } else {
-                alarm.apply {
-                    this.hourBefore = hour
-                    this.minuteBefore = minute
-                }
+                alarm.copy(hourBefore = hour, minuteBefore = minute
+                )
             }
 
             viewModel.setAlarm(alarmInEdit)
             alarmDialog.dismiss()
         }
+
 
     }
 
@@ -480,13 +487,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         viewModel.removeAlarm(alarm)
     }
 
-    override fun onAlarmClick(alarm: Alarm) {
-        showAlarmDialog(
-            alarm.apply {
-                this.inEditMode = true
-            }
-        )
-    }
+
 
     override fun onDestroyView() {
         recycler_alarms.adapter = null

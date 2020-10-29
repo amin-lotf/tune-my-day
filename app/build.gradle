@@ -5,7 +5,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
-
+apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: "androidx.navigation.safeargs.kotlin"
 
 android {
@@ -102,7 +102,7 @@ dependencies {
 
     // Leak Canary
     def leak_canary_version = "2.4"
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leak_canary_version"
+    //debugImplementation "com.squareup.leakcanary:leakcanary-android:$leak_canary_version"
 
     // Easy Permissions
     //implementation 'pub.devrel:easypermissions:3.0.0'
@@ -129,5 +129,13 @@ dependencies {
     // Kotlin + coroutines
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
-    implementation "androidx.datastore:datastore-preferences:1.0.0-alpha01"
+    implementation "androidx.datastore:datastore-preferences:1.0.0-alpha02"
+
+    // Import the BoM for the Firebase platform
+    implementation platform('com.google.firebase:firebase-bom:26.0.0')
+
+    // Declare the dependency for the Performance Monitoring library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-perf-ktx'
+
 }
