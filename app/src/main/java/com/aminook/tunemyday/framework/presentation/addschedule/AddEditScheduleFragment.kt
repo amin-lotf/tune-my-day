@@ -211,8 +211,6 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
                     layout_todo_group.visibility = View.GONE
                 }
                 scroll_view_add_schedule.visibility=View.VISIBLE
-                layout_animate_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-                layout_animate_add_schedule.layoutTransition.setDuration(70)
                 scroll_view_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
                 scroll_view_add_schedule.layoutTransition.setDuration(70)
 

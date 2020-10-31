@@ -1,257 +1,251 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scroll_view_add_schedule"
     android:layout_width="match_parent"
+    android:visibility="invisible"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
 
     tools:context=".framework.presentation.addschedule.AddEditScheduleFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout_animate_add_schedule"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_add_schdule"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:animateLayoutChanges="true">
+        app:elevation="0dp"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/app_bar_add_schdule"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_add_schedule"
+            style="@style/ToolbarTheme"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:elevation="0dp"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar_add_schedule"
-                style="@style/ToolbarTheme"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_scrollFlags="scroll|enterAlways|snap"
-                app:menu="@menu/save_delete_menu"
-                app:titleTextColor="@color/colorFontDark"
-                app:navigationIcon="@drawable/ic_close"
-                app:title="Add Schedule" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/colorLineDark" />
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <TextView
-            android:id="@+id/txt_upper_label"
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="#c0c0c0"
-            app:layout_constraintTop_toBottomOf="@id/add_schedule_name" />
-
-        <TextView
-            android:id="@+id/add_schedule_name"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:textAlignment="center"
-            android:textColor="@color/colorFontDark"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:visibility="invisible"
-            app:layout_constraintTop_toBottomOf="@id/app_bar_add_schdule" />
-
-        <TextView
-            android:id="@+id/add_schedule_day"
-            android:layout_width="95dp"
-            android:layout_height="wrap_content"
-
-            android:layout_marginTop="20dp"
-            android:textAlignment="center"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toStartOf="@id/add_schedule_start"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/add_schedule_name" />
+            android:layout_height="?attr/actionBarSize"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:menu="@menu/save_delete_menu"
+            app:navigationIcon="@drawable/ic_close"
+            app:title="Add Schedule"
+            app:titleTextColor="@color/colorFontDark" />
 
         <View
-            android:id="@+id/blackline_day"
-            android:layout_width="95dp"
-            android:layout_height="2dp"
-            android:layout_marginTop="4dp"
-            android:background="#c0c0c0"
-            app:layout_constraintStart_toStartOf="@id/add_schedule_day"
-            app:layout_constraintTop_toBottomOf="@id/add_schedule_day" />
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorLineDark" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-        <TextView
-            android:id="@+id/add_schedule_start"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="00:00"
-            android:textAlignment="center"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toStartOf="@id/add_schedule_to"
+    <TextView
+        android:id="@+id/txt_upper_label"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#c0c0c0"
+        app:layout_constraintTop_toBottomOf="@id/add_schedule_name" />
 
-            app:layout_constraintStart_toEndOf="@id/add_schedule_day"
-            app:layout_constraintTop_toBottomOf="@id/add_schedule_name" />
+    <TextView
+        android:id="@+id/add_schedule_name"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:textColor="@color/colorFontDark"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="invisible"
+        app:layout_constraintTop_toBottomOf="@id/app_bar_add_schdule" />
 
-        <View
-            android:id="@+id/blackline_start"
-            android:layout_width="60dp"
-            android:layout_height="2dp"
-            android:layout_marginTop="4dp"
-            android:background="#c0c0c0"
-            app:layout_constraintStart_toStartOf="@id/add_schedule_start"
-            app:layout_constraintTop_toBottomOf="@id/add_schedule_start" />
+    <TextView
+        android:id="@+id/add_schedule_day"
+        android:layout_width="95dp"
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="20dp"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@id/add_schedule_start"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/add_schedule_name" />
+
+    <View
+        android:id="@+id/blackline_day"
+        android:layout_width="95dp"
+        android:layout_height="2dp"
+        android:layout_marginTop="4dp"
+        android:background="#c0c0c0"
+        app:layout_constraintStart_toStartOf="@id/add_schedule_day"
+        app:layout_constraintTop_toBottomOf="@id/add_schedule_day" />
+
+    <TextView
+        android:id="@+id/add_schedule_start"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="00:00"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@id/add_schedule_to"
+
+        app:layout_constraintStart_toEndOf="@id/add_schedule_day"
+        app:layout_constraintTop_toBottomOf="@id/add_schedule_name" />
+
+    <View
+        android:id="@+id/blackline_start"
+        android:layout_width="60dp"
+        android:layout_height="2dp"
+        android:layout_marginTop="4dp"
+        android:background="#c0c0c0"
+        app:layout_constraintStart_toStartOf="@id/add_schedule_start"
+        app:layout_constraintTop_toBottomOf="@id/add_schedule_start" />
 
 
-        <TextView
-            android:id="@+id/add_schedule_to"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="to"
-            android:textAlignment="center"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toStartOf="@id/add_schedule_end"
+    <TextView
+        android:id="@+id/add_schedule_to"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="to"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@id/add_schedule_end"
 
-            app:layout_constraintStart_toEndOf="@id/add_schedule_start"
-            app:layout_constraintTop_toBottomOf="@id/add_schedule_name" />
+        app:layout_constraintStart_toEndOf="@id/add_schedule_start"
+        app:layout_constraintTop_toBottomOf="@id/add_schedule_name" />
 
 
-        <TextView
-            android:id="@+id/add_schedule_end"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="00:00"
-            android:textAlignment="center"
-            android:textSize="18sp"
+    <TextView
+        android:id="@+id/add_schedule_end"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="00:00"
+        android:textAlignment="center"
+        android:textSize="18sp"
 
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/add_schedule_to"
+        app:layout_constraintTop_toBottomOf="@id/add_schedule_name" />
+
+    <View
+        android:id="@+id/blackline_end"
+        android:layout_width="60dp"
+        android:layout_height="2dp"
+        android:layout_marginTop="4dp"
+        android:background="#c0c0c0"
+        app:layout_constraintStart_toStartOf="@id/add_schedule_end"
+        app:layout_constraintTop_toBottomOf="@id/add_schedule_end" />
+
+    <TextView
+        android:id="@+id/txt_is_next_day"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Next Day"
+        android:textColor="@color/colorFontNotice"
+        android:textSize="10sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/add_schedule_end"
+        app:layout_constraintEnd_toEndOf="@id/add_schedule_end"
+        app:layout_constraintStart_toStartOf="@id/add_schedule_end" />
+
+    <View
+        android:id="@+id/blackline_notification"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="25dp"
+        android:background="#c0c0c0"
+        app:layout_constraintTop_toBottomOf="@id/add_schedule_day" />
+
+    <TextView
+        android:id="@+id/txt_alarm_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="8dp"
+        android:paddingTop="2dp"
+        android:text="Reminders"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/blackline_notification" />
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_ring"
+        app:layout_constraintEnd_toStartOf="@id/txt_alarm_label"
+        app:layout_constraintTop_toTopOf="@id/txt_alarm_label" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_alarms"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="2dp"
+        app:layout_constraintTop_toBottomOf="@id/blackline_notification"
+        tools:itemCount="2"
+        tools:listitem="@layout/alarm_item" />
+
+    <ImageView
+        android:id="@+id/img_add_alert"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="10dp"
+
+        android:src="@drawable/ic_add_alert"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_alarms" />
+
+    <View
+        android:id="@+id/blackline_todos"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="13dp"
+        android:background="#c0c0c0"
+        app:layout_constraintTop_toBottomOf="@id/img_add_alert" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_todo_group"
+        android:layout_width="match_parent"
+
+        android:layout_height="40dp"
+        app:layout_constraintTop_toBottomOf="@id/blackline_todos">
+
+        <ImageView
+            android:id="@+id/img_add_todo_schedule"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_next"
+            app:layout_constraintBottom_toBottomOf="@id/txt_todo_label"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/add_schedule_to"
-            app:layout_constraintTop_toBottomOf="@id/add_schedule_name" />
-
-        <View
-            android:id="@+id/blackline_end"
-            android:layout_width="60dp"
-            android:layout_height="2dp"
-            android:layout_marginTop="4dp"
-            android:background="#c0c0c0"
-            app:layout_constraintStart_toStartOf="@id/add_schedule_end"
-            app:layout_constraintTop_toBottomOf="@id/add_schedule_end" />
+            app:layout_constraintTop_toTopOf="@id/txt_todo_label" />
 
         <TextView
-            android:id="@+id/txt_is_next_day"
+            android:id="@+id/txt_todo_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Next Day"
-            android:visibility="invisible"
-            android:textColor="@color/colorFontNotice"
-            android:textSize="10sp"
-            app:layout_constraintStart_toStartOf="@id/add_schedule_end"
-            app:layout_constraintEnd_toEndOf="@id/add_schedule_end"
-           app:layout_constraintBottom_toTopOf="@id/add_schedule_end"/>
-
-        <View
-            android:id="@+id/blackline_notification"
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_marginTop="25dp"
-            android:background="#c0c0c0"
-            app:layout_constraintTop_toBottomOf="@id/add_schedule_day" />
-
-        <TextView
-            android:id="@+id/txt_alarm_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="8dp"
+            android:fontFamily="@font/open_sans"
             android:paddingTop="2dp"
-            android:text="Reminders"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/blackline_notification" />
+
+            android:textColor="@color/colorFontDark"
+
+            app:layout_constraintStart_toEndOf="@id/img_chk_summary"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
+            android:id="@+id/img_chk_summary"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_ring"
-            app:layout_constraintEnd_toStartOf="@id/txt_alarm_label"
-            app:layout_constraintTop_toTopOf="@id/txt_alarm_label" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_alarms"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="2dp"
-            app:layout_constraintTop_toBottomOf="@id/blackline_notification"
-            tools:itemCount="2"
-            tools:listitem="@layout/alarm_item" />
-
-        <ImageView
-            android:id="@+id/img_add_alert"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="10dp"
-
-            android:src="@drawable/ic_add_alert"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/icon_todo"
+            app:layout_constraintBottom_toBottomOf="@id/txt_todo_label"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/recycler_alarms" />
-
-        <View
-            android:id="@+id/blackline_todos"
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_marginTop="13dp"
-            android:background="#c0c0c0"
-            app:layout_constraintTop_toBottomOf="@id/img_add_alert" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layout_todo_group"
-            android:layout_width="match_parent"
-
-            android:layout_height="40dp"
-            app:layout_constraintTop_toBottomOf="@id/blackline_todos">
-
-            <ImageView
-                android:id="@+id/img_add_todo_schedule"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_next"
-                app:layout_constraintBottom_toBottomOf="@id/txt_todo_label"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/txt_todo_label" />
-
-            <TextView
-                android:id="@+id/txt_todo_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="8dp"
-                android:fontFamily="@font/open_sans"
-                android:paddingTop="2dp"
-
-                android:textColor="@color/colorFontDark"
-
-                app:layout_constraintStart_toEndOf="@id/img_chk_summary"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:id="@+id/img_chk_summary"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="10dp"
-                android:src="@drawable/icon_todo"
-                app:layout_constraintBottom_toBottomOf="@id/txt_todo_label"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/txt_todo_label" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintTop_toTopOf="@id/txt_todo_label" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
