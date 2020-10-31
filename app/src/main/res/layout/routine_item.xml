@@ -1,39 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_schedule_item"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
-    android:layout_marginEnd="10dp"
-    android:layout_marginStart="10dp"
-    android:layout_marginTop="10dp"
+    android:layout_height="70dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
     android:clickable="true"
-    android:backgroundTint="#19E18F47"
-    android:elevation="8dp"
-    >
+    android:elevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="#599CB0"
+    app:cardCornerRadius="8dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="#2590AFCA">
         <TextView
             android:id="@+id/txt_routine_name"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="30dp"
             android:gravity="center_vertical"
             android:text="Fall 2020"
-            android:textColor="@color/colorDark"
-            android:textSize="20sp"
+            android:textColor="@color/colorFontDark"
+            android:textStyle="bold"
+            android:textSize="18sp"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_margin="8dp"/>
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="8dp"/>
 
-        <ImageView
+        <View
             android:id="@+id/img_edit_routine"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_edit"
-
+            android:background="@drawable/ic_edit"
+            android:backgroundTint="@color/colorFontDark"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_margin="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="8dp"
             />
 
 

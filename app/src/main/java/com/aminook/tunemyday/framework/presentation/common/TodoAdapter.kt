@@ -196,7 +196,6 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
         fun onEditTodoClick(todo: Todo, position: Int)
         fun onCheckChanged(todo: Todo, checked: Boolean, position: Int)
         fun swapItems(fromPosition: Todo, toPosition: Todo)
-        fun updateTodos(todos: List<Todo>)
     }
 
 

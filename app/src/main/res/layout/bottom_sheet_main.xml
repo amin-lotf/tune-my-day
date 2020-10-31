@@ -51,7 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="20dp"
-        android:text="History"
+        android:text="Plans"
         android:drawableStart="@drawable/ic_hitory"
         android:drawablePadding="10dp"
         android:fontFamily="@font/open_sans"

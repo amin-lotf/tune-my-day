@@ -25,16 +25,14 @@ class AddRoutineFragment : BaseFragment(R.layout.fragment_add_routine) {
         val args: AddRoutineFragmentArgs by navArgs()
         args.routineName?.let {
             edt_add_routine.setText(it.trim())
+
         }
         viewModel.routineInEditId = args.routineId
         edt_add_routine.showKeyboard()
-    }
-
-    override fun onResume() {
-        super.onResume()
         subscribeObservers()
         setupToolbar()
     }
+
 
     private fun subscribeObservers() {
         viewModel.stateMessage.observe(viewLifecycleOwner) { event ->
@@ -60,6 +58,8 @@ class AddRoutineFragment : BaseFragment(R.layout.fragment_add_routine) {
         toolbar_add_routine.apply {
             if (viewModel.routineInEditId == 0L) {
                 menu.findItem(R.id.action_delete).isVisible = false
+            }else{
+                title="Edit Plan"
             }
 
             setNavigationOnClickListener {

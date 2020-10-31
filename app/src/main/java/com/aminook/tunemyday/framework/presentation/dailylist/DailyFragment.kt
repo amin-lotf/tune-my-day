@@ -147,9 +147,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
 
 
-    override fun updateTodos(todos: List<Todo>) {
-        dailyViewModel.moveTodos(todos,0).observe(viewLifecycleOwner){}
-    }
+
 
     override fun swapItems(fromPosition: Todo, toPosition: Todo, todoAdapter: TodoAdapter?) {
         todoAdapter?.let {

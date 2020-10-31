@@ -16,7 +16,7 @@
         android:id="@+id/layout_child_program"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="10dp">
+        android:padding="8dp">
 
 
         <TextView
@@ -27,7 +27,8 @@
             android:layout_marginEnd="4dp"
             android:text="Gym"
             android:textColor="@color/colorDark"
-            android:textSize="22sp"
+            android:textSize="18sp"
+            android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView

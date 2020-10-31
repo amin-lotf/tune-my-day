@@ -19,7 +19,9 @@
             app:layout_scrollFlags="scroll|enterAlways|snap"
             style="@style/ToolbarTheme"
             app:navigationIcon="@drawable/ic_close"
-            app:title="Create new plan"/>
+            app:titleTextColor="@color/colorFontDark"
+            app:title="Create New Plan"
+            />
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"

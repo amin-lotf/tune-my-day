@@ -195,9 +195,6 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
                     listener?.swapItems(fromPosition, toPosition, todoAdapter)
                 }
 
-                override fun updateTodos(todos: List<Todo>) {
-                    listener?.updateTodos(todos)
-                }
             })
             val chLayoutManager= ChipsLayoutManager.newBuilder(context)
                 .setOrientation(ChipsLayoutManager.HORIZONTAL)
@@ -235,7 +232,7 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
         fun onEditTodoClick(todo: Todo, position: Int, todoAdapter: TodoAdapter?)
         fun onCheckChanged(todo: Todo, checked: Boolean, position: Int, todoAdapter: TodoAdapter?)
         fun swapItems(fromPosition: Todo, toPosition: Todo, todoAdapter: TodoAdapter?)
-        fun updateTodos(todos: List<Todo>)
+
         fun onTimeClick(action: NavDirections)
     }
 }

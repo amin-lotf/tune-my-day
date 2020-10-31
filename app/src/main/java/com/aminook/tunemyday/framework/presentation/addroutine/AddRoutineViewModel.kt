@@ -87,8 +87,14 @@ class AddRoutineViewModel @ViewModelInject constructor(
             ).map {
                 processResponse(it?.stateMessage)
 
-                if (it?.data == DeleteRoutine.ROUTINE_DELETE_SUCCESS && activeRoutineId == routineInEditId) {
-                    saveNewCache(0)
+                if (it?.data == DeleteRoutine.ROUTINE_DELETE_SUCCESS) {
+                    if(activeRoutineId == routineInEditId) {
+                        saveNewCache(0)
+                    }else{
+                        withContext(Main) {
+                            _activeRoutineUpdated.value = true
+                        }
+                    }
                 }
             }.collect()
         }

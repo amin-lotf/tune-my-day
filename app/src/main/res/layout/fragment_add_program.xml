@@ -21,6 +21,7 @@
             android:layout_height="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:menu="@menu/save_delete_menu"
+            app:titleTextColor="@color/colorFontDark"
             app:navigationIcon="@drawable/ic_close"
             app:title="Add Activity" />
         <View

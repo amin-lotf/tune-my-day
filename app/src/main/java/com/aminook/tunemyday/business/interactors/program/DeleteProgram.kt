@@ -59,7 +59,7 @@ class DeleteProgram @Inject constructor(
     }
 
     companion object{
-        const val DELETE_PROGRAM_SUCCEED=" program deleted successfully"
+        const val DELETE_PROGRAM_SUCCEED="Activity deleted"
         const val DELETE_PROGRAM_FAIL="Failed to delete program"
     }
 }

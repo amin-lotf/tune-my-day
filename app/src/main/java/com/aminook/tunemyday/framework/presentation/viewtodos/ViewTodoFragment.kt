@@ -42,8 +42,7 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        layout_nested_view_todo.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-        layout_const_view_todo.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+
         val args: ViewTodoFragmentArgs by navArgs()
         isSummary=args.isSummary
         initializeUnFinishedTodoAdapter()
@@ -54,11 +53,15 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
             recycler_view_todo_finished.visibility=View.VISIBLE
             initializeFinishedTodoAdapter()
         }else{
+            black_line_separator.visibility=View.GONE
+            lbl_completed.visibility=View.GONE
+            recycler_view_todo_finished.visibility=View.GONE
             lbl_remaining.text="Tasks"
         }
 
         setupToolbar()
         subscribeObservers(args.scheduleId)
+
     }
 
     override fun onResume() {
@@ -83,6 +86,13 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
         viewModel.scheduleLoaded.observe(viewLifecycleOwner){loaded->
             if (loaded){
                 layout_nested_view_todo.visibility=View.VISIBLE
+                layout_nested_view_todo.postDelayed({
+                    layout_nested_view_todo.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+                    layout_nested_view_todo.layoutTransition.setDuration(150)
+                    layout_const_view_todo.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+                    layout_const_view_todo.layoutTransition.setDuration(150)
+                },100)
+
             }
         }
 
@@ -90,21 +100,19 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
         if (scheduleId!=0L){
             viewModel.getSchedule(scheduleId,isSummary).observeOnce(viewLifecycleOwner){
                 it?.let { schedule->
-                    toolbar_view_todor.title=schedule.program.name
+                    toolbar_view_todo.title=schedule.program.name
                     unfinishedTodoAdapter?.submitList(schedule.unfinishedTodos,
-                        addPadding = true,
+                        addPadding = false,
                         withAddButton = false
                     )
                     if (!isSummary) {
                         finishedTodoAdapter?.submitList(
                             schedule.finishedTodos,
-                            addPadding = true,
+                            addPadding = false,
                             withAddButton = false
                         )
                     }
-
                 }
-
             }
         }
         else{
@@ -159,13 +167,11 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
                     unfinishedTodoAdapter?.moveItem(it)
                 }
             }
-
         }
-
     }
 
     private fun setupToolbar(){
-        toolbar_view_todor.setNavigationOnClickListener {
+        toolbar_view_todo.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
     }
@@ -183,22 +189,8 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
                 adapter = unfinishedTodoAdapter
                 setHasFixedSize(false)
                 isNestedScrollingEnabled = false
-                // addItemDecoration(dividerItemDecoration)
             }
-
-            val callback = DragManageAdapter(
-                it,
-                requireContext(),
-                ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
-                0
-            )
-
-            val helper = ItemTouchHelper(callback)
-
-            helper.attachToRecyclerView(recycler_view_todo_unfinished)
         }
-
-
     }
 
     private fun initializeFinishedTodoAdapter() {
@@ -214,24 +206,9 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
                 adapter = finishedTodoAdapter
                 setHasFixedSize(false)
                 isNestedScrollingEnabled = false
-                // addItemDecoration(dividerItemDecoration)
             }
-
-//            val callback = DragManageAdapter(
-//                it,
-//                requireContext(),
-//                ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
-//                0
-//            )
-//
-//            val helper = ItemTouchHelper(callback)
-//
-//            helper.attachToRecyclerView(recycler_view_todo_finished)
         }
-
     }
-
-
 
     override fun onEditTodoClick(todo: Todo, position: Int) {
         showAddTodo(todo)
@@ -281,15 +258,13 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
 
 
 
-    override fun updateTodos(todos: List<Todo>) {
 
-    }
 
     private fun showAddTodo(
         todo: Todo? = null
     ) {
         addTodoBtmSheetDialog =
-            BottomSheetDialog(requireContext(), R.style.ThemeOverlay_DialogStyle)
+            BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_add_todo, btn_sheet_add_todo)
         addTodoBtmSheetDialog.setContentView(view)
         addTodoBtmSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -355,10 +330,7 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
     }
 
 
-    override fun onPause() {
-        requireActivity().fab_schedule.setOnClickListener(null)
-        super.onPause()
-    }
+
 
 
 }

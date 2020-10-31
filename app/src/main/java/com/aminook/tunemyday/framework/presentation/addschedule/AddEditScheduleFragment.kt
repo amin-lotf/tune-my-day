@@ -2,6 +2,7 @@ package com.aminook.tunemyday.framework.presentation.addschedule
 
 import android.animation.LayoutTransition
 import android.app.TimePickerDialog
+import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -207,7 +208,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
                     }
                     add_schedule_name.visibility=View.VISIBLE
                     toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = false
-                    layout_todo_group.isVisible = false
+                    layout_todo_group.visibility = View.GONE
                 }
                 scroll_view_add_schedule.visibility=View.VISIBLE
                 layout_animate_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
