@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.View
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
@@ -227,13 +228,18 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
         }else{
             view.btn_delete_todo.visibility=View.GONE
         }
-
+        view.txt_add_todo.doOnTextChanged { text, start, before, count ->
+            if (!text.isNullOrBlank() && view.txt_add_todo_input_layout.error!=null){
+                view.txt_add_todo_input_layout.error=null
+            }
+        }
 
         view.btn_save_todo.setOnClickListener {
-            if (!view.txt_add_todo.text.isNullOrBlank()) {
-                val task = view.txt_add_todo.text
+            val task = view.txt_add_todo.text.toString()
+            if (task.isNotBlank()) {
+
                 if (todo == null) {
-                    dailyViewModel.createTodo(scheduleId, programId, task.toString(), false)
+                    dailyViewModel.createTodo(scheduleId, programId, task, false)
                         .observeOnce(viewLifecycleOwner) {
                             it?.let {
                                 todoAdapter?.addItem(it)
@@ -243,7 +249,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                         }
                 } else {
                     dailyViewModel.updateTodo(
-                        todo.copy(title = task.toString()),
+                        todo.copy(title = task),
                         true,
                         undoCallback = object : SnackbarUndoCallback {
                             override fun undo() {
@@ -272,7 +278,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                 }
                 view.txt_add_todo.setText("")
             } else {
-                //TODO(HANDLE BLANK
+                view.txt_add_todo_input_layout.error="Invalid Name"
             }
         }
     }

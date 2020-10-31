@@ -6,6 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_parent_view_todo"
+    android:visibility="visible"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".framework.presentation.viewtodos.ViewTodoFragment">
@@ -39,7 +40,7 @@
     android:id="@+id/layout_nested_view_todo"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:visibility="invisible"
+    android:visibility="visible"
     android:animateLayoutChanges="true"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     >
@@ -48,7 +49,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_const_view_todo"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:animateLayoutChanges="true">
 
 

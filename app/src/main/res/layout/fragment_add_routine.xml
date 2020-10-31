@@ -28,24 +28,34 @@
             android:background="@color/colorLineDark"/>
     </com.google.android.material.appbar.AppBarLayout>
 
-
-    <EditText
-        android:id="@+id/edt_add_routine"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/txt_add_routine_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/app_bar_add_routine"
-        android:hint="Enter plan title"
-        android:background="@android:color/transparent"
-        android:padding="10dp"
-        android:textSize="17sp"
-        android:textColor="@color/colorFontDark"
-        />
+        android:layout_marginEnd="8dp"
+        app:errorEnabled="true"
+        app:hintEnabled="false"
+        app:errorTextAppearance="@style/error_appearance"
+        android:layout_marginStart="8dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_add_routine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="New Plan"
+            android:background="@android:color/transparent"
+            android:textSize="17sp"
+            android:textColor="@color/colorFontDark"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
     <View
         android:id="@+id/line_under_add_routine"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/colorLineDark"
-        app:layout_constraintTop_toBottomOf="@id/edt_add_routine"/>
+        app:layout_constraintTop_toBottomOf="@id/txt_add_routine_input_layout"/>
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"

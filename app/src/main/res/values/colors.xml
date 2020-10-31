@@ -4,8 +4,9 @@
     <color name="colorFontNotice">#8FBF360C</color>
     <color name="colorLineDark">#54373434</color>
     <color name="colorPrimary">#787878</color>
-    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorPrimaryDark">#504F4F</color>
     <color name="colorAccent">#1391CD</color>
+    <color name="colorRed">#E32323</color>
     <color name="colorAdd">#3D66DD</color>
     <color name="colorDelete">#D2B71C1C</color>
     <color name="colorDark">#505050</color>

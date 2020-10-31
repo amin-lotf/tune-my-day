@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -38,11 +39,6 @@ class AddProgramFragment : BaseFragment(R.layout.fragment_add_program) {
 
     private var programColorsAdapter: ProgramColorsAdapter? = null
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-
-    }
 
     override fun onResume() {
         super.onResume()
@@ -51,12 +47,13 @@ class AddProgramFragment : BaseFragment(R.layout.fragment_add_program) {
         val args: AddProgramFragmentArgs by navArgs()
         fromAddSchedule = args.fromAddSchedule
         setupToolbar(args.ProgramId)
+        setupInfupField()
         if (args.ProgramId != 0L) {
             edt_add_program.hint = ""
             viewModel.getProgram(args.ProgramId).observeOnce(viewLifecycleOwner) {
                 it?.let { program ->
                     edt_add_program.setText(program.program.name)
-                    edt_add_program.setSelection(edt_add_program.text.length)
+                    edt_add_program.setSelection(edt_add_program.text?.length?:0)
                     colors.onEach { it.isChosen = false }
                     val chosenColor = colors.filter { it.value == program.program.color }[0]
                     chosenColor.isChosen = true
@@ -76,6 +73,14 @@ class AddProgramFragment : BaseFragment(R.layout.fragment_add_program) {
             }
         }
         edt_add_program.showKeyboard()
+    }
+
+    private fun setupInfupField() {
+        edt_add_program.doOnTextChanged { text, _, _, _ ->
+            if (!text.isNullOrBlank() && txt_add_activity_input_layout.error!=null){
+                txt_add_activity_input_layout.error=null
+            }
+        }
     }
 
     private fun subscribeObservers() {
@@ -111,19 +116,23 @@ class AddProgramFragment : BaseFragment(R.layout.fragment_add_program) {
             toolbar_add_program.setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.action_save -> {
-                        val programName = edt_add_program.text.toString()
-                        val color = programColorsAdapter?.selectedColor
-                            ?: Color(ContextCompat.getColor(requireContext(), R.color.label9))
+                        val programName = edt_add_program.text.toString().trim()
+                        if (programName.isNotBlank()) {
+                            val color = programColorsAdapter?.selectedColor
+                                ?: Color(ContextCompat.getColor(requireContext(), R.color.label9))
+                            val program = Program(name = programName, color = color.value)
+                            if (programId == 0L) {
+                                viewModel.addProgram(program)
+                            } else {
+                                program.id = programId
+                                viewModel.updateProgram(program)
+                            }
 
-                        val program = Program(name = programName, color = color.value)
-                        if (programId == 0L) {
-                            viewModel.addProgram(program)
-                        } else {
-                            program.id = programId
-                            viewModel.updateProgram(program)
+                            true
+                        }else{
+                            txt_add_activity_input_layout.error="Invalid Name"
+                            false
                         }
-
-                        true
                     }
 
                     R.id.action_delete -> {

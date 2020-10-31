@@ -7,6 +7,14 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="error_appearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/colorRed</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+    <style name="AppTheme.WhiteColorAccent">
+        <item name="colorAccent">@color/colorWhite</item>
+    </style>
+
 
 
     <style name="ToolbarTheme" parent="ThemeOverlay.MaterialComponents.Toolbar.Primary">

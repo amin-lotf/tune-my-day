@@ -2,6 +2,7 @@ package com.aminook.tunemyday.framework.presentation.addroutine
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -12,6 +13,7 @@ import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.util.hideKeyboard
 import com.aminook.tunemyday.util.showKeyboard
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.bottom_sheet_add_todo.view.*
 import kotlinx.android.synthetic.main.fragment_add_routine.*
 
 
@@ -31,6 +33,15 @@ class AddRoutineFragment : BaseFragment(R.layout.fragment_add_routine) {
         edt_add_routine.showKeyboard()
         subscribeObservers()
         setupToolbar()
+        setupInputField()
+    }
+
+    private fun setupInputField() {
+        edt_add_routine.doOnTextChanged { text, _, _, _ ->
+            if (!text.isNullOrBlank() &&  txt_add_routine_input_layout.error!=null ){
+                txt_add_routine_input_layout.error=null
+            }
+        }
     }
 
 
@@ -68,12 +79,18 @@ class AddRoutineFragment : BaseFragment(R.layout.fragment_add_routine) {
             setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.action_save -> {
-                        if (viewModel.routineInEditId == 0L) {
-                            viewModel.addRoutine(edt_add_routine.text.toString())
-                        } else {
-                            viewModel.updateRoutine(edt_add_routine.text.toString())
+                        val routine=edt_add_routine.text.toString().trim()
+                        if (routine.isNotBlank()) {
+                            if (viewModel.routineInEditId == 0L) {
+                                viewModel.addRoutine(edt_add_routine.text.toString())
+                            } else {
+                                viewModel.updateRoutine(edt_add_routine.text.toString())
+                            }
+                            true
+                        }else{
+                            txt_add_routine_input_layout.error="Invalid Name"
+                            false
                         }
-                        true
                     }
 
                     R.id.action_delete -> {

@@ -4,6 +4,7 @@ import android.animation.LayoutTransition
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -42,7 +43,6 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         val args: ViewTodoFragmentArgs by navArgs()
         isSummary=args.isSummary
         initializeUnFinishedTodoAdapter()
@@ -53,9 +53,9 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
             recycler_view_todo_finished.visibility=View.VISIBLE
             initializeFinishedTodoAdapter()
         }else{
-            black_line_separator.visibility=View.GONE
-            lbl_completed.visibility=View.GONE
-            recycler_view_todo_finished.visibility=View.GONE
+            black_line_separator.visibility=View.INVISIBLE
+            lbl_completed.visibility=View.INVISIBLE
+            recycler_view_todo_finished.visibility=View.INVISIBLE
             lbl_remaining.text="Tasks"
         }
 
@@ -85,7 +85,7 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
 
         viewModel.scheduleLoaded.observe(viewLifecycleOwner){loaded->
             if (loaded){
-                layout_nested_view_todo.visibility=View.VISIBLE
+               // layout_nested_view_todo.visibility=View.VISIBLE
                 layout_nested_view_todo.postDelayed({
                     layout_nested_view_todo.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
                     layout_nested_view_todo.layoutTransition.setDuration(150)
@@ -128,20 +128,30 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
 
         viewModel.updatedTodo.observe(viewLifecycleOwner){
             it?.let {
-                if (it.isDone){
-                    finishedTodoAdapter?.updateItem(it)
-                }else{
+                if(isSummary){
                     unfinishedTodoAdapter?.updateItem(it)
+                }
+                else {
+                    if (it.isDone) {
+                        finishedTodoAdapter?.updateItem(it)
+                    } else {
+                        unfinishedTodoAdapter?.updateItem(it)
+                    }
                 }
             }
         }
 
         viewModel.deletedTodo.observe(viewLifecycleOwner){
           it?.let {
-              if (it.isDone){
-                  finishedTodoAdapter?.removeItem(it)
-              }else{
+              if(isSummary){
                   unfinishedTodoAdapter?.removeItem(it)
+              }
+              else {
+                  if (it.isDone) {
+                      finishedTodoAdapter?.removeItem(it)
+                  } else {
+                      unfinishedTodoAdapter?.removeItem(it)
+                  }
               }
           }
         }
@@ -149,22 +159,32 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
         viewModel.checkChangedTodo.observe(viewLifecycleOwner){
             it?.let {
                 Log.d(TAG, "subscribeObservers: $it")
-                if (it.isDone){
+                if(isSummary){
                     unfinishedTodoAdapter?.removeItem(it)
-                    finishedTodoAdapter?.addItem(it)
-                }else{
-                    finishedTodoAdapter?.removeItem(it)
-                    unfinishedTodoAdapter?.addItem(it)
+                }
+                else {
+                    if (it.isDone) {
+                        unfinishedTodoAdapter?.removeItem(it)
+                        finishedTodoAdapter?.addItem(it)
+                    } else {
+                        finishedTodoAdapter?.removeItem(it)
+                        unfinishedTodoAdapter?.addItem(it)
+                    }
                 }
             }
         }
 
         viewModel.draggedTodos.observe(viewLifecycleOwner){
             it?.let {
-                if (it.first().isDone){
-                    finishedTodoAdapter?.moveItem(it)
-                }else{
+                if(isSummary){
                     unfinishedTodoAdapter?.moveItem(it)
+                }
+                else {
+                    if (it.first().isDone) {
+                        finishedTodoAdapter?.moveItem(it)
+                    } else {
+                        unfinishedTodoAdapter?.moveItem(it)
+                    }
                 }
             }
         }
@@ -297,16 +317,21 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
             view.btn_delete_todo.visibility=View.GONE
         }
 
-
+        view.txt_add_todo.doOnTextChanged { text, start, before, count ->
+            if (!text.isNullOrBlank() && view.txt_add_todo_input_layout.error!=null){
+                view.txt_add_todo_input_layout.error=null
+            }
+        }
         view.btn_save_todo.setOnClickListener {
-            if (!view.txt_add_todo.text.isNullOrBlank()) {
-                val task = view.txt_add_todo.text
+            val task = view.txt_add_todo.text.toString().trim()
+            if (!task.isBlank()) {
+
                 if (todo == null) {
-                    viewModel.createTodo( task.toString())
+                    viewModel.createTodo( task)
                     addTodoBtmSheetDialog.dismiss()
                 } else {
                     viewModel.updateTodo(
-                        todo.copy(title = task.toString()),
+                        todo.copy(title = task),
                         true,
                         undoCallback = object : SnackbarUndoCallback {
                             override fun undo() {
@@ -324,7 +349,7 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
                 }
                 view.txt_add_todo.setText("")
             } else {
-                //TODO(HANDLE BLANK
+                view.txt_add_todo_input_layout.error="Invalid Name"
             }
         }
     }
