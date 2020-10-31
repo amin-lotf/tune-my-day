@@ -37,7 +37,8 @@ class WeeklyListViewModel @ViewModelInject constructor(
     private val TAG = "aminjoon"
     private val activeScope = Dispatchers.IO + viewModelScope.coroutineContext
     var savedDayIndex: Int = 0
-    var curRoutineIndex=0
+
+
 
     private val _curRoutine = MutableLiveData<RoutineEntity?>()
 //    private val _curRoutineId = MutableLiveData<Long>()
@@ -52,7 +53,6 @@ class WeeklyListViewModel @ViewModelInject constructor(
 
     val curDayIndex: LiveData<Int>
         get() = _dayIndex
-
 
 
 

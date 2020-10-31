@@ -113,7 +113,7 @@ class AddProgramFragment : BaseFragment(R.layout.fragment_add_program) {
                     R.id.action_save -> {
                         val programName = edt_add_program.text.toString()
                         val color = programColorsAdapter?.selectedColor
-                            ?: Color(ContextCompat.getColor(requireContext(), R.color.colorAccent))
+                            ?: Color(ContextCompat.getColor(requireContext(), R.color.label9))
 
                         val program = Program(name = programName, color = color.value)
                         if (programId == 0L) {

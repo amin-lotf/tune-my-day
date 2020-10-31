@@ -20,15 +20,16 @@ class AddScheduleManager {
     private var _alarmModifiedPosition = 0
     private val _scheduleLoaded = MutableLiveData<Boolean>()
     private val _numberOfTodos = MutableLiveData<Int>()
-
+    private val _alarmCounter = MutableLiveData<Int>()
+    private val _isNextDay = MutableLiveData<Boolean>()
 
     init {
 
         _scheduleLoaded.value = false
     }
 
-    fun initializeSchedule(){
-        _listChanged.value= ALARM_LIST_ADDED
+    fun initializeSchedule() {
+        _listChanged.value = ALARM_LIST_ADDED
     }
 
 
@@ -39,6 +40,8 @@ class AddScheduleManager {
     }
 
 
+    val alarmCounter: LiveData<Int>
+        get() = _alarmCounter
 
 
     val numberOfTodos: LiveData<Int>
@@ -69,6 +72,9 @@ class AddScheduleManager {
     val daysOfWeek: List<Day>
         get() = _daysOfWeek
 
+    val isNextDay: LiveData<Boolean>
+        get() = _isNextDay
+
     fun setScheduleId(id: Long) {
         _buffSchedule.id = id
     }
@@ -77,6 +83,7 @@ class AddScheduleManager {
         _buffSchedule.alarms.remove(alarm)
         _alarmModifiedPosition = alarm.index
         _listChanged.value = ALARM_REMOVED
+        _alarmCounter.value = _buffSchedule.alarms.size
 
     }
 
@@ -85,14 +92,13 @@ class AddScheduleManager {
         _numberOfTodos.value = size
     }
 
-    fun addTodos(todos: List<Todo>, isFinished: Boolean) {
-        if (isFinished) {
-            _buffSchedule.finishedTodos.clear()
-            _buffSchedule.finishedTodos.addAll(todos)
-        } else {
-            _buffSchedule.unfinishedTodos.clear()
-            _buffSchedule.unfinishedTodos.addAll(todos)
-        }
+    fun addTodos(todos: List<Todo>) {
+        _buffSchedule.finishedTodos.clear()
+        _buffSchedule.finishedTodos.addAll(todos.filter { it.isDone })
+
+        _buffSchedule.unfinishedTodos.clear()
+        _buffSchedule.unfinishedTodos.addAll(todos.filter { !it.isDone })
+
     }
 
 
@@ -103,6 +109,7 @@ class AddScheduleManager {
     fun addAlarms(alarms: List<Alarm>) {
         _buffSchedule.alarms.addAll(alarms)
         _listChanged.value = ALARM_LIST_ADDED
+        _alarmCounter.value = _buffSchedule.alarms.size
     }
 
     fun addAlarm(alarm: Alarm) {
@@ -116,7 +123,7 @@ class AddScheduleManager {
         val index = _buffSchedule.alarms.indexOf(alarm)
         _alarmModifiedPosition = index
         _listChanged.value = ALARM_ADDED
-
+        _alarmCounter.value = _buffSchedule.alarms.size
     }
 
     fun getChosenDay() = _chosenDay
@@ -147,6 +154,9 @@ class AddScheduleManager {
                 _endTime.value = _buffSchedule.endTimeFormatted
             }
         }
+        _isNextDay.value = _buffSchedule.endTime.hour != 24 &&
+                _buffSchedule.startTime.hour >= _buffSchedule.endTime.hour &&
+                _buffSchedule.startTime.minute >= _buffSchedule.endTime.minute
     }
 
     fun setChosenDay(chosenDay: Day) {

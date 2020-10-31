@@ -11,9 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.framework.presentation.common.TodoAdapter
 
-class DragManageAdapter<T>(adapter: T, val context: Context, dragDirs: Int, swipeDirs: Int)
-    : ItemTouchHelper.SimpleCallback(dragDirs, swipeDirs) where T:ItemMoveCallback
-{
+class DragManageAdapter<T>(adapter: T, val context: Context, dragDirs: Int, swipeDirs: Int) :
+    ItemTouchHelper.SimpleCallback(dragDirs, swipeDirs) where T : ItemMoveCallback {
     var nameAdapter = adapter
 
     override fun onMove(
@@ -36,15 +35,24 @@ class DragManageAdapter<T>(adapter: T, val context: Context, dragDirs: Int, swip
         y: Int
     ) {
 
-        nameAdapter.onItemSwap(viewHolder.adapterPosition,target.adapterPosition)
-        super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y)
+        if (nameAdapter is TodoAdapter) {
+            val todoAdapter = nameAdapter as TodoAdapter
+            if (fromPos < todoAdapter.currentList.size - todoAdapter.padding-1) {
+                nameAdapter.onItemSwap(viewHolder.layoutPosition, target.layoutPosition)
+                super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y)
+            }
+        } else {
+            nameAdapter.onItemSwap(viewHolder.layoutPosition, target.layoutPosition)
+            super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y)
+        }
+
 
     }
 
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
 
-        nameAdapter.onItemSwipe(viewHolder.adapterPosition,direction)
+        nameAdapter.onItemSwipe(viewHolder.layoutPosition, direction)
     }
 
     override fun onChildDraw(

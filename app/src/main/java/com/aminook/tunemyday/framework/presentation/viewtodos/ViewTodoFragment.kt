@@ -18,6 +18,7 @@ import com.aminook.tunemyday.framework.presentation.common.TodoAdapter
 import com.aminook.tunemyday.util.DragManageAdapter
 import com.aminook.tunemyday.util.TodoCallback
 import com.aminook.tunemyday.util.observeOnce
+import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -170,11 +171,15 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
     }
 
     private fun initializeUnFinishedTodoAdapter() {
+        val chLayoutManager= ChipsLayoutManager.newBuilder(requireContext())
+            .setOrientation(ChipsLayoutManager.HORIZONTAL)
+            .setRowStrategy(ChipsLayoutManager.STRATEGY_DEFAULT)
+            .build()
         unfinishedTodoAdapter= TodoAdapter(currentDay = viewModel.dateUtil.currentDayInInt,isSummary = isSummary)
         unfinishedTodoAdapter?.setListener(this)
         unfinishedTodoAdapter?.let {
             recycler_view_todo_unfinished.apply {
-                this.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
+                this.layoutManager = chLayoutManager
                 adapter = unfinishedTodoAdapter
                 setHasFixedSize(false)
                 isNestedScrollingEnabled = false
@@ -197,34 +202,36 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
     }
 
     private fun initializeFinishedTodoAdapter() {
+        val chLayoutManager= ChipsLayoutManager.newBuilder(requireContext())
+            .setOrientation(ChipsLayoutManager.HORIZONTAL)
+            .setRowStrategy(ChipsLayoutManager.STRATEGY_DEFAULT)
+            .build()
         finishedTodoAdapter= TodoAdapter(currentDay = viewModel.dateUtil.currentDayInInt)
         finishedTodoAdapter?.setListener(this)
         finishedTodoAdapter?.let {
             recycler_view_todo_finished.apply {
-                this.layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
+                this.layoutManager = chLayoutManager
                 adapter = finishedTodoAdapter
                 setHasFixedSize(false)
                 isNestedScrollingEnabled = false
                 // addItemDecoration(dividerItemDecoration)
             }
 
-            val callback = DragManageAdapter(
-                it,
-                requireContext(),
-                ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
-                0
-            )
-
-            val helper = ItemTouchHelper(callback)
-
-            helper.attachToRecyclerView(recycler_view_todo_finished)
+//            val callback = DragManageAdapter(
+//                it,
+//                requireContext(),
+//                ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
+//                0
+//            )
+//
+//            val helper = ItemTouchHelper(callback)
+//
+//            helper.attachToRecyclerView(recycler_view_todo_finished)
         }
 
     }
 
-    override fun onAddTodoClick() {
 
-    }
 
     override fun onEditTodoClick(todo: Todo, position: Int) {
         showAddTodo(todo)
@@ -272,9 +279,7 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
         )
     }
 
-    override fun swipeToDelete(todo: Todo, position: Int) {
 
-    }
 
     override fun updateTodos(todos: List<Todo>) {
 

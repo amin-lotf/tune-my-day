@@ -16,7 +16,7 @@ import com.aminook.tunemyday.framework.datasource.cache.model.*
         ToDoScheduleMapper::class,
         RoutineEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 

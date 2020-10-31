@@ -78,6 +78,7 @@ class DailyViewModel @ViewModelInject constructor(
     fun addTodo(todo: Todo):LiveData<Todo?> {
 
         return todoInteractors.insertTodo(todo)
+            .debounce(100)
             .map {
                 processResponse(it?.stateMessage)
                 it?.data
@@ -88,6 +89,7 @@ class DailyViewModel @ViewModelInject constructor(
 
     fun updateTodo(todo: Todo,showSnackbar: Boolean,undoCallback: SnackbarUndoCallback?=null,onDismissCallback: TodoCallback?=null):LiveData<Todo?>{
         return todoInteractors.updateTodo(todo,showSnackbar,undoCallback,onDismissCallback)
+            .debounce(100)
             .map {
                 processResponse(it?.stateMessage)
                 it?.data
@@ -98,6 +100,7 @@ class DailyViewModel @ViewModelInject constructor(
 
     fun updateTodos(todos: List<Todo>,scheduleId: Long):LiveData<List<Todo>>{
         return todoInteractors.updateTodos(todos,scheduleId)
+            .debounce(100)
             .map {
                 processResponse(it?.stateMessage)
                it?.data?: emptyList()

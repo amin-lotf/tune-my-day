@@ -9,10 +9,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Todo
-import com.aminook.tunemyday.framework.datasource.cache.database.TodoDao
 import com.aminook.tunemyday.util.ItemMoveCallback
 import kotlinx.android.synthetic.main.todo_item.view.*
-import javax.inject.Inject
 
 class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
     RecyclerView.Adapter<BaseViewHolder<Todo>>(), ItemMoveCallback {
@@ -20,7 +18,10 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
     private val TAG = "aminjoon"
     private var listener: ToDoRecyclerViewListener? = null
     private var _todos = mutableListOf<Todo>()
-    private var padding=0
+    private var _padding=0
+
+    val padding:Int
+    get() = _padding
 
     val currentList: List<Todo>
         get() = _todos
@@ -30,6 +31,8 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
             LayoutInflater.from(parent.context).inflate(R.layout.todo_item, parent, false)
         return ViewHolder(view)
     }
+
+
 
 
     override fun getItemViewType(position: Int): Int {
@@ -83,14 +86,14 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
     fun addItem(todo: Todo) {
         var pos=_todos.withIndex().indexOfFirst { it.value.priorityIndex>todo.priorityIndex }
         if (pos<0){
-            pos= _todos.size - padding
+            pos= _todos.size - _padding
         }
         _todos.add(pos, todo)
         notifyItemInserted(pos)
     }
 
 
-    fun submitList(list: List<Todo>?,addPadding:Boolean=true,withAddButton:Boolean=true) {
+    fun submitList(list: List<Todo>?,addPadding:Boolean=false,withAddButton:Boolean=false) {
         _todos.clear()
 
         list?.let {
@@ -100,11 +103,11 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
 
         if (withAddButton){
             _todos.add(Todo(id = -1))
-            padding+=1
+            _padding+=1
         }
         if (addPadding){
             _todos.add(Todo(id = -2))
-            padding+=1
+            _padding+=1
         }
 
         notifyDataSetChanged()
@@ -118,15 +121,12 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
 
 
     override fun onItemSwap(fromPosition: Int, toPosition: Int) {
-        if (toPosition < _todos.size - padding && fromPosition < _todos.size - padding) {
+        if (toPosition < _todos.size - _padding && fromPosition < _todos.size - _padding) {
             listener?.swapItems(_todos[fromPosition].copy(), _todos[toPosition].copy())
         }
     }
 
-    override fun onItemSwipe(itemPosition: Int, direction: Int) {
-        listener?.swipeToDelete(_todos[itemPosition], itemPosition)
-    }
-
+    override fun onItemSwipe(itemPosition: Int, direction: Int) {}
 
     inner class ViewHolder(itemView: View) :
         BaseViewHolder<Todo>(itemView) {
@@ -134,16 +134,6 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
             if (item.id == -2L) {
                 itemView.visibility = View.INVISIBLE
                 return
-            }
-
-            if (item.id == -1L) {
-                itemView.layout_add_todo.visibility = View.VISIBLE
-                itemView.layout_show_todo.visibility = View.GONE
-
-                itemView.setOnClickListener {
-                    listener?.onAddTodoClick()
-                }
-
             } else {
 
                 itemView.txt_todo_title.text = item.title
@@ -168,7 +158,11 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
                         )
                     }
                 } else {
-                    itemView.chk_todo.isEnabled = false
+                    itemView.chk_todo.apply {
+                        setButtonDrawable(R.drawable.cb_selector_disabled)
+                        isEnabled = false
+                    }
+
                 }
 
 
@@ -198,13 +192,11 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
     }
 
     interface ToDoRecyclerViewListener {
-        fun onAddTodoClick()
+
         fun onEditTodoClick(todo: Todo, position: Int)
         fun onCheckChanged(todo: Todo, checked: Boolean, position: Int)
         fun swapItems(fromPosition: Todo, toPosition: Todo)
-        fun swipeToDelete(todo: Todo, position: Int)
         fun updateTodos(todos: List<Todo>)
-
     }
 
 

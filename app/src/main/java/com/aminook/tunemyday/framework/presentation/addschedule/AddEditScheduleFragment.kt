@@ -24,6 +24,7 @@ import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddSched
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_START
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.util.*
+import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -63,18 +64,10 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
     private lateinit var chooseProgramBtmSheetDialog: BottomSheetDialog
 
-    private lateinit var addAlarmBtmSheetDialog: BottomSheetDialog
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(TAG, "onViewCreated: add schedule")
-//        layout_animate_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-//        scroll_view_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-//        layout_animate_add_schedule.layoutTransition.setStartDelay(LayoutTransition.CHANGING,1000)
-//        scroll_view_add_schedule.layoutTransition.setStartDelay(LayoutTransition.CHANGING,1000)
-        layout_animate_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-        scroll_view_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Long>(ADD_PROGRAM)?.observeOnce(
             viewLifecycleOwner
         ){
@@ -94,9 +87,13 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         startTime = Time()
         endTime = Time()
         setClickListeners()
+        val chLayoutManager= ChipsLayoutManager.newBuilder(requireContext())
+            .setOrientation(ChipsLayoutManager.HORIZONTAL)
+            .setRowStrategy(ChipsLayoutManager.STRATEGY_DEFAULT)
+            .build()
         recycler_alarms.apply {
             this.layoutManager =
-                LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+                chLayoutManager
             viewModel
             adapter = alarmAdapter
         }
@@ -156,6 +153,30 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
 
     private fun subscribeObservers() {
+        val args: AddEditScheduleFragmentArgs by navArgs()
+        args.scheduleId.let {
+            if(it>0){
+                viewModel.setScheduleId(args.scheduleId)
+            }
+        }
+
+        viewModel.isNextDay.observe(viewLifecycleOwner){isNextDay->
+            if (isNextDay){
+                txt_is_next_day.visibility=View.VISIBLE
+            }else{
+                txt_is_next_day.visibility=View.INVISIBLE
+            }
+        }
+
+        viewModel.alarmCounter.observe(viewLifecycleOwner){alarmsAmount->
+            if (alarmsAmount>=4){
+                img_add_alert.visibility=View.GONE
+            }else{
+                img_add_alert.visibility=View.VISIBLE
+            }
+
+        }
+
         viewModel.addScheduleManager.initializeSchedule()
         viewModel.stateMessage.observe(viewLifecycleOwner) { event ->
             event?.getContentIfNotHandled()?.let { stateMessage ->
@@ -188,12 +209,13 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
                     toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = false
                     layout_todo_group.isVisible = false
                 }
-
                 scroll_view_add_schedule.visibility=View.VISIBLE
+                layout_animate_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+                layout_animate_add_schedule.layoutTransition.setDuration(70)
+                scroll_view_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+                scroll_view_add_schedule.layoutTransition.setDuration(70)
 
             }else{
-                Log.d(TAG, "subscribeObservers: schedule not loaded")
-                val args: AddEditScheduleFragmentArgs by navArgs()
                 viewModel.getRoutineIndex().observeOnce(viewLifecycleOwner){routineId->
                     if (routineId!=0L){
                         args.scheduleRequestType?.apply {
@@ -217,7 +239,8 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
             }
         }
 
-        viewModel.numberOfTodos.observe(viewLifecycleOwner){size->
+
+        viewModel.getScheduleTodosSize(viewModel.scheduleId).observeOnce(viewLifecycleOwner){size->
             val text="Tasks ($size)"
             txt_todo_label.text= text
         }
@@ -230,8 +253,6 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
             when (modificationType) {
                 ALARM_ADDED -> {
-
-                    Log.d(TAG, "subscribeObservers: alarm added")
                     val modifiedPos = viewModel.alarmModifiedPosition
                     alarmAdapter?.notifyListChanged(ALARM_ADDED, modifiedPos)
 
@@ -239,13 +260,11 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
                 ALARM_REMOVED -> {
 
                     val modifiedPos = viewModel.alarmModifiedPosition
-                    Log.d(TAG, "subscribeObservers: alarm removed: pos: $modifiedPos")
                     alarmAdapter?.notifyListChanged(ALARM_REMOVED, modifiedPos)
 
                 }
 
                 ALARM_LIST_ADDED -> {
-                    Log.d(TAG, "subscribeObservers: alarm list added")
                     viewModel.getAlarms().apply {
                         alarmAdapter?.submitList(this)
                     }
@@ -265,7 +284,6 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         }
 
         viewModel.selectedProgram.observe(viewLifecycleOwner) { program ->
-             Log.d(TAG, "subscribeObservers: selectedProgram $program")
             add_schedule_name.text = program.name
             add_schedule_name.visibility=View.VISIBLE
             txt_upper_label.setBackgroundColor(program.color)
@@ -375,24 +393,24 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
             alarm?.let {
                 if (!it.isAtStart) {
-                    setText(it.hourBefore.toString())
+                    this@apply.setText(it.hourBefore.toString())
                 }
             }
 
             this.addTextChangedListener(object : TimeTextWatcher(23) {
                 override fun setText(input: String) {
-                    setText(input)
+                    this@apply.setText(input)
                 }
 
                 override fun setSelection(index: Int) {
-                    setSelection(index)
+                    this@apply.setSelection(index)
                 }
 
             })
 
             this.setOnFocusChangeListener { _, hasFocus ->
                 if (hasFocus) {
-                    setText("")
+                    this@apply.setText("")
                 }
             }
         }
@@ -401,24 +419,24 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
             alarm?.let {
                 if (!it.isAtStart) {
-                    setText(it.minuteBefore.toString())
+                    this@apply.setText(it.minuteBefore.toString())
                 }
             }
 
             this.addTextChangedListener(object : TimeTextWatcher(59) {
                 override fun setText(input: String) {
-                    setText(input)
+                    this@apply.setText(input)
                 }
 
                 override fun setSelection(index: Int) {
-                    setSelection(index)
+                    this@apply.setSelection(index)
                 }
 
             })
 
             this.setOnFocusChangeListener { _, hasFocus ->
                 if (hasFocus && isEnabled) {
-                    setText("")
+                    this@apply.setText("")
                 }
             }
         }

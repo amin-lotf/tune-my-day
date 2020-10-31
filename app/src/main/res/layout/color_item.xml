@@ -13,12 +13,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#8C92CF"/>
-        <ImageView
+        <View
             android:id="@+id/img_chosen"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            android:src="@drawable/ic_done_24"/>
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:visibility="visible"
+            android:layout_gravity="center"
+            android:backgroundTintMode="src_in"
+            android:background="@drawable/ic_done_24"/>
     </FrameLayout>
 
 

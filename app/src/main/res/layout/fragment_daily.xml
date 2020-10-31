@@ -1,46 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout_nestet_daily"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
     tools:context=".framework.presentation.dailylist.DailyFragment">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_daily"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:elevation="0dp"
+        app:layout_scrollFlags="scroll|enterAlways"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-   <androidx.constraintlayout.widget.ConstraintLayout
-       android:layout_width="match_parent"
-       android:layout_height="wrap_content"
-       >
-      <com.google.android.material.appbar.AppBarLayout
-          android:id="@+id/app_bar_daily"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          app:layout_constraintTop_toTopOf="parent"
-          app:elevation="0dp"
-          >
-         <com.google.android.material.appbar.MaterialToolbar
-             android:id="@+id/top_toolbar_daily"
-             android:layout_width="match_parent"
-             android:layout_height="?attr/actionBarSize"
-             app:title="Saturday"
-             style="@style/ToolbarTheme"/>
-         <View
-             android:layout_width="match_parent"
-             android:layout_height="1dp"
-             android:background="@color/colorLineDark"/>
-      </com.google.android.material.appbar.AppBarLayout>
-      <androidx.recyclerview.widget.RecyclerView
-          android:id="@+id/recycler_day_schedule"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-         app:layout_constraintTop_toBottomOf="@id/app_bar_daily"
-          app:layout_constraintBottom_toBottomOf="parent"
-          tools:listitem="@layout/daily_schedule_item"
-          tools:itemCount="3"/>
-   </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/top_toolbar_daily"
+            style="@style/ToolbarTheme"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:title="Today"
+            app:titleTextColor="@color/colorFontDark" />
 
+    </com.google.android.material.appbar.AppBarLayout>
 
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/layout_nested_daily"
+        android:visibility="invisible"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-</androidx.core.widget.NestedScrollView>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_day_schedule"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:itemCount="3"
+                tools:listitem="@layout/daily_schedule_item" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

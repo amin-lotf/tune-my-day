@@ -1,5 +1,6 @@
 package com.aminook.tunemyday.framework.presentation.common
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,10 +13,11 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
     private val TAG="aminjoon"
 
 
-    private var _selectedColor:Color?= if (colors.size>0) colors[0] else null
 
-    val selectedColor:Color?
-    get() = _selectedColor
+    val selectedColor:Color
+    get() {
+        return  colors.first { it.isChosen }
+    }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -54,6 +56,7 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(color: Color){
             itemView.img_color.setBackgroundColor(color.value)
+            itemView.img_chosen.backgroundTintList= ColorStateList.valueOf(color.matchedFontColor)
 
             if(color.isChosen){
                 itemView.img_chosen.visibility=View.VISIBLE
@@ -63,7 +66,6 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
 
             itemView.setOnClickListener {
                 updateColors(color)
-                _selectedColor=color
             }
 
 

@@ -43,14 +43,20 @@ class AddScheduleViewModel @ViewModelInject constructor(
     private var job: Job? = null
     private var _requestType: String = SCHEDULE_REQUEST_NEW
     private val _scheduleValidated = MutableLiveData<Boolean>()
+    private var _todosLoaded = false
 
-
-    val requestType:String
-    get() = _requestType
+    val requestType: String
+        get() = _requestType
 
     val scheduleLoaded: LiveData<Boolean>
         get() = addScheduleManager.getScheduleStatus()
 
+
+    val isNextDay: LiveData<Boolean>
+        get() = addScheduleManager.isNextDay
+
+    val alarmCounter: LiveData<Int>
+        get() = addScheduleManager.alarmCounter
 
     val scheduleValidated: LiveData<Boolean>
         get() = _scheduleValidated
@@ -83,10 +89,28 @@ class AddScheduleViewModel @ViewModelInject constructor(
     val alarmModifiedPosition: Int
         get() = addScheduleManager.alarmModifiedPosition
 
-    val numberOfTodos:LiveData<Int>
-    get() = addScheduleManager.numberOfTodos
+    val numberOfTodos: LiveData<Int>
+        get() = addScheduleManager.numberOfTodos
 
 
+    fun setScheduleId(scheduleId: Long) {
+        addScheduleManager.setScheduleId(scheduleId)
+    }
+
+    fun getScheduleTodosSize(scheduleId: Long): LiveData<Int> {
+        _todosLoaded = false
+        return todoInteractors.getScheduleTodos(scheduleId)
+            .map {
+                processResponse(it?.stateMessage)
+                val todoSize = it?.data?.size ?: 0
+                if (!_todosLoaded) {
+                    addScheduleManager.addTodos(it?.data ?: emptyList())
+                    _todosLoaded = true
+                }
+                todoSize
+
+            }.asLiveData()
+    }
 
     fun validateSchedule() {
 
@@ -142,10 +166,6 @@ class AddScheduleViewModel @ViewModelInject constructor(
         if (addScheduleManager.buffSchedule.program.name.isEmpty()) {
             handleLocalError("Please choose an activity")
         } else {
-            Log.d(
-                TAG,
-                "saveSchedule: startDay:${addScheduleManager.buffSchedule.startDay} EndDay: ${addScheduleManager.buffSchedule.endDay}"
-            )
             CoroutineScope(activeScope).launch {
                 scheduleInteractors.insertSchedule(
                     addScheduleManager.buffSchedule,
@@ -166,8 +186,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
         addScheduleManager.setRoutineId(routineId)
         when (request) {
             SCHEDULE_REQUEST_EDIT -> {
-                val scheduleId = args.scheduleId
-                addScheduleManager.setScheduleId(scheduleId)
+
                 if (scheduleId > 0L) {
                     try {
 
@@ -193,9 +212,9 @@ class AddScheduleViewModel @ViewModelInject constructor(
                                                     TIME_END
                                                 )
                                                 addScheduleManager.addAlarms(schedule.alarms)
-                                                addScheduleManager.setTodosSize(schedule.numberOfTodos)
-                                                addScheduleManager.addTodos(schedule.unfinishedTodos,false)
-                                                addScheduleManager.addTodos(schedule.finishedTodos,true)
+                                                // addScheduleManager.setTodosSize(schedule.numberOfTodos)
+                                                //addScheduleManager.addTodos(schedule.unfinishedTodos,false)
+                                                //addScheduleManager.addTodos(schedule.finishedTodos,true)
                                                 addScheduleManager.setScheduleStatus(true)
 
                                             }

@@ -28,13 +28,14 @@ import kotlinx.coroutines.withContext
 @AndroidEntryPoint
 class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener {
 
-    private val TAG="aminjoon"
+    private val TAG = "aminjoon"
     private val viewModel: WeeklyViewModel by viewModels()
-    private var shortDailyScheduleAdapter:ShortDailyScheduleAdapter?= null
+    private var shortDailyScheduleAdapter: ShortDailyScheduleAdapter? = null
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         arguments?.let {
             it.getInt(DAY_INDEX_PARAM).let { index ->
                 viewModel.fragmentDayIndex = index
@@ -47,28 +48,38 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
         setupAdapter()
     }
 
-    
-    private fun setupAdapter() {
-        shortDailyScheduleAdapter= ShortDailyScheduleAdapter(requireContext(),viewModel.fragmentDayIndex)
+    override fun onResume() {
+        super.onResume()
         shortDailyScheduleAdapter?.setOnClickListener(this)
+    }
 
-        viewModel.getFragmentSchedules().observe(viewLifecycleOwner){
+
+    private fun setupAdapter() {
+        if (shortDailyScheduleAdapter == null) {
+            shortDailyScheduleAdapter =
+                ShortDailyScheduleAdapter(requireContext(), viewModel.fragmentDayIndex)
+        }
+
+
+        daily_short_schedules_recycler.apply {
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+            adapter = shortDailyScheduleAdapter
+        }
+        viewModel.getFragmentSchedules().observe(viewLifecycleOwner) {
             shortDailyScheduleAdapter?.submitList(it)
         }
 
-        daily_short_schedules_recycler.apply {
-            layoutManager=LinearLayoutManager(requireContext(),LinearLayoutManager.VERTICAL,false)
-            adapter=shortDailyScheduleAdapter
-        }
+
     }
 
     override fun onItemClick(schedule: Schedule) {
-        val action = if(schedule.id!= -1L) {
-             WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
+        val action = if (schedule.id != -1L) {
+            WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
                 scheduleRequestType = SCHEDULE_REQUEST_EDIT,
                 scheduleId = schedule.id
             )
-        }else{
+        } else {
             WeeklyListFragmentDirections.actionWeeklyListFragmentToAddScheduleFragment(
                 scheduleRequestType = SCHEDULE_REQUEST_NEW,
                 scheduleId = schedule.id,
@@ -80,17 +91,23 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
     }
 
     override fun onPause() {
-        shortDailyScheduleAdapter=null
+        shortDailyScheduleAdapter?.setOnClickListener(null)
         super.onPause()
+    }
+
+
+    override fun onDestroy() {
+        shortDailyScheduleAdapter = null
+        super.onDestroy()
     }
 
     companion object {
         const val DAY_INDEX_PARAM = "param1"
         const val ROUTINE_INDEX_PARAM = "param2"
+
         @JvmStatic
         fun newInstance(dayIndex: Int, routineIndex: Long) =
             WeeklyFragment().apply {
-                Log.d(TAG, "newInstance: routineId $routineIndex")
                 arguments = Bundle().apply {
                     putInt(DAY_INDEX_PARAM, dayIndex)
                     putLong(ROUTINE_INDEX_PARAM, routineIndex)

@@ -62,7 +62,7 @@ class DateUtil @Inject constructor() {
         }
 
     fun getStartOfDayInSec(dayIndex: Int):Int{
-            return 86400 * curDayIndex
+            return 86400 * dayIndex
     }
 
     fun getDay(dayIndex: Int): Day {

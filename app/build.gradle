@@ -5,7 +5,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.firebase.firebase-perf'
+
 apply plugin: "androidx.navigation.safeargs.kotlin"
 
 android {
@@ -92,6 +92,8 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:2.3.1"
     implementation "androidx.navigation:navigation-dynamic-features-fragment:2.3.1"
 
+    implementation 'com.beloo.widget:ChipsLayoutManager:0.3.7@aar'
+    //implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4'
     // Glide
     //implementation 'com.github.bumptech.glide:glide:4.11.0'
     //kapt 'com.github.bumptech.glide:compiler:4.11.0'
@@ -112,7 +114,7 @@ dependencies {
     implementation "androidx.cardview:cardview:$cardview_version"
 
     // Recyclerview
-    def recyclerview_version = "1.1.0-beta03"
+    def recyclerview_version = "1.2.0-alpha06"
     implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
 
 
@@ -131,11 +133,7 @@ dependencies {
 
     implementation "androidx.datastore:datastore-preferences:1.0.0-alpha02"
 
-    // Import the BoM for the Firebase platform
-    implementation platform('com.google.firebase:firebase-bom:26.0.0')
 
-    // Declare the dependency for the Performance Monitoring library
-    // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation 'com.google.firebase:firebase-perf-ktx'
+
 
 }

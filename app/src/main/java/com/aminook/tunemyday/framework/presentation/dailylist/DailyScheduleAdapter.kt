@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.NavDirections
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,10 +17,15 @@ import com.aminook.tunemyday.business.domain.model.Todo
 import com.aminook.tunemyday.framework.presentation.common.BaseViewHolder
 import com.aminook.tunemyday.framework.presentation.common.TodoAdapter
 import com.aminook.tunemyday.util.DragManageAdapter
+import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
+import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
+import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager
 import kotlinx.android.synthetic.main.daily_schedule_item.view.*
 import kotlinx.android.synthetic.main.daily_schedule_item.view.card_view_daily
 import kotlinx.android.synthetic.main.daily_schedule_item.view.layout_parent_daily
 import kotlinx.android.synthetic.main.daily_schedule_item.view.recycler_schedule_todo
+import kotlinx.android.synthetic.main.daily_schedule_item.view.txt_todo_add_daily
+import kotlinx.android.synthetic.main.daily_schedule_item.view.btn_add_todo
 import kotlinx.android.synthetic.main.daily_schedule_item.view.txt_daily_program_name
 import kotlinx.android.synthetic.main.daily_schedule_item.view.txt_daily_start_time
 import kotlinx.android.synthetic.main.daily_schedule_item_gap.view.*
@@ -36,7 +42,6 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
     private val TYPE_SCHEDULE_DIFF_START = 2
     private val TYPE_LAST_SCHEDULE = 3
     private val TYPE_LAST_SCHEDULE_DIFF_START = 4
-    private val TYPE_LAST_ITEM = 5
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<Schedule> {
         val layout = when (viewType) {
@@ -45,7 +50,6 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
             TYPE_LAST_SCHEDULE_DIFF_START -> R.layout.daily_schedule_last_schedule_gap
             else -> R.layout.daily_schedule_item
         }
-
         val view =
             LayoutInflater.from(parent.context)
                 .inflate(layout, parent, false)
@@ -56,10 +60,7 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
         val schedule = getItem(position)
         holder.bind(schedule)
         Log.d(TAG, "onBindViewHolder: ")
-        //listener?.setTodoAdapter(holder,schedule)
     }
-
-
 
     override fun getItemViewType(position: Int): Int {
 
@@ -79,12 +80,9 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
         }
     }
 
-
-    fun setListener(listener: DailyScheduleAdapterListener) {
+    fun setListener(listener: DailyScheduleAdapterListener?) {
         this.listener = listener
-
     }
-
 
     inner class ViewHolder(itemView: View, val viewType: Int) :
         BaseViewHolder<Schedule>(itemView) {
@@ -98,15 +96,24 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
                     itemView.txt_prev_day_daily.visibility = View.VISIBLE
                     itemView.view_prev_day.visibility = View.VISIBLE
                     itemView.txt_start_of_day.visibility = View.VISIBLE
+
                 }
             }
 
 
             if (viewType == TYPE_SCHEDULE_DIFF_START) {
-                if (adapterPosition > 0) {
-                    val prevSchedule = currentList[adapterPosition - 1]
+                if (layoutPosition > 0) {
+                    val prevSchedule = currentList[layoutPosition - 1]
                     itemView.txt_daily_prev_end_time.text = prevSchedule.endTimeFormatted.toString()
-
+                    itemView.txt_daily_prev_end_time.setOnClickListener {
+                        val action=DailyFragmentDirections.actionDailyFragmentToAddScheduleFragment(
+                            scheduleRequestType = SCHEDULE_REQUEST_NEW,
+                            scheduleId = -1,
+                            startTime = prevSchedule.endTime,
+                            endTime = item.startTime
+                        )
+                        listener?.onTimeClick(action)
+                    }
                 }
             }
 
@@ -128,10 +135,18 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
             if (viewType == TYPE_LAST_SCHEDULE_DIFF_START) {
 
                 itemView.txt_daily_end_time_gap.text = item.endTimeFormatted.toString()
-                if (adapterPosition > 0) {
-                    val prevSchedule = currentList[adapterPosition - 1]
+                if (layoutPosition > 0) {
+                    val prevSchedule = currentList[layoutPosition - 1]
                     itemView.txt_daily_prev_end_time_last.text = prevSchedule.endTimeFormatted.toString()
-
+                    itemView.txt_daily_prev_end_time_last.setOnClickListener {
+                        val action=DailyFragmentDirections.actionDailyFragmentToAddScheduleFragment(
+                            scheduleRequestType = SCHEDULE_REQUEST_NEW,
+                            scheduleId = -1,
+                            startTime = prevSchedule.endTime,
+                            endTime = item.startTime
+                        )
+                        listener?.onTimeClick(action)
+                    }
                 }
                 if (item.endDay != todayIndex) {
                     itemView.txt_next_day_daily_gap.visibility = View.VISIBLE
@@ -141,30 +156,33 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
             }
 
 
+            itemView.txt_todo_add_daily.setOnClickListener {
+                Log.d(TAG, "bind: add todo clicked")
+                listener?.onAddNoteClick(item.id,item.program.id,todoAdapter)
+            }
+            itemView.btn_add_todo.setOnClickListener {
 
-
+                listener?.onAddNoteClick(item.id,item.program.id,todoAdapter)
+            }
 
             itemView.card_view_daily.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-            // itemView.card_view_daily.layoutTransition.setDuration(500)
             itemView.layout_parent_daily.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-            // itemView.layout_parent_daily.layoutTransition.setDuration(500)
+
             itemView.txt_daily_start_time.text = item.startTime.toString()
-
+            itemView.txt_daily_start_time.setOnClickListener {
+                val action=DailyFragmentDirections.actionDailyFragmentToAddScheduleFragment(
+                    scheduleRequestType = SCHEDULE_REQUEST_EDIT,
+                    scheduleId = item.id
+                )
+                listener?.onTimeClick(action)
+            }
             itemView.txt_daily_program_name.text = item.program.name
-
-
-
 
             itemView.txt_daily_program_name.setOnClickListener {
                 listener?.onScheduleClick(item.id)
             }
 
             todoAdapter?.setListener(object : TodoAdapter.ToDoRecyclerViewListener {
-                override fun onAddTodoClick() {
-                    listener?.onAddNoteClick(item.id, item.program.id, todoAdapter)
-                }
-
-
                 override fun onEditTodoClick(todo: Todo, position: Int) {
                     listener?.onEditTodoClick(todo, position, todoAdapter)
                 }
@@ -177,54 +195,26 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
                     listener?.swapItems(fromPosition, toPosition, todoAdapter)
                 }
 
-                override fun swipeToDelete(todo: Todo, position: Int) {
-                    listener?.swipeToDelete(todo, position, todoAdapter)
-                }
-
                 override fun updateTodos(todos: List<Todo>) {
                     listener?.updateTodos(todos)
                 }
-
-
             })
-            val layoutManager =
-                LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-
-            // val dividerItemDecoration= DividerItemDecoration(context,layoutManager.orientation)
+            val chLayoutManager= ChipsLayoutManager.newBuilder(context)
+                .setOrientation(ChipsLayoutManager.HORIZONTAL)
+                .setRowStrategy(ChipsLayoutManager.STRATEGY_DEFAULT)
+                .build()
 
             todoAdapter?.let {
 
                 it.submitList(item.unfinishedTodos)
 
                 todoRecyclerView.apply {
-                    this.layoutManager = layoutManager
+                    this.layoutManager = chLayoutManager
                     adapter = todoAdapter
                     setHasFixedSize(false)
                     isNestedScrollingEnabled = false
-                    // addItemDecoration(dividerItemDecoration)
                 }
-
-                val callback = DragManageAdapter(
-                    it,
-                    context,
-                    ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
-                    0
-                )
-
-                val helper = ItemTouchHelper(callback)
-
-                helper.attachToRecyclerView(todoRecyclerView)
             }
-
-
-        }
-
-
-    }
-
-    inner class EmptyScheduleViewHolder(itemView: View) : BaseViewHolder<Schedule>(itemView) {
-        override fun bind(item: Schedule) {
-
         }
     }
 
@@ -236,11 +226,8 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
             override fun areContentsTheSame(oldItem: Schedule, newItem: Schedule): Boolean {
                 return oldItem.id == newItem.id
             }
-
-
         }
     }
-
 
     interface DailyScheduleAdapterListener {
         fun onAddNoteClick(scheduleId: Long, programId: Long, dailyScheduleAdapter: TodoAdapter?)
@@ -248,9 +235,7 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
         fun onEditTodoClick(todo: Todo, position: Int, todoAdapter: TodoAdapter?)
         fun onCheckChanged(todo: Todo, checked: Boolean, position: Int, todoAdapter: TodoAdapter?)
         fun swapItems(fromPosition: Todo, toPosition: Todo, todoAdapter: TodoAdapter?)
-        fun swipeToDelete(todo: Todo, position: Int, todoAdapter: TodoAdapter?)
         fun updateTodos(todos: List<Todo>)
+        fun onTimeClick(action: NavDirections)
     }
-
-
 }

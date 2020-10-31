@@ -2,11 +2,14 @@ package com.aminook.tunemyday.framework.presentation.dailylist
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Todo
 import com.aminook.tunemyday.business.domain.state.SnackbarUndoCallback
@@ -16,6 +19,7 @@ import com.aminook.tunemyday.framework.datasource.cache.mappers.TodoCacheMapper
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.framework.presentation.common.TodoAdapter
 import com.aminook.tunemyday.util.*
+import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,20 +35,13 @@ import javax.inject.Inject
 class DailyFragment : BaseFragment(R.layout.fragment_daily),
     DailyScheduleAdapter.DailyScheduleAdapterListener {
     private val TAG = "aminjoon"
-    private var fragmentIndex: Int? = null
     private val dailyViewModel: DailyViewModel by viewModels()
     private  var dailyScheduleAdapter:DailyScheduleAdapter?=null
     private  var addTodoBtmSheetDialog: BottomSheetDialog?=null
 
-    @Inject
-    lateinit var todoDao: TodoDao
-
-    @Inject
-    lateinit var todoCacheMapper: TodoCacheMapper
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         dailyViewModel.getRoutineIndex().observeOnce(viewLifecycleOwner) {
             if (it != 0L) {
                 dailyViewModel.getDailySchedules(it)
@@ -53,7 +50,6 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
         initializeAdapters()
         subscribeObservers()
         top_toolbar_daily.title = "Today"
-        Log.d(TAG, "onViewCreated: ")
         dailyViewModel.getScreenType().observe(viewLifecycleOwner){screenType->
             when(screenType){
                 SCREEN_WEEKLY ->{
@@ -64,21 +60,16 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                 }
             }
         }
-
-
-
-
     }
 
 
     override fun onResume() {
         super.onResume()
-
         if (dailyScheduleAdapter==null){
             initializeAdapters()
             subscribeObservers()
         }
-
+        dailyScheduleAdapter?.setListener(this)
     }
 
 
@@ -87,48 +78,41 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
             event?.getContentIfNotHandled()?.let { stateMessage ->
                 onResponseReceived(stateMessage.response)
             }
-
         }
 
         dailyViewModel.schedules.observe(viewLifecycleOwner) {
-            Log.d(TAG, "initializeAdapters: observe once")
             dailyScheduleAdapter?.submitList(it)
-            layout_nestet_daily.scrollTo(layout_nestet_daily.x.toInt(),layout_nestet_daily.layoutParams.height)
-
+            layout_nested_daily.visibility=View.VISIBLE
         }
-
-
-
     }
 
     private fun initializeAdapters() {
-        dailyScheduleAdapter = DailyScheduleAdapter(
-            requireContext(),
-            dailyViewModel.dateUtil.curDayIndex,
-            dailyViewModel.dateUtil.currentDayInInt
-        )
-        dailyScheduleAdapter?.setListener(this)
 
+        val chLayoutManager=ChipsLayoutManager.newBuilder(requireContext())
+            .setOrientation(ChipsLayoutManager.HORIZONTAL)
+            .setRowStrategy(ChipsLayoutManager.STRATEGY_DEFAULT)
+            .withLastRow(true)
+            .build()
 
+           dailyScheduleAdapter = DailyScheduleAdapter(
+               requireContext(),
+               dailyViewModel.dateUtil.curDayIndex,
+               dailyViewModel.dateUtil.currentDayInInt
+           )
 
-        (recycler_day_schedule.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         recycler_day_schedule.apply {
             layoutManager =
-                LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+                chLayoutManager
             adapter = dailyScheduleAdapter
-            isNestedScrollingEnabled = false
+            isNestedScrollingEnabled=false
         }
-
     }
-
 
     override fun onEditTodoClick(todo: Todo,position: Int, todoAdapter: TodoAdapter?) {
         showAddTodo(todo.scheduleId, todo.programId, todoAdapter, todo,position)
     }
 
     override fun onCheckChanged(todo: Todo, checked: Boolean,position: Int, todoAdapter: TodoAdapter?) {
-
-        Log.d(TAG, "onCheckChanged: ${todo.title} pos:$position")
         val updatedTodo = Todo(
             id = todo.id,
             title = todo.title,
@@ -147,17 +131,12 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                     dailyViewModel.changeTodoCheck(todo.copy(),false).observeOnce(viewLifecycleOwner) {
                         it?.let {
                             todoAdapter?.addItem(it)
-
                         }
                     }
                 }
-
             },
             onDismissCallback = object : TodoCallback {
-                override fun execute() {
-                    Log.d(TAG, "execute: todo delete snackbar dismissed")
-                }
-
+                override fun execute() {}
             }
             ).observe(viewLifecycleOwner){
             it?.let {
@@ -166,9 +145,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
         }
     }
 
-    override fun swipeToDelete(todo: Todo, position: Int, todoAdapter: TodoAdapter?) {
 
-    }
 
     override fun updateTodos(todos: List<Todo>) {
         dailyViewModel.moveTodos(todos,0).observe(viewLifecycleOwner){}
@@ -213,7 +190,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
         position: Int=0
     ) {
         addTodoBtmSheetDialog =
-            BottomSheetDialog(requireContext(), R.style.ThemeOverlay_DialogStyle)
+            BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_add_todo, btn_sheet_add_todo)
         addTodoBtmSheetDialog?.setContentView(view)
         addTodoBtmSheetDialog?.behavior?.state = BottomSheetBehavior.STATE_EXPANDED
@@ -239,7 +216,6 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                     },
                     onDismissCallback = object : TodoCallback {
                         override fun execute() {
-                            Log.d(TAG, "execute: todo delete snackbar dismissed")
                         }
 
                     }
@@ -284,7 +260,6 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                         },
                         onDismissCallback = object : TodoCallback {
                             override fun execute() {
-                                Log.d(TAG, "execute: todo delete snackbar dismissed")
                             }
 
                         }
@@ -311,12 +286,20 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
     }
 
-    override fun onPause() {
+    override fun onTimeClick(action: NavDirections) {
+        findNavController().navigate(action)
+    }
 
+    override fun onPause() {
+        dailyScheduleAdapter?.setListener(null)
         addTodoBtmSheetDialog=null
-        dailyScheduleAdapter=null
+
         super.onPause()
 
+    }
+    override fun onDestroy() {
+        dailyScheduleAdapter=null
+        super.onDestroy()
     }
 
 }

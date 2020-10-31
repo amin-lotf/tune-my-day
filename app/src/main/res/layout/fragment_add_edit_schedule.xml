@@ -7,8 +7,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:fillViewport="true"
-
     android:visibility="invisible"
     tools:context=".framework.presentation.addschedule.AddEditScheduleFragment">
 
@@ -56,7 +54,7 @@
             android:layout_marginTop="20dp"
             android:gravity="center"
             android:textAlignment="center"
-            android:textColor="#8D9091"
+            android:textColor="@color/colorFontDark"
             android:textSize="20sp"
             android:textStyle="bold"
             android:visibility="invisible"
@@ -142,11 +140,23 @@
             app:layout_constraintStart_toStartOf="@id/add_schedule_end"
             app:layout_constraintTop_toBottomOf="@id/add_schedule_end" />
 
+        <TextView
+            android:id="@+id/txt_is_next_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next Day"
+            android:visibility="invisible"
+            android:textColor="@color/colorFontNotice"
+            android:textSize="10sp"
+            app:layout_constraintStart_toStartOf="@id/add_schedule_end"
+            app:layout_constraintEnd_toEndOf="@id/add_schedule_end"
+           app:layout_constraintBottom_toTopOf="@id/add_schedule_end"/>
+
         <View
             android:id="@+id/blackline_notification"
             android:layout_width="match_parent"
             android:layout_height="2dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="25dp"
             android:background="#c0c0c0"
             app:layout_constraintTop_toBottomOf="@id/add_schedule_day" />
 
@@ -185,6 +195,7 @@
             android:layout_height="24dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="10dp"
+
             android:src="@drawable/ic_add_alert"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -194,7 +205,7 @@
             android:id="@+id/blackline_todos"
             android:layout_width="match_parent"
             android:layout_height="2dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="13dp"
             android:background="#c0c0c0"
             app:layout_constraintTop_toBottomOf="@id/img_add_alert" />
 
@@ -208,7 +219,7 @@
                 android:id="@+id/img_add_todo_schedule"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="10dp"
                 android:src="@drawable/ic_next"
                 app:layout_constraintBottom_toBottomOf="@id/txt_todo_label"
                 app:layout_constraintEnd_toEndOf="parent"

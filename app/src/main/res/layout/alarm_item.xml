@@ -2,12 +2,11 @@
 
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="40dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginTop="10dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginStart="8dp"
-    android:layout_marginBottom="4dp"
+
+
     android:checkable="true"
     app:cardElevation="0dp"
 
@@ -22,14 +21,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="1 day 2 hours 30mins before start"
-            android:textStyle="bold"
+
             android:textColor="@color/colorFontDark"
-            android:fontFamily="@font/open_sans"
+
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/add_schedule_remove_alarm"
-            android:layout_marginTop="4dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="10dp"
             android:textAlignment="textStart"/>
 
         <ImageView
@@ -37,10 +36,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_close"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/add_schedule_notification"
+            app:layout_constraintBottom_toBottomOf="@id/add_schedule_notification"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="2dp"
-            android:layout_marginEnd="4dp"/>
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="10dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

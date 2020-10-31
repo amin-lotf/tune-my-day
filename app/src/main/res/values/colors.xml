@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorFontDark">#434343</color>
+    <color name="colorFontNotice">#8FBF360C</color>
     <color name="colorLineDark">#54373434</color>
     <color name="colorPrimary">#787878</color>
-    <color name="colorPrimaryDark">#E5E8EA</color>
+    <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#1391CD</color>
     <color name="colorAdd">#3D66DD</color>
     <color name="colorDelete">#D2B71C1C</color>
@@ -23,4 +24,6 @@
     <color name="label12">#E6D968</color>
     <color name="label13">#CD8974</color>
     <color name="label14">#0054D6</color>
+    <color name="label15">#EF4A17</color>
+    <color name="label16">#5596FA</color>
 </resources>

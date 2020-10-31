@@ -1,6 +1,7 @@
 package com.aminook.tunemyday.framework.presentation
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -10,7 +11,6 @@ import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.*
@@ -24,16 +24,22 @@ import com.aminook.tunemyday.framework.presentation.nodata.NoDataFragmentDirecti
 import com.aminook.tunemyday.framework.presentation.routine.RoutineFragmentDirections
 import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragmentDirections
 import com.aminook.tunemyday.util.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.crashlytics.internal.common.CrashlyticsCore
+import com.google.firebase.crashlytics.internal.model.CrashlyticsReport
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.bottom_sheet_main.*
 import kotlinx.android.synthetic.main.bottom_sheet_main.view.*
+import java.util.*
 
 import javax.inject.Inject
+import kotlin.concurrent.schedule
 
 
 @AndroidEntryPoint
@@ -41,7 +47,7 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
 
     private val TAG = "aminjoon"
     private val mainViewModel: MainViewModel by viewModels()
-
+    lateinit var snackbar : Snackbar
     private lateinit var mainBottomSheet: BottomSheetDialog
     var isDialogShowing = false
 
@@ -54,23 +60,30 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
     private var dialogInView: AlertDialog? = null
     lateinit var navHostFragment: NavHostFragment
     lateinit var navController: NavController
+    //lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        mainBottomSheet = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
+
+
         setupBottomAppBar()
         setupNavigation()
         subscribeObservers()
     }
 
+
+
     private fun setupBottomAppBar() {
         bottom_app_bar.setNavigationOnClickListener {
             if (!isDialogShowing) {
-                mainViewModel.getScreenType().observeOnce(this@MainActivity) { screenType ->
-                    mainBottomSheet = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
 
-                    val view =
-                        layoutInflater.inflate(R.layout.bottom_sheet_main, btm_sheet_main).apply {
+                mainViewModel.getScreenType().observeOnce(this@MainActivity) { screenType ->
+
+
+
+                    val view=layoutInflater.inflate(R.layout.bottom_sheet_main,btm_sheet_main).apply {
 
                             when (screenType) {
                                 SCREEN_DAILY -> {
@@ -81,7 +94,8 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
                                             R.id.weeklyListFragment
                                         )
                                         mainViewModel.setScreenType(SCREEN_WEEKLY)
-                                        mainBottomSheet.dismiss()
+                                        isDialogShowing=false
+                                        mainBottomSheet.hide()
                                     }
                                     this.txt_load_weekly.setOnClickListener {
                                         navController.navigateWithSourcePopUp(
@@ -146,7 +160,10 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
                         setOnDismissListener {
                             isDialogShowing = false
                         }
+
+
                     }
+
                     mainBottomSheet.setContentView(view)
                     mainBottomSheet.show()
                 }
@@ -190,7 +207,9 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
 
         navController = navHostFragment.navController
         navController.addOnDestinationChangedListener { controller, destination, _ ->
-
+            if(this::snackbar.isInitialized && snackbar.isShown){
+                snackbar.dismiss()
+            }
             when (destination.id) {
                 R.id.weeklyListFragment,
                 R.id.dailyFragment,
@@ -252,8 +271,14 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
                     return@setOnClickListener
                 }
             }
+            try {
+                navController.navigate(action)
+            }
+            catch (e:IllegalArgumentException){
+                Log.d(TAG, "setupFabClickListener: error in navigation")
+                FirebaseCrashlytics.getInstance().recordException(e)
+            }
 
-            navController.navigate(action)
         }
     }
 
@@ -338,7 +363,7 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
         onDismissCallback: TodoCallback?
     ) {
 
-        val snackbar = Snackbar.make(
+        snackbar = Snackbar.make(
             main_container,
             message,
             Snackbar.LENGTH_LONG
@@ -354,7 +379,10 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
 
             }
         })
-        snackbar.show()
+        Timer("showingSnackbar",false).schedule(300){
+            snackbar.show()
+        }
+
 
 
     }

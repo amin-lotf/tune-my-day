@@ -25,6 +25,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.bottom_sheet_add_routine.*
 import kotlinx.android.synthetic.main.bottom_sheet_add_routine.view.*
 import kotlinx.android.synthetic.main.fragment_weekly_list.*
@@ -44,12 +45,12 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list) {
     lateinit var days: List<Day>
 
 
-    override fun onResume() {
-        weekly_view_pager.adapter = null
-        subscribeObservers()
-        super.onResume()
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        subscribeObservers()
     }
+
 
     private fun subscribeObservers() {
         viewModel.stateMessage.observe(viewLifecycleOwner) { event ->
@@ -94,10 +95,13 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list) {
     }
 
     private fun setupWeeklyViewPager(routine: RoutineEntity) {
-        weeklyViewPagerAdapter =
-            WeeklyViewPagerAdapter(childFragmentManager, viewLifecycleOwner.lifecycle, routine.id)
-        weekly_view_pager.apply {
-            this.adapter = weeklyViewPagerAdapter
+            weeklyViewPagerAdapter =
+                WeeklyViewPagerAdapter(childFragmentManager, viewLifecycleOwner.lifecycle, routine.id)
+        if(weekly_view_pager.adapter==null){
+            weekly_view_pager.apply {
+                this.adapter = weeklyViewPagerAdapter
+                this.offscreenPageLimit=7
+            }
         }
         setupTabLayout()
     }
@@ -120,6 +124,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list) {
 
         weekly_tab_layout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
+                requireActivity().bottom_app_bar.performShow()
                 viewModel.saveDayIndex(weekly_tab_layout.selectedTabPosition)
             }
 
@@ -138,16 +143,13 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list) {
             }, 10)
             layout_weekly_parent.postDelayed({
                 layout_weekly_parent.visibility = View.VISIBLE
-            }, 200)
+            }, 400)
         }
     }
 
     override fun onPause() {
-        weekly_view_pager.adapter = null
-        weeklyViewPagerAdapter = null
-
+        weeklyViewPagerAdapter=null
         super.onPause()
     }
-
 
 }

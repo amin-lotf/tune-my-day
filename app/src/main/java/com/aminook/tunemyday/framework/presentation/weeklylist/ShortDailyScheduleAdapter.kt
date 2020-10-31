@@ -40,6 +40,7 @@ class ShortDailyScheduleAdapter(val context: Context,val curDay:Int) :
 
     }
 
+
     private val differ = AsyncListDiffer(this, DIFF_CALLBACK)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<Schedule> {

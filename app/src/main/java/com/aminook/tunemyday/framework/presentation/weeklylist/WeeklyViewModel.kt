@@ -40,13 +40,14 @@ class WeeklyViewModel @ViewModelInject constructor(
     private val weeklyListManager = WeeklyListManager()
 
 
+
+
     fun getFragmentSchedules(): LiveData<List<Schedule>> {
         return scheduleInteractors.getDailySchedules(
             fragmentDayIndex,
             fragmentRoutineIndex,
             dateUtil.getStartOfDayInSec(fragmentDayIndex)
         )
-            .debounce(200)
             .map { dataState ->
                 processResponse(dataState?.stateMessage)
 

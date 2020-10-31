@@ -54,7 +54,7 @@ class DeleteTodo @Inject constructor(
     }
 
     companion object {
-        const val DELETE_TODO_SUCCESS = "Task deleted successfully"
+        const val DELETE_TODO_SUCCESS = "Task deleted"
         const val DELETE_TODO_FAIL = "Failed to delete the task"
     }
 
