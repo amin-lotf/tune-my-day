@@ -1,41 +1,7 @@
 package com.aminook.tunemyday.business.data.util
 
-import com.aminook.tunemyday.business.data.cache.CacheResult
-import com.aminook.tunemyday.business.data.util.CacheConstants.CACHE_TIMEOUT
-import com.aminook.tunemyday.business.data.util.ErrorConstants.CACHE_ERROR_TIMEOUT
-import com.aminook.tunemyday.business.data.util.ErrorConstants.CACHE_ERROR_UNKNOWN
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.framework.datasource.cache.model.FullSchedule
-import com.aminook.tunemyday.framework.datasource.cache.model.ScheduleEntity
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-
-suspend fun <T> safeCacheCall(
-    dispatcher: CoroutineDispatcher
-): CacheResult<T?> {
-    return withContext(dispatcher) {
-        try {
-            withTimeout(CACHE_TIMEOUT) {
-
-                //cacheCall.
-                CacheResult.Success(null)
-            }
-        } catch (throwable: Throwable) {
-            when (throwable) {
-
-                is TimeoutCancellationException -> {
-                    CacheResult.GenericError(CACHE_ERROR_TIMEOUT)
-                }
-                else -> {
-                    CacheResult.GenericError(CACHE_ERROR_UNKNOWN)
-                }
-            }
-        }
-    }
-}
-
-
-
 
 
 fun getConflictedSchedules(
@@ -64,7 +30,6 @@ fun selectSchedulesToDelete(
     target: Schedule
 ): List<Schedule> {
     return schedules.filter {
-//            Log.d("aminjoon", "getInvolvedSchedules: entity start:${it.startDay} - schedule start:${target.startDay}")
         if (it.startDay == it.endDay) {
             (target.startDay == it.startDay && target.startInSec <= it.startInSec && (target.endInSec >= it.endInSec || target.endDay != target.startDay)) ||
                     (target.startDay != it.startDay && target.endDay == it.startDay && target.endInSec >= it.endInSec)

@@ -24,7 +24,7 @@ class DeleteRoutine @Inject constructor(
                     DataState.data(
                         response = Response(
                             message = ROUTINE_DELETE_SUCCESS,
-                            uiComponentType = UIComponentType.None,
+                            uiComponentType = UIComponentType.SnackBar(),
                             messageType = MessageType.Success
                         ),
                         data = ROUTINE_DELETE_SUCCESS
@@ -52,7 +52,7 @@ class DeleteRoutine @Inject constructor(
     }
 
     companion object{
-        const val ROUTINE_DELETE_SUCCESS="routine deleted"
+        const val ROUTINE_DELETE_SUCCESS="Plan deleted"
         const val ROUTINE_DELETE_FAIL="Failed to delete routine"
     }
 }

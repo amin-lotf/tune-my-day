@@ -17,7 +17,6 @@ class InsertProgram @Inject constructor(
     private val scheduleRepository: ScheduleRepository
 ) {
 
-    private val TAG="aminjoon"
       operator fun invoke(program: Program): Flow<DataState<Program>?> {
         val cacheResponse = object : CacheResponseHandler<Long, Program>() {
             override  fun handleSuccess(resultObj: Long): DataState<Program>? {
@@ -25,7 +24,7 @@ class InsertProgram @Inject constructor(
 
                     DataState.data(
                         response = Response(
-                            message = InsertProgram.INSERT_PROGRAM_SUCCESS,
+                            message = INSERT_PROGRAM_SUCCESS,
                             uiComponentType = UIComponentType.None,
                             messageType = MessageType.Success
                         ),
@@ -34,7 +33,7 @@ class InsertProgram @Inject constructor(
                 } else {
                     DataState.error(
                         response = Response(
-                            message = InsertProgram.INSERT_PROGRAM_FAILED,
+                            message = INSERT_PROGRAM_FAILED,
                             uiComponentType = UIComponentType.Toast,
                             messageType = MessageType.Error
                         )
@@ -55,7 +54,7 @@ class InsertProgram @Inject constructor(
     }
 
     companion object {
-        val INSERT_PROGRAM_SUCCESS = "Successfully inserted new program"
-        val INSERT_PROGRAM_FAILED = "Failed to insert new program"
+        const val INSERT_PROGRAM_SUCCESS = "Successfully inserted new program"
+        const val INSERT_PROGRAM_FAILED = "Failed to insert new program"
     }
 }

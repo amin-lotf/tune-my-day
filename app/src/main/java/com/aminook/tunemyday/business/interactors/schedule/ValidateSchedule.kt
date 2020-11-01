@@ -52,6 +52,6 @@ class ValidateSchedule @Inject constructor(
     }
 
     companion object{
-        val SCHEDULE_NO_OVERWRITE=" schedule does not overwrite other schedules"
+        const val SCHEDULE_NO_OVERWRITE=" schedule does not overwrite other schedules"
     }
 }

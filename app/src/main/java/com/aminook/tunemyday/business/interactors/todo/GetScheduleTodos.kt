@@ -37,6 +37,5 @@ class GetScheduleTodos @Inject constructor(
 
     companion object {
         const val GET_SCHEDULE_TODO_SUCCESS = "successfully received schedule's todos"
-        const val GET_SCHEDULE_TODO_FAIL = "Failed to received schedule's todos"
     }
 }

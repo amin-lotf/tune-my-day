@@ -47,8 +47,8 @@ class GetProgram @Inject constructor(
     }
 
     companion object {
-        val GET_PROGRAM_SUCCESS = "Successfully retrieved  program from cache."
-        val GET_PROGRAM_FAILED = "Failed to retrieve programs"
+       const val GET_PROGRAM_SUCCESS = "Successfully retrieved  program from cache."
+       const val GET_PROGRAM_FAILED = "Failed to retrieve programs"
     }
 
 }

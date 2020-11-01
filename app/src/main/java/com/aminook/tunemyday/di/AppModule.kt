@@ -66,10 +66,6 @@ abstract class AppModule {
         fun provideToDoDao(scheduleDatabase: ScheduleDatabase) =
             scheduleDatabase.todoDao()
 
-//        @Singleton
-//        @Provides
-//        fun provideSubToDoDao(scheduleDatabase: ScheduleDatabase) =
-//            scheduleDatabase.subTodoDao()
 
         @Singleton
         @Provides
@@ -128,7 +124,5 @@ abstract class AppModule {
     @Singleton
     @Binds
     abstract fun bindScheduleRepository(repository: ScheduleRepositoryImpl): ScheduleRepository
-
-
-
+    
 }

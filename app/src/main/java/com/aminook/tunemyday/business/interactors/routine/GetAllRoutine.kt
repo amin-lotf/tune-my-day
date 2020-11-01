@@ -38,6 +38,5 @@ class GetAllRoutine @Inject constructor(
 
     companion object{
         const val ROUTINES_GET_SUCCESS="routines found"
-        const val ROUTINES_GET_FAIL="Failed to get routines"
     }
 }

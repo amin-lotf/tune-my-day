@@ -39,6 +39,6 @@ class GetDailySchedules @Inject constructor(
     }
 
     companion object{
-        val DAILY_SCHEDULES_RECEIVED="Successfully received daily schedules"
+        const val DAILY_SCHEDULES_RECEIVED="Successfully received daily schedules"
     }
 }

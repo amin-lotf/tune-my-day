@@ -76,23 +76,7 @@ class MainViewModel @ViewModelInject constructor(
 
 
 
-    fun deleteProgram(program: ProgramDetail){
-       CoroutineScope(activeScope).launch {
-           delay(300)
-           programInteractors.deleteProgram(
-               program = program,
-               snackbarUndoCallback = object :SnackbarUndoCallback{
-                   override fun undo() {
-                       undoDeletedProgram(program)
-                   }
 
-               }
-           )
-               .map {
-               processResponse(it?.stateMessage)
-           }.collect()
-       }
-    }
 
 
     fun deleteSchedule(schedule:Schedule){

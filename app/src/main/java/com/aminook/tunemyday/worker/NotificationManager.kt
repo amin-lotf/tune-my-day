@@ -57,6 +57,7 @@ class NotificationManager(
                                         ).toDouble().roundToLong(),
                                 pe2
                             )
+                            Log.d(TAG, "setAlarms: alaram :${alarm.id} set")
                             alarmManager.setAlarmClock(ac, pendingIntent)
 
                             //alarmManager.
@@ -89,7 +90,7 @@ class NotificationManager(
                 context,
                 it.toInt(),
                 intent,
-                PendingIntent.FLAG_CANCEL_CURRENT
+                PendingIntent.FLAG_UPDATE_CURRENT
             )
 
             alarmManager.cancel(pendingIntent)

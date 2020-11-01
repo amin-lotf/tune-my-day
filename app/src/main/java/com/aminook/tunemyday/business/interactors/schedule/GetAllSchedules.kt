@@ -38,6 +38,6 @@ class GetAllSchedules @Inject constructor(
     }
 
     companion object{
-        val ALL_SCHEDULES_RECEIVED="Successfully received all schedules"
+        const val ALL_SCHEDULES_RECEIVED="Successfully received all schedules"
     }
 }

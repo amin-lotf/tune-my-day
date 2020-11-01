@@ -39,8 +39,7 @@ class GetAllDetailedPrograms @Inject constructor(
     }
 
     companion object {
-        val GET_PROGRAMS_SUCCESS = "Successfully retrieved all programs from the cache."
-        val GET_PROGRAMS_FAILED = "Failed to get programs from the cache."
+        const val GET_PROGRAMS_SUCCESS = "Successfully retrieved all programs from the cache."
     }
 
 }

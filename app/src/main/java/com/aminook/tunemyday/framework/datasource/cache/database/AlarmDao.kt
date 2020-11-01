@@ -13,7 +13,7 @@ interface AlarmDao {
     @Query("select id from alarms where day in(:days) and routine_id=:routineId")
     suspend fun selectUpcomingAlarmIds(days:List<Int>,routineId:Long):List<Long>
 
-    //@Query("select * from alarms where routine_id=:routineId and day in(:days) and ((day=:curDay and startInSec>:start) or day>:curDay)")
+
     @Query("select * from alarms where day in(:days) and routine_id=:routineId")
     suspend fun selectUpcomingAlarms(days:List<Int>,routineId:Long):List<AlarmEntity>
 

@@ -43,6 +43,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="New Plan"
+            android:maxLines="1"
+            android:inputType="text"
+            android:maxLength="30"
+            android:imeOptions="actionGo"
             android:background="@android:color/transparent"
             android:textSize="17sp"
             android:textColor="@color/colorFontDark"/>

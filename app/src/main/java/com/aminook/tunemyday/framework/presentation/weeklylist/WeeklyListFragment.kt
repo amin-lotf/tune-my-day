@@ -26,8 +26,6 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.bottom_sheet_add_routine.*
-import kotlinx.android.synthetic.main.bottom_sheet_add_routine.view.*
 import kotlinx.android.synthetic.main.fragment_weekly_list.*
 import javax.inject.Inject
 

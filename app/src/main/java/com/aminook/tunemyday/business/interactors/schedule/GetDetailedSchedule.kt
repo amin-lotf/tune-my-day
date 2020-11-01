@@ -54,6 +54,6 @@ class GetDetailedSchedule @Inject constructor(
 
     companion object{
         const val DETAILED_SCHEDULE_RETRIEVED_SUCCESS=" schedule retrieved successfully"
-        const val DETAILED_SCHEDULE_RETRIEVED_FAIL=" schedule does not exist"
+        const val DETAILED_SCHEDULE_RETRIEVED_FAIL=" Schedule does not exist"
     }
 }

@@ -29,7 +29,7 @@ class ScheduleRepositoryImpl @Inject constructor(
     val scheduleDatabase: ScheduleDatabase,
     val notificationManager: NotificationManager
 ) : ScheduleRepository {
-    private val TAG = "aminjoon"
+    //private val TAG = "aminjoon"
 
     override suspend fun getNotificationScheduleByAlarmId(alarmId: Long): Schedule {
         val entity = daoService.alarmDao.getAlarmNotificationById(alarmId)
@@ -65,7 +65,7 @@ class ScheduleRepositoryImpl @Inject constructor(
             }
             return scheduleCurrentRoutineAlarms(currentRoutineId)
         } catch (e: Throwable) {
-            Log.d(TAG, "doWorkk scheduleUpComingAlarms: error")
+            FirebaseCrashlytics.getInstance().recordException(e)
             false
         }
     }
@@ -83,7 +83,7 @@ class ScheduleRepositoryImpl @Inject constructor(
             notificationManager.cancelAlarms(alarmIds)
             true
         } catch (e: Throwable) {
-            Log.d(TAG, "doWorkk cancel UpComingAlarms by routine: error")
+            FirebaseCrashlytics.getInstance().recordException(e)
             false
         }
     }
@@ -97,7 +97,7 @@ class ScheduleRepositoryImpl @Inject constructor(
             notificationManager.addAlarms(alarms)
             true
         } catch (e: Throwable) {
-            Log.d(TAG, "doWorkk set UpComingAlarms by routine: error")
+            FirebaseCrashlytics.getInstance().recordException(e)
             false
         }
     }
@@ -127,9 +127,6 @@ class ScheduleRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertRoutine(routineEntity: RoutineEntity, curRoutine: Long): Long {
-//        if (curRoutine!=0L){
-//            cancelCurrentRoutineAlarms(curRoutine)
-//        }
         return daoService.routineDao.insertRoutine(routineEntity)
     }
 
@@ -142,25 +139,19 @@ class ScheduleRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateRoutine(routineEntity: RoutineEntity): Int {
-        Log.d(TAG, "updateRoutine: ${routineEntity.name}")
         return daoService.routineDao.updateRoutine(routineEntity)
     }
 
     override suspend fun deleteRoutine(routineId: Long, curRoutine: Long): Int {
-
         if (routineId == curRoutine) {
             cancelCurrentRoutineAlarms(curRoutine)
         }
-
         return daoService.routineDao.deleteRoutine(routineId)
     }
 
     override suspend fun insertProgram(program: Program): Long {
-
         return daoService.programDao.insertProgram(
-
             mappers.programCacheMapper.mapToEntity(program)
-
         )
     }
 
@@ -192,14 +183,11 @@ class ScheduleRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteProgram(program: ProgramDetail): Int {
-
         val alarmsToDelete = mutableListOf<Long>()
-
         program.schedules.forEach { s ->
             alarmsToDelete.addAll(s.alarms.map { it.id })
         }
         notificationManager.cancelAlarms(alarmsToDelete)
-
         return daoService.programDao.deleteProgram(program.program)
     }
 
@@ -207,7 +195,6 @@ class ScheduleRepositoryImpl @Inject constructor(
         return try {
             val res = daoService.programDao.insertProgram(program.program)
             program.schedules.forEach {
-
                 insertModifySchedule(
                     mappers.fullScheduleCacheMapper.mapFromEntity(it),
                     emptyList(),
@@ -217,10 +204,9 @@ class ScheduleRepositoryImpl @Inject constructor(
             }
             res
         } catch (e: Throwable) {
-            Log.d(TAG, "undoDeletedProgram: ${e.message}")
+            FirebaseCrashlytics.getInstance().recordException(e)
             null
         }
-
     }
 
     override fun getDaysOfWeek(chosenDay: Int): List<Day> {
@@ -236,7 +222,7 @@ class ScheduleRepositoryImpl @Inject constructor(
         val shortDayRange = dateUtil.shortDayRange
         val alarmIdsToCancel = mutableListOf<Long>()
         val alarmsToSchedule = mutableListOf<AlarmEntity>()
-        val alarmIdsToSchedule = mutableListOf<Long>()
+        //val alarmIdsToSchedule = mutableListOf<Long>()
         if (schedule.id != 0L && schedule.routineId == curRoutine) {
             val prevAlarmIds = daoService.alarmDao.getAlarmIdsByScheduleId(schedule.id)
             alarmIdsToCancel.addAll(prevAlarmIds)
@@ -277,7 +263,6 @@ class ScheduleRepositoryImpl @Inject constructor(
                     val todos = fullSchedule.todos.onEach { it.programId = fullSchedule.program.id }
                     daoService.todoDao.updateTodos(todos)
                 }
-                //notificationManager.removeNotifications_bck(alarmIdsToCancel)
                 notificationManager.cancelAlarms(alarmIdsToCancel)
                 val res = daoService.scheduleDao.updateTransaction(
                     scheduleEntity = fullSchedule.schedule,
@@ -286,18 +271,8 @@ class ScheduleRepositoryImpl @Inject constructor(
                     alarmsToUpdate = alarmsToUpdate,
                     alarmsToInsert = alarmsToInsert
                 )
-                alarmIdsToSchedule.addAll(alarmsToUpdate.filter { it.routineId == curRoutine && it.day in shortDayRange }
-                    .map { it.id })
 
                 alarmsToSchedule.addAll(alarmsToUpdate.filter { it.routineId == curRoutine && it.day in shortDayRange })
-
-                //todo remove after fixing
-                val newScheduleAlarmIds = daoService.alarmDao.selectScheduleUpcomingAlarmIds(
-                    shortDayRange,
-                    fullSchedule.schedule.id,
-                    curRoutine
-                )
-                alarmIdsToSchedule.addAll(newScheduleAlarmIds)
 
                 val newScheduleAlarms = daoService.alarmDao.selectScheduleUpcomingAlarms(
                     shortDayRange,
@@ -305,18 +280,15 @@ class ScheduleRepositoryImpl @Inject constructor(
                     curRoutine
                 )
                 alarmsToSchedule.addAll(newScheduleAlarms)
-                //notificationManager.setNotifications_bck(alarmIdsToSchedule)
                 notificationManager.addAlarms(alarmsToSchedule)
                 return res
 
             } catch (e: Throwable) {
-                Log.d(TAG, "insertModifiySchedule: error updating ")
-                Log.d(TAG, "insertModifiySchedule: ${e.message}")
+                FirebaseCrashlytics.getInstance().recordException(e)
                 return null
             }
         } else {
             return try {
-               // notificationManager.removeNotifications_bck(alarmIdsToCancel)
                 notificationManager.cancelAlarms(alarmIdsToCancel)
                 val res = daoService.scheduleDao.insertTransaction(
                     scheduleEntity = fullSchedule.schedule,
@@ -326,16 +298,6 @@ class ScheduleRepositoryImpl @Inject constructor(
                     alarmsToInsert = fullSchedule.alarms,
                     todoEntities = fullSchedule.todos
                 )
-                alarmIdsToSchedule.addAll(alarmsToUpdate.filter { it.routineId == curRoutine && it.day in shortDayRange }
-                    .map { it.id })
-
-                val newScheduleAlarmIds = daoService.alarmDao.selectScheduleUpcomingAlarmIds(
-                    shortDayRange,
-                    res,
-                    curRoutine
-                )
-                alarmIdsToSchedule.addAll(newScheduleAlarmIds)
-                //notificationManager.setNotifications_bck(alarmIdsToSchedule)
 
                 val newScheduleAlarms = daoService.alarmDao.selectScheduleUpcomingAlarms(
                     shortDayRange,
@@ -347,6 +309,7 @@ class ScheduleRepositoryImpl @Inject constructor(
 
                 return res
             } catch (e: Throwable) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 null
             }
         }
@@ -356,7 +319,6 @@ class ScheduleRepositoryImpl @Inject constructor(
     override suspend fun checkIfOverwrite(schedule: Schedule): List<Schedule> {
         val startDay = schedule.startDay
         val endDay = schedule.endDay
-        Log.d(TAG, "checkIfOverwrite: target start $startDay")
         return getConflictedSchedules(
             daoService.scheduleDao.selectStartingTimes(startDay, endDay, schedule.routineId),
             schedule
@@ -373,7 +335,6 @@ class ScheduleRepositoryImpl @Inject constructor(
             }
         }
     }
-
 
     override suspend fun deleteSchedule(schedule: Schedule): Int {
         val alarmsToDelete = schedule.alarms.map { it.id }
@@ -428,20 +389,13 @@ class ScheduleRepositoryImpl @Inject constructor(
         return when (conversionType) {
             TODO_CONVERSION_FINISHED -> {
                 val mapped = todos.map { mappers.todoCacheMapper.mapFromEntity(it) }
-
                 mapped.filter {
                     (it.isDone &&
                             (it.lastChecked != dateUtil.currentDayInInt ||
                                     it.lastChecked != dateUtil.currentDayInInt - 1 ||
                                     it.lastChecked != dateUtil.currentDayInInt + 1))
                 }
-//                filtered.forEachIndexed{i,v->
-//                    v.index=i
-//                }
-//                filtered
-
             }
-
             TODO_CONVERSION_UNFINISHED -> {
                 val mapped = todos.map { mappers.todoCacheMapper.mapFromEntity(it) }
                 mapped.filter {

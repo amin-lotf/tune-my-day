@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavDirections
@@ -31,6 +32,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.log
 
 @AndroidEntryPoint
 class DailyFragment : BaseFragment(R.layout.fragment_daily),
@@ -227,6 +229,14 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
             }
         }else{
             view.btn_delete_todo.visibility=View.GONE
+        }
+        view.txt_add_todo.setOnEditorActionListener { _, actionId, event ->
+            var handled=false
+                if (actionId==EditorInfo.IME_ACTION_GO){
+                    view.btn_save_todo.performClick()
+                    handled=true
+                }
+            return@setOnEditorActionListener handled
         }
         view.txt_add_todo.doOnTextChanged { text, start, before, count ->
             if (!text.isNullOrBlank() && view.txt_add_todo_input_layout.error!=null){

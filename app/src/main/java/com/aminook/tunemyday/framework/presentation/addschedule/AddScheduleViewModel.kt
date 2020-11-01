@@ -20,6 +20,7 @@ import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddSched
 import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddScheduleManager.Companion.TIME_START
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
 import com.aminook.tunemyday.util.*
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
@@ -34,7 +35,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
     @DataStoreCache dataStoreCache: DataStore<Preferences>,
     @DataStoreSettings dataStoreSettings: DataStore<Preferences>
 ) : BaseViewModel(dataStoreCache, dataStoreSettings) {
-    private val TAG = "aminjoon"
+    //private val TAG = "aminjoon"
     val addScheduleManager = AddScheduleManager()
     var conflictedSchedules = listOf<Schedule>()
     var modifiedAlarmIndexes = listOf<Long>()
@@ -89,10 +90,6 @@ class AddScheduleViewModel @ViewModelInject constructor(
     val alarmModifiedPosition: Int
         get() = addScheduleManager.alarmModifiedPosition
 
-    val numberOfTodos: LiveData<Int>
-        get() = addScheduleManager.numberOfTodos
-
-
     fun setScheduleId(scheduleId: Long) {
         addScheduleManager.setScheduleId(scheduleId)
     }
@@ -117,10 +114,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
         if (addScheduleManager.buffSchedule.program.name.isEmpty()) {
             handleLocalError("Please choose an activity")
         } else {
-            Log.d(
-                TAG,
-                "saveSchedule validate: startDay:${addScheduleManager.buffSchedule.startDay} EndDay: ${addScheduleManager.buffSchedule.endDay}"
-            )
+
             job = CoroutineScope(activeScope).launch {
                 scheduleInteractors.validateSchedule(
                     schedule = addScheduleManager.buffSchedule, object : AreYouSureCallback {
@@ -197,7 +191,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
                                     try {
                                         withContext(Main) {
                                             it?.data?.let { schedule ->
-                                                Log.d(TAG, "processRequest: schedule received")
+
                                                 bufferChosenProgram(schedule.program)
                                                 catchDaysOfWeek(schedule.startDay)
                                                 updateBufferedDays(daysOfWeek[schedule.startDay])
@@ -212,24 +206,19 @@ class AddScheduleViewModel @ViewModelInject constructor(
                                                     TIME_END
                                                 )
                                                 addScheduleManager.addAlarms(schedule.alarms)
-                                                // addScheduleManager.setTodosSize(schedule.numberOfTodos)
-                                                //addScheduleManager.addTodos(schedule.unfinishedTodos,false)
-                                                //addScheduleManager.addTodos(schedule.finishedTodos,true)
                                                 addScheduleManager.setScheduleStatus(true)
 
                                             }
                                         }
                                     } catch (e: Throwable) {
-                                        Log.d(TAG, "processRequest: error ${e.message}")
-                                        print(e.stackTraceToString())
+                                        FirebaseCrashlytics.getInstance().recordException(e)
                                         addScheduleManager.setScheduleId(0)
                                     }
                                 }.collect()
 
                         }
                     } catch (e: Throwable) {
-                        Log.d(TAG, "processRequest: error getting schedule add-edit ${e.message}")
-                        println(e.stackTrace)
+                        FirebaseCrashlytics.getInstance().recordException(e)
                     }
                 }
             }
@@ -305,17 +294,13 @@ class AddScheduleViewModel @ViewModelInject constructor(
     }
 
     fun getAllPrograms() {
-
         CoroutineScope(activeScope).launch {
             programInteractors.getAllPrograms()
                 .collect { dataState ->
-
                     processResponse(dataState?.stateMessage)
                     dataState?.data?.let {
-
                         _allPrograms.postValue(it)
                     }
-
                 }
         }
     }
@@ -325,7 +310,6 @@ class AddScheduleViewModel @ViewModelInject constructor(
             programInteractors.getProgram(programId)
                 .map {
                     processResponse(it?.stateMessage)
-
                     it?.data?.let {
                         withContext(Main) {
                             bufferChosenProgram(it)
@@ -334,13 +318,5 @@ class AddScheduleViewModel @ViewModelInject constructor(
                 }
                 .collect()
         }
-
     }
-
-    override fun onCleared() {
-        Log.d(TAG, "onCleared: addSchedule viewmodel")
-        super.onCleared()
-    }
-
-
 }

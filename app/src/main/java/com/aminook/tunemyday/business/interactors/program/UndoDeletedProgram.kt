@@ -53,7 +53,7 @@ class UndoDeletedProgram @Inject constructor(
     }
 
     companion object{
-        val UNDO_PROGRAM_SUCCESS = "Successfully returned the program"
-        val UNDO_PROGRAM_FAILED = "Failed to undo the action"
+        const val UNDO_PROGRAM_SUCCESS = "Successfully returned the program"
+        const val UNDO_PROGRAM_FAILED = "Failed to undo the action"
     }
 }

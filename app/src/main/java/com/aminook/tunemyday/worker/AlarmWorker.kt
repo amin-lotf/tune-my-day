@@ -56,7 +56,7 @@ class AlarmWorker @WorkerInject constructor(
         } catch (e: Throwable) {
             e.printStackTrace()
             FirebaseCrashlytics.getInstance().recordException(e)
-            Log.d(TAG, "doWork: Error in alarm worker")
+            Log.d(TAG, "doWork: Error in alarm worker ${e.message}")
             return Result.failure()
         }
     }

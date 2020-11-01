@@ -368,17 +368,20 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
             message,
             Snackbar.LENGTH_LONG
         )
-        snackbar.setAction(
-            R.string.text_undo,
-            SnackbarUndoListener(snackbarUndoCallback)
-        )
-        snackbar.addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
-            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                onDismissCallback?.execute()
-                super.onDismissed(transientBottomBar, event)
+        snackbarUndoCallback?.let {
+            snackbar.setAction(
+                R.string.text_undo,
+                SnackbarUndoListener(snackbarUndoCallback)
+            )
+            snackbar.addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                    onDismissCallback?.execute()
+                    super.onDismissed(transientBottomBar, event)
 
-            }
-        })
+                }
+            })
+        }
+
         Timer("showingSnackbar",false).schedule(300){
             snackbar.show()
         }
@@ -428,9 +431,7 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
     }
 
 
-    override fun onProgramDeleteListener(program: ProgramDetail) {
-        mainViewModel.deleteProgram(program)
-    }
+
 
     override fun onScheduleDeleted(schedule: Schedule) {
         mainViewModel.deleteSchedule(schedule)

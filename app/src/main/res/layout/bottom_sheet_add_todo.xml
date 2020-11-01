@@ -41,6 +41,11 @@
             android:id="@+id/txt_add_todo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:inputType="text"
+            android:maxLength="40"
+            android:imeOptions="actionGo"
+
             android:hint="New Task"
             android:background="@android:color/transparent"
 

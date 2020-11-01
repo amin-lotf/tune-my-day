@@ -12,7 +12,7 @@ import com.aminook.tunemyday.framework.presentation.addschedule.manager.AddSched
 import kotlinx.android.synthetic.main.alarm_item.view.*
 
 class AlarmListAdapter() : RecyclerView.Adapter<AlarmListAdapter.ViewHolder>() {
-    private val TAG="aminjoon"
+   // private val TAG="aminjoon"
     private var alarms: List<Alarm> = emptyList()
 
 
@@ -53,7 +53,6 @@ class AlarmListAdapter() : RecyclerView.Adapter<AlarmListAdapter.ViewHolder>() {
             itemView.add_schedule_notification.text = alarm.toString()
             itemView.add_schedule_remove_alarm.setOnClickListener {
                 alarm.index=this@AlarmListAdapter.alarms.indexOf(alarm)
-                Log.d(TAG, "bind: alarm: ${alarm.index}")
                 listener?.onRemoveAlarmClick(alarm)
             }
 

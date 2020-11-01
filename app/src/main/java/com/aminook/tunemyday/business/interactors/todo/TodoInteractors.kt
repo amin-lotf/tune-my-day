@@ -8,8 +8,6 @@ class TodoInteractors @Inject constructor(
     val insertTodo: InsertTodo,
     val deleteTodo: DeleteTodo,
     val getScheduleTodos: GetScheduleTodos,
-    val deleteAndRetrieveTodos: DeleteAndRetrieveTodos,
-    val insertAndRetrieveTodos: InsertAndRetrieveTodos,
     val updateTodo: UpdateTodo,
     val updateTodos: UpdateTodos
 ) {

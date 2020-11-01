@@ -57,7 +57,7 @@ class DeleteSchedule @Inject constructor(
     }
 
     companion object {
-        val SCHEDULE_DELETE_SUCCESS = "schedule deleted successfully"
-        val SCHEDULE_DELETE_FAIL = "failed to delete schedule"
+        const val SCHEDULE_DELETE_SUCCESS = "schedule deleted successfully"
+        const val SCHEDULE_DELETE_FAIL = "Failed to delete schedule"
     }
 }

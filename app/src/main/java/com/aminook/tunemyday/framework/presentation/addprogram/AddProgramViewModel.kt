@@ -7,20 +7,21 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.aminook.tunemyday.business.domain.model.Program
+import com.aminook.tunemyday.business.domain.state.AreYouSureCallback
+import com.aminook.tunemyday.business.domain.state.SnackbarUndoCallback
 import com.aminook.tunemyday.business.interactors.program.ProgramInteractors
 import com.aminook.tunemyday.di.DataStoreCache
 import com.aminook.tunemyday.di.DataStoreSettings
 import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import com.aminook.tunemyday.framework.presentation.common.BaseViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class AddProgramViewModel @ViewModelInject constructor(
@@ -28,6 +29,8 @@ class AddProgramViewModel @ViewModelInject constructor(
     @DataStoreCache dataStoreCache: DataStore<Preferences>,
     @DataStoreSettings dataStoreSettings: DataStore<Preferences>
 ) : BaseViewModel(dataStoreCache,dataStoreSettings) {
+
+    private val activeScope=viewModelScope.coroutineContext+ Default
 
     private var _savedProgram:ProgramDetail?=null
     private var _newProgramId=MutableLiveData<Long>()
@@ -39,7 +42,7 @@ class AddProgramViewModel @ViewModelInject constructor(
     get() = _newProgramId
 
     fun addProgram(program: Program) {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(activeScope).launch {
             programInteractors.insertProgram(program)
                 .map {
                     withContext(Main) {
@@ -53,7 +56,7 @@ class AddProgramViewModel @ViewModelInject constructor(
     }
 
     fun updateProgram(program: Program){
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(activeScope).launch {
             programInteractors.updateProgram(program)
                 .map {
                     processResponse(it?.stateMessage)
@@ -70,6 +73,29 @@ class AddProgramViewModel @ViewModelInject constructor(
                 it?.data
             }
             .asLiveData()
+    }
+
+    fun requestDelete(program: ProgramDetail){
+       getConfirmation("All related schedules will be deleted",object :AreYouSureCallback{
+           override fun proceed() {
+               deleteProgram(program)
+           }
+
+           override fun cancel() {
+
+           }
+       })
+    }
+
+    fun deleteProgram(program: ProgramDetail){
+        CoroutineScope(activeScope).launch {
+            delay(300)
+            programInteractors.deleteProgram(
+                program = program)
+                .map {
+                    processResponse(it?.stateMessage)
+                }.collect()
+        }
     }
 
 }

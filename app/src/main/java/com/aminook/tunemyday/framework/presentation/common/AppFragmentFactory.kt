@@ -5,8 +5,6 @@ import androidx.fragment.app.FragmentFactory
 import com.aminook.tunemyday.framework.presentation.addroutine.AddRoutineFragment
 import com.aminook.tunemyday.framework.presentation.viewtodos.ViewTodoFragment
 import com.aminook.tunemyday.framework.presentation.addschedule.AddEditScheduleFragment
-import com.aminook.tunemyday.framework.presentation.addschedule.AlarmDialog
-import com.aminook.tunemyday.framework.presentation.addtodo.AddToDoFragment
 import com.aminook.tunemyday.framework.presentation.ProgramList.ProgramListFragment
 import com.aminook.tunemyday.framework.presentation.addprogram.AddProgramFragment
 import com.aminook.tunemyday.framework.presentation.dailylist.DailyFragment
@@ -29,9 +27,6 @@ class AppFragmentFactory @Inject constructor() : FragmentFactory() {
 
             AddEditScheduleFragment::class.java.name->AddEditScheduleFragment()
 
-            AddToDoFragment::class.java.name->AddToDoFragment()
-
-            AlarmDialog::class.java.name->AlarmDialog()
 
             DailyFragment::class.java.name->DailyFragment()
 

@@ -6,8 +6,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Program
-import kotlinx.android.synthetic.main.bottom_sheet_programs.view.*
-import kotlinx.android.synthetic.main.program_detail_item.view.*
 import kotlinx.android.synthetic.main.program_item.view.*
 
 class SheetProgramAdapter():RecyclerView.Adapter<SheetProgramAdapter.ViewHolder>() {
@@ -49,12 +47,12 @@ class SheetProgramAdapter():RecyclerView.Adapter<SheetProgramAdapter.ViewHolder>
 
             itemView.setOnClickListener {
 
-                listener?.AddProgramClick(program)
+                listener?.addProgramClick(program)
             }
         }
     }
 }
 
 interface ProgramClickListener{
-    fun AddProgramClick(program: Program)
+    fun addProgramClick(program: Program)
 }

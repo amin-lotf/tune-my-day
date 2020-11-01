@@ -53,7 +53,7 @@ class InsertSchedule @Inject constructor(
     }
 
     companion object {
-        val INSERT_SCHEDULE_SUCCESS = "Activity added to your schedule"
-        val INSERT_Schedule_FAILED = "Failed to add the activity"
+       const val INSERT_SCHEDULE_SUCCESS = "Activity added to your schedule"
+        const val INSERT_Schedule_FAILED = "Failed to add activity"
     }
 }

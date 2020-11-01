@@ -8,7 +8,7 @@ import com.aminook.tunemyday.business.domain.model.*
 
 
 class AddScheduleManager {
-    private val TAG = "aminjoon"
+    //private val TAG = "aminjoon"
 
     private val _buffSchedule = Schedule()
     private var _chosenProgram = MutableLiveData<Program>()
@@ -87,10 +87,6 @@ class AddScheduleManager {
 
     }
 
-    fun setTodosSize(size: Int) {
-        _buffSchedule.numberOfTodos = size
-        _numberOfTodos.value = size
-    }
 
     fun addTodos(todos: List<Todo>) {
         _buffSchedule.finishedTodos.clear()
@@ -131,7 +127,6 @@ class AddScheduleManager {
     fun addProgramToBuffer(program: Program) {
         _buffSchedule.program = program
         _chosenProgram.value = program
-        Log.d(TAG, "addProgramToBuffer: ${_buffSchedule.program.id}")
     }
 
 

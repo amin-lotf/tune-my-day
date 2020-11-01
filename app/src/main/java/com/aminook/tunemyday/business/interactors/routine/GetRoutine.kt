@@ -38,6 +38,5 @@ class GetRoutine @Inject constructor(
 
     companion object{
         const val ROUTINE_GET_SUCCESS="routine found"
-        const val ROUTINE_GET_FAIL="Failed to load routine"
     }
 }

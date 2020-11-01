@@ -29,7 +29,6 @@ class GetAlarmById @Inject constructor(
                     data = resultObj
                 )
             }
-
         }
 
         return cacheResponse.getResult {

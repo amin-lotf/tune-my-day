@@ -84,10 +84,10 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
     fun showNotification(context: Context,schedule:Schedule){
         val alarm=schedule.alarms.first()
         val summaryNotification= NotificationCompat.Builder(context,CHANNEL_ID)
-            .setContentTitle("Tune My Day")
+            .setContentTitle(R.string.app_name.toString())
             .setContentText("Upcoming Activity")
-            .setSmallIcon(R.drawable.ic_chevron_left)
-            .setColor(ContextCompat.getColor(context, R.color.colorWhite))
+            .setSmallIcon(R.drawable.ic_notification_new)
+            .setColor(ContextCompat.getColor(context, R.color.colorAccent))
             .setGroup(GROUP_KEY)
             .setGroupSummary(true)
             .setAutoCancel(true)
@@ -109,7 +109,8 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
             .setContentTitle(
                 schedule.program.name
             )
-
+            .setSmallIcon(R.drawable.ic_notification_new)
+            .setColor(ContextCompat.getColor(context, R.color.colorAccent))
             .setContentText(getNotificationSmallFormat(alarm,schedule))
             .setStyle(
                 NotificationCompat.BigTextStyle()
@@ -152,18 +153,17 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
     private fun getNotificationBigFormat(schedule: Schedule):String{
         val alarm=schedule.alarms.first()
         val day=if(dateUtil.curDayIndex==schedule.startDay) "" else "(Tomorrow)"
-        val time="${schedule.startTime.hour}:${schedule.startTime.minute}"
+
         return if (alarm.hourBefore == 0 && alarm.minuteBefore == 0) {
-            "Starting now!"
+            "Starting now! (${schedule.startTime})"
         } else  {
-            "Starts at $time$day and is going to take ${schedule.duration}"
+            "Starts at ${schedule.startTime} $day"
         }
     }
 
     private fun setPeriodicSchedule(context: Context) {
         val currentDate = Calendar.getInstance()
         val dueDate = Calendar.getInstance()
-        // Set Execution around 05:00:00 AM
         dueDate.set(Calendar.HOUR_OF_DAY, 5)
         dueDate.set(Calendar.MINUTE, 0)
         dueDate.set(Calendar.SECOND, 0)
@@ -185,7 +185,7 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
         val workManager = WorkManager.getInstance(context.applicationContext)
         workManager.enqueueUniquePeriodicWork(
             PERIODIC_WORKER_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
+            ExistingPeriodicWorkPolicy.KEEP,
             periodicAlarmWorker
         )
     }
@@ -193,11 +193,10 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
 
 
     companion object {
-        val CHANNEL_ID="com.aminook.tunemyday.worker-notification-channel"
-        val SCHEDULE_ID = "com.aminook.tunemyday.worker-schedule-id"
-        val ALARM_ID = "com.aminook.tunemyday.worker-alarm-id"
-        val GROUP_KEY = "com.aminook.tunemyday.worker-group-key"
-        val GROUP_KEY_ID = -2
+        const val CHANNEL_ID="com.aminook.tunemyday.worker-notification-channel"
+        const val ALARM_ID = "com.aminook.tunemyday.worker-alarm-id"
+       const val GROUP_KEY = "com.aminook.tunemyday.worker-group-key"
+        const val GROUP_KEY_ID = -2
 
     }
 }

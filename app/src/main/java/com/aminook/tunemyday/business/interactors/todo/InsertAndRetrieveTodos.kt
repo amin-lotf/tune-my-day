@@ -41,6 +41,5 @@ class InsertAndRetrieveTodos @Inject constructor(
 
     companion object{
         const val INSERT_AND_RETRIEVE_TODO_SUCCESS="Task added to the checklist"
-        const val INSERT_AND_RETRIEVE_TODO_FAIL="Failed to add the task"
     }
 }

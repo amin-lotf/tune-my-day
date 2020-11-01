@@ -4,6 +4,7 @@ import android.animation.LayoutTransition
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -27,6 +28,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.bottom_sheet_add_todo.*
 import kotlinx.android.synthetic.main.bottom_sheet_add_todo.view.*
 import kotlinx.android.synthetic.main.fragment_view_todo.*
+import java.util.*
+import kotlin.concurrent.schedule
 
 @AndroidEntryPoint
 class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
@@ -45,8 +48,6 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
         super.onViewCreated(view, savedInstanceState)
         val args: ViewTodoFragmentArgs by navArgs()
         isSummary=args.isSummary
-        initializeUnFinishedTodoAdapter()
-
         if (!isSummary) {
             black_line_separator.visibility=View.VISIBLE
             lbl_completed.visibility=View.VISIBLE
@@ -58,7 +59,7 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
             recycler_view_todo_finished.visibility=View.INVISIBLE
             lbl_remaining.text="Tasks"
         }
-
+        initializeUnFinishedTodoAdapter()
         setupToolbar()
         subscribeObservers(args.scheduleId)
 
@@ -85,14 +86,13 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
 
         viewModel.scheduleLoaded.observe(viewLifecycleOwner){loaded->
             if (loaded){
-               // layout_nested_view_todo.visibility=View.VISIBLE
-                layout_nested_view_todo.postDelayed({
+                layout_parent_view_todo.visibility=View.VISIBLE
+                Timer("delayedAnimation",false).schedule(500L){
                     layout_nested_view_todo.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
                     layout_nested_view_todo.layoutTransition.setDuration(150)
                     layout_const_view_todo.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
                     layout_const_view_todo.layoutTransition.setDuration(150)
-                },100)
-
+                }
             }
         }
 
@@ -316,7 +316,16 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
         }else{
             view.btn_delete_todo.visibility=View.GONE
         }
-
+        view.txt_add_todo.setOnEditorActionListener { _, actionId, event ->
+            Log.d(TAG, "showAddTodo: action id:${actionId}")
+            var handled=false
+            if (actionId== EditorInfo.IME_ACTION_GO){
+                Log.d(TAG, "showAddTodo: clicked")
+                view.btn_save_todo.performClick()
+                handled=true
+            }
+            return@setOnEditorActionListener handled
+        }
         view.txt_add_todo.doOnTextChanged { text, start, before, count ->
             if (!text.isNullOrBlank() && view.txt_add_todo_input_layout.error!=null){
                 view.txt_add_todo_input_layout.error=null

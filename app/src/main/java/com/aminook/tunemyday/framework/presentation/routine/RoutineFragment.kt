@@ -18,8 +18,7 @@ import com.aminook.tunemyday.util.observeOnce
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.bottom_sheet_add_routine.*
-import kotlinx.android.synthetic.main.bottom_sheet_add_routine.view.*
+
 import kotlinx.android.synthetic.main.fragment_routine.*
 
 @AndroidEntryPoint

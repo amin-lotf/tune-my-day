@@ -10,7 +10,7 @@ import kotlin.math.floor
 
 
 class DateUtil @Inject constructor() {
-    private val TAG = "aminjoon"
+    //private val TAG = "aminjoon"
 
     val currentDayInInt:Int
     get() = floor(System.currentTimeMillis()/86400000.0).toInt()
@@ -110,59 +110,6 @@ class DateUtil @Inject constructor() {
         return days
     }
 
-    fun getNextNDays(chosenDay: Int = curDayIndex): List<Day> {
-        val calendar = Calendar.getInstance(Locale.US)
-        val today = Date()
-
-        val days = mutableListOf<Day>()
-
-        for (i in 1..7) {
-            val d = calendar.time
-
-            days.add(
-                Day(
-                    shortName = SimpleDateFormat("EE", Locale.getDefault()).format(d.time),
-                    fullName = SimpleDateFormat("EEEE", Locale.getDefault()).format(d.time),
-                    date = SimpleDateFormat("MM/dd", Locale.getDefault()).format(d.time),
-                    dayIndex = calendar.get(Calendar.DAY_OF_WEEK)
-                ).apply {
-                    if (chosenDay != -1) {
-                        isChosen = i == chosenDay
-                    } else {
-                        if (d == today) {
-                            isChosen = true
-                        }
-                    }
-                }
-            )
-            calendar.add(Calendar.DATE, 1)
-        }
-        return days
-    }
-
-    fun getCurrentDay(): Day {
-        val calendar = Calendar.getInstance()
-        val today = calendar.time
-
-        return Day(
-            shortName = SimpleDateFormat("EE", Locale.getDefault()).format(today.time),
-            fullName = SimpleDateFormat("EEEE", Locale.getDefault()).format(today.time),
-            date = SimpleDateFormat("MM/dd", Locale.getDefault()).format(today.time),
-            dayIndex = calendar.get(Calendar.DAY_OF_WEEK)
-        )
-    }
-
-    fun getDay(date: Date): Day {
-        val calendar = Calendar.getInstance()
-        calendar.time = date
-        return Day(
-            shortName = SimpleDateFormat("EE", Locale.getDefault()).format(date.time),
-            fullName = SimpleDateFormat("EEEE", Locale.getDefault()).format(date.time),
-            date = SimpleDateFormat("MM/dd", Locale.getDefault()).format(date.time),
-            dayIndex = calendar.get(Calendar.DAY_OF_WEEK)
-        )
-    }
-
     fun getTimeDifferenceInMills(day: Int, startInSec: Int): Long {
         return if (day == curDayIndex || startInSec > curTimeInSec) {
             (startInSec) * 1000L - curTimeInMillis
@@ -172,7 +119,6 @@ class DateUtil @Inject constructor() {
     }
 
     companion object {
-        val SECS_IN_DAY = 86400
         val SECS_IN_WEEK = 604800
     }
 

@@ -13,8 +13,6 @@ import dagger.hilt.android.scopes.FragmentScoped
 @Module
 class FragmentModule {
 
-
-
     @FragmentScoped
     @Provides
     fun provideNextSevenDays(dateUtil: DateUtil):List<Day>{

@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_parent_view_todo"
-    android:visibility="visible"
+    android:visibility="gone"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".framework.presentation.viewtodos.ViewTodoFragment">
@@ -81,7 +81,7 @@
             android:layout_height="1dp"
             android:layout_marginTop="8dp"
             android:background="#8A8686"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/recycler_view_todo_unfinished" />
 
         <TextView
@@ -94,7 +94,7 @@
             android:textColor="@color/colorDark"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/recycler_view_todo_unfinished" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -102,10 +102,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/lbl_completed"
             tools:itemCount="4"
             tools:listitem="@layout/todo_item" />
+
       </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

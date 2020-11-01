@@ -7,6 +7,7 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.aminook.tunemyday.business.domain.state.AreYouSureCallback
 import com.aminook.tunemyday.business.interactors.routine.DeleteRoutine
 import com.aminook.tunemyday.business.interactors.routine.RoutineInteractors
 import com.aminook.tunemyday.di.DataStoreCache
@@ -79,13 +80,24 @@ class AddRoutineViewModel @ViewModelInject constructor(
         }
     }
 
+    fun requestDelete(activeRoutineId: Long){
+        getConfirmation("All sub schedules will be deleted!",object :AreYouSureCallback{
+            override fun proceed() {
+                deleteRoutine(routineId)
+            }
+
+            override fun cancel() {
+
+            }
+        })
+    }
+
     fun deleteRoutine(activeRoutineId: Long) {
         CoroutineScope(activeScope).launch {
             routineInteractors.deleteRoutine(
                 routineInEditId,
                 activeRoutineId = routineId
             ).map {
-                processResponse(it?.stateMessage)
 
                 if (it?.data == DeleteRoutine.ROUTINE_DELETE_SUCCESS) {
                     if(activeRoutineId == routineInEditId) {
@@ -96,6 +108,7 @@ class AddRoutineViewModel @ViewModelInject constructor(
                         }
                     }
                 }
+                processResponse(it?.stateMessage)
             }.collect()
         }
     }

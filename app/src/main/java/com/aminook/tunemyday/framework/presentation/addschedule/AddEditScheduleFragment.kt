@@ -42,7 +42,7 @@ import javax.inject.Inject
 class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule),
     ProgramClickListener,
     TimePickerDialog.OnTimeSetListener, AlarmListAdapter.AlarmClickListener{
-    private val TAG = "aminjoon"
+   // private val TAG = "aminjoon"
 
 
     private var isShowingDialog = false
@@ -297,11 +297,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
             }
 
         }
-
-
-
     }
-
 
 
     private fun openTimeDialog(view: View?) {
@@ -328,8 +324,6 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
             }
         }
     }
-
-
 
     private fun showDaysDialog() {
         MaterialDialog(requireContext()).show {
@@ -466,7 +460,6 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
 
     private fun showPrograms() {
-        Log.d(TAG, "showPrograms: ")
         chooseProgramBtmSheetDialog =
             BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme)
         val view = LayoutInflater.from(requireContext())
@@ -478,14 +471,10 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
             chooseProgramBtmSheetDialog.dismiss()
             val action=AddEditScheduleFragmentDirections.actionAddScheduleFragmentToAddProgramFragment(fromAddSchedule = true)
             findNavController().navigate(action)
-           // showAddProgramDialog()
         }
 
         programsAdapter = SheetProgramAdapter()
-        Log.d(TAG, "showPrograms: ")
         viewModel.getAllPrograms()
-
-
 
         programsAdapter?.setProgramClickListener(this)
         view.recycler_programs_sheet.apply {
@@ -503,7 +492,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
     }
 
 
-    override fun AddProgramClick(program: Program) {
+    override fun addProgramClick(program: Program) {
         chooseProgramBtmSheetDialog.dismiss()
         viewModel.bufferChosenProgram(program)
     }

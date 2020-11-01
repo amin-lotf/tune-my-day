@@ -1,18 +1,12 @@
 package com.aminook.tunemyday.business.data.cache
 
-import com.aminook.tunemyday.business.data.util.CacheConstants
-import com.aminook.tunemyday.business.data.util.ErrorConstants
-import com.aminook.tunemyday.business.data.util.ErrorConstants.CACHE_DATA_NULL
-import com.aminook.tunemyday.business.data.util.ErrorConstants.CACHE_ERROR_UNKNOWN
+
 import com.aminook.tunemyday.business.domain.state.*
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.TimeoutCancellationException
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
+
 
 
 abstract class CacheResponseHandler<CacheDataType,OutputType>(
@@ -34,6 +28,7 @@ abstract class CacheResponseHandler<CacheDataType,OutputType>(
                 }
             }
         } catch (throwable: Throwable) {
+            FirebaseCrashlytics.getInstance().recordException(throwable)
              flow {
                 emit(
                     DataState.error<OutputType>(
@@ -42,17 +37,15 @@ abstract class CacheResponseHandler<CacheDataType,OutputType>(
                             uiComponentType = UIComponentType.Toast,
                             messageType = MessageType.Error
                         )
-
                     )
                 )
             }
         }
     }
-    companion object{
-        val INSERT_PROGRAM_SUCCESS = "Successfully inserted new program."
-        val INSERT_PROGRAM_FAILED = "Failed to insert new program."
-    }
-
     abstract  fun handleSuccess(resultObj: CacheDataType): DataState<OutputType>?
+    companion object{
+        const val CACHE_ERROR_UNKNOWN = "Unknown cache error"
+        const val CACHE_DATA_NULL = "Error catching data"
+    }
 
 }

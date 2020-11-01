@@ -60,12 +60,6 @@ class FullScheduleCacheMapper @Inject constructor(
                         }
                     }
 
-//                    this.unfinishedTodos.addAll(
-//                        entity.todos.map { todoCacheMapper.mapFromEntity(it) }.sortedWith(
-//                            compareBy({ it.isDone }, { it.priorityIndex })
-//                        )
-//                    )
-
                     if (this.alarms.size > 0) {
                         this.hasAlarm = true
                     }

@@ -98,7 +98,7 @@ class BaseApplication : Application(), Configuration.Provider {
         val workManager = WorkManager.getInstance(applicationContext)
         workManager.enqueueUniquePeriodicWork(
             "periodic alarm scheduler",
-            ExistingPeriodicWorkPolicy.REPLACE,
+            ExistingPeriodicWorkPolicy.KEEP,
             periodicAlarmWorker
         )
 

@@ -53,7 +53,7 @@ class GetSchedule @Inject constructor(
     }
 
     companion object{
-        val SCHEDULE_RETRIEVED_SUCCESS=" schedule retrieved successfully"
-        val SCHEDULE_RETRIEVED_FAIL=" schedule does not exist"
+        const val SCHEDULE_RETRIEVED_SUCCESS=" schedule retrieved successfully"
+        const val SCHEDULE_RETRIEVED_FAIL=" Schedule does not exist"
     }
 }

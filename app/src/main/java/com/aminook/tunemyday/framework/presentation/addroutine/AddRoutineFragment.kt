@@ -2,6 +2,7 @@ package com.aminook.tunemyday.framework.presentation.addroutine
 
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -14,6 +15,7 @@ import com.aminook.tunemyday.util.hideKeyboard
 import com.aminook.tunemyday.util.showKeyboard
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.bottom_sheet_add_todo.view.*
+import kotlinx.android.synthetic.main.fragment_add_program.*
 import kotlinx.android.synthetic.main.fragment_add_routine.*
 
 
@@ -41,6 +43,14 @@ class AddRoutineFragment : BaseFragment(R.layout.fragment_add_routine) {
             if (!text.isNullOrBlank() &&  txt_add_routine_input_layout.error!=null ){
                 txt_add_routine_input_layout.error=null
             }
+        }
+        edt_add_routine.setOnEditorActionListener { _, actionId, event ->
+            var handled=false
+            if (actionId== EditorInfo.IME_ACTION_GO){
+                toolbar_add_routine.menu.performIdentifierAction(R.id.action_save,0)
+                handled=true
+            }
+            return@setOnEditorActionListener handled
         }
     }
 
@@ -96,8 +106,8 @@ class AddRoutineFragment : BaseFragment(R.layout.fragment_add_routine) {
                     R.id.action_delete -> {
                         viewModel.getRoutineIndex().observe(viewLifecycleOwner) { activeRoutineId ->
 
-
-                            viewModel.deleteRoutine(activeRoutineId)
+                            requireActivity().hideKeyboard()
+                            viewModel.requestDelete(activeRoutineId)
                         }
 
                         true

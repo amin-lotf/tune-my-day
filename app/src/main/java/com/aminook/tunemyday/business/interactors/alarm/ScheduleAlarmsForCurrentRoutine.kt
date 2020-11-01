@@ -33,7 +33,7 @@ class ScheduleAlarmsForCurrentRoutine @Inject constructor(
                     DataState.error(
                         response = Response(
                             message = CANCEL_ALARM_FAIL,
-                            uiComponentType = UIComponentType.Toast,
+                            uiComponentType = UIComponentType.None,
                             messageType = MessageType.Error
                         )
                     )

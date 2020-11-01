@@ -67,6 +67,18 @@ abstract class BaseViewModel(
         }
     }
 
+    protected fun getConfirmation(message: String,areYouSureCallback: AreYouSureCallback){
+        _stateMessage.value= Event(
+            StateMessage(
+                Response(
+                    message=message,
+                    uiComponentType = UIComponentType.AreYouSureDialog(areYouSureCallback),
+                    messageType = MessageType.Info
+                )
+            )
+        )
+    }
+
 
     protected fun handleLocalError(message:String){
         _stateMessage.value= Event(
