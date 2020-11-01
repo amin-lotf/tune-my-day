@@ -27,14 +27,13 @@ abstract class BaseViewModel(
 
     var routineId:Long=0
     private var _stateMessage = MutableLiveData<Event<StateMessage?>>()
-    private val TAG="aminjoon"
+    //private val TAG="aminjoon"
     val stateMessage: LiveData<Event<StateMessage?>>
         get() = _stateMessage
 
     protected suspend fun processResponse(event: Event<StateMessage?>?) {
 
         withContext(Main) {
-            Log.d(TAG, "processResponse: ${event?.peekContent()?.response?.message}")
             event?.let {
                 _stateMessage.postValue(it)
             }
@@ -44,9 +43,7 @@ abstract class BaseViewModel(
     fun getRoutineIndex(): LiveData<Long> {
         return dataStoreCache.data
             .map {
-
                 routineId=it[ROUTINE_INDEX]?:0
-                Log.d(TAG, "getRoutineId: viewmodl: $routineId")
                 routineId
 
             }.asLiveData()
@@ -78,7 +75,6 @@ abstract class BaseViewModel(
             )
         )
     }
-
 
     protected fun handleLocalError(message:String){
         _stateMessage.value= Event(

@@ -10,15 +10,12 @@ import com.aminook.tunemyday.business.domain.model.Color
 import kotlinx.android.synthetic.main.color_item.view.*
 
 class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<ProgramColorsAdapter.ViewHolder>() {
-    private val TAG="aminjoon"
-
-
+    //private val TAG="aminjoon"
 
     val selectedColor:Color
     get() {
         return  colors.first { it.isChosen }
     }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view=LayoutInflater.from(parent.context).inflate(R.layout.color_item,parent,false)
@@ -32,11 +29,8 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
     }
 
     override fun getItemCount(): Int {
-//        Log.d(TAG, "getItemCount: ${colors.size}")
         return colors.size
     }
-
-
 
     private fun updateColors(chosenColor: Color){
         for((index,color) in colors.withIndex()){
@@ -50,8 +44,6 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
             }
         }
     }
-
-
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(color: Color){
@@ -67,8 +59,6 @@ class ProgramColorsAdapter(private val colors:List<Color>):RecyclerView.Adapter<
             itemView.setOnClickListener {
                 updateColors(color)
             }
-
-
         }
     }
 }

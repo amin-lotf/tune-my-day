@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
 @AndroidEntryPoint
 class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener {
 
-    private val TAG = "aminjoon"
+    //private val TAG = "aminjoon"
     private val viewModel: WeeklyViewModel by viewModels()
     private var shortDailyScheduleAdapter: ShortDailyScheduleAdapter? = null
 
@@ -53,7 +53,6 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
         shortDailyScheduleAdapter?.setOnClickListener(this)
     }
 
-
     private fun setupAdapter() {
         if (shortDailyScheduleAdapter == null) {
             shortDailyScheduleAdapter =
@@ -69,8 +68,6 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
         viewModel.getFragmentSchedules().observe(viewLifecycleOwner) {
             shortDailyScheduleAdapter?.submitList(it)
         }
-
-
     }
 
     override fun onItemClick(schedule: Schedule) {

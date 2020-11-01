@@ -32,18 +32,15 @@ class MainViewModel @ViewModelInject constructor(
     val alarmInteractors: AlarmInteractors,
     val scheduleInteractors: ScheduleInteractors,
     val programInteractors: ProgramInteractors,
-    @DataStoreCache  dataStoreCache: DataStore<Preferences>,
+    @DataStoreCache dataStoreCache: DataStore<Preferences>,
     @DataStoreSettings dataStoreSettings: DataStore<Preferences>
-) : BaseViewModel(dataStoreCache,dataStoreSettings) {
+) : BaseViewModel(dataStoreCache, dataStoreSettings) {
 
-    private val TAG="aminjoon"
-    private val alarmRange = 2
+    //private val TAG="aminjoon"
     private val activeScope = Dispatchers.IO + viewModelScope.coroutineContext
+    var buffRoutineId: Long? = null
 
-    var buffRoutineId:Long?=null
-
-
-    fun setDayIndex(index:Int){
+    fun setDayIndex(index: Int) {
         CoroutineScope(activeScope).launch {
             dataStoreSettings.edit { settings ->
                 settings[DAY_INDEX] = index
@@ -51,68 +48,40 @@ class MainViewModel @ViewModelInject constructor(
         }
     }
 
-
-
-
-
-    fun undoDeletedProgram(program: ProgramDetail) {
-        CoroutineScope(Dispatchers.Default).launch {
-            programInteractors.undoDeletedProgram(program,routineId)
-                .map {
-                    processResponse(it?.stateMessage)
-                }
-                .collect()
-        }
-    }
-
-    fun rescheduleAlarmsForNewRoutine(prevRoutineId:Long,currentRoutineId:Long){
+    fun rescheduleAlarmsForNewRoutine(prevRoutineId: Long, currentRoutineId: Long) {
         CoroutineScope(activeScope).launch {
-            alarmInteractors.rescheduleAlarmsForNewRoutine(prevRoutineId,currentRoutineId)
+            alarmInteractors.rescheduleAlarmsForNewRoutine(prevRoutineId, currentRoutineId)
                 .map {
                     processResponse(it?.stateMessage)
                 }.single()
         }
     }
 
-
-
-
-
-
-    fun deleteSchedule(schedule:Schedule){
+    fun deleteSchedule(schedule: Schedule) {
         CoroutineScope(activeScope).launch {
-            //delay(300) //delay added so the snackbar goes under the FAB
             scheduleInteractors.deleteSchedule(
                 schedule,
                 object : SnackbarUndoCallback {
                     override fun undo() {
-                       saveSchedule(schedule)
+                        saveSchedule(schedule)
                     }
-
                 },
                 object : TodoCallback {
                     override fun execute() {
-                        Log.d(TAG, "execute: snackbar dismissed")
                     }
-
                 }
-            ).collect {dataState->
+            ).collect { dataState ->
                 processResponse(dataState?.stateMessage)
-
             }
         }
-
     }
-
 
     private fun saveSchedule(schedule: Schedule) {
         CoroutineScope(activeScope).launch {
-            scheduleInteractors.insertSchedule(schedule, listOf(), SCHEDULE_REQUEST_NEW,routineId).collect{ dataState->
-                processResponse(dataState?.stateMessage)
-
-            }
+            scheduleInteractors.insertSchedule(schedule, listOf(), SCHEDULE_REQUEST_NEW, routineId)
+                .collect { dataState ->
+                    processResponse(dataState?.stateMessage)
+                }
         }
     }
-
-
 }

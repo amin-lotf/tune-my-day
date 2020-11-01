@@ -16,12 +16,12 @@ class WeeklyListManager {
     fun processSchedules(rawSchedules: List<Schedule>): List<Schedule> {
         val tmpList = mutableListOf<Schedule>()
         rawSchedules.forEachIndexed { index, schedule ->
-            if(index>0 && tmpList.last().endInSec!=schedule.startInSec){
-                val prevSchedule=tmpList.last()
-                val tmp=Schedule(
+            if (index > 0 && tmpList.last().endInSec != schedule.startInSec) {
+                val prevSchedule = tmpList.last()
+                val tmp = Schedule(
                     id = -1,
                     startDay = schedule.startDay,
-                    startTime =prevSchedule.endTime,
+                    startTime = prevSchedule.endTime,
                     endTime = schedule.startTime,
                 )
                 tmpList.add(tmp)

@@ -33,22 +33,17 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list) {
 
-    private val TAG = "aminjoon"
-
-
+    //private val TAG = "aminjoon"
     private val viewModel: WeeklyListViewModel by viewModels()
     var weeklyViewPagerAdapter: WeeklyViewPagerAdapter? = null
 
     @Inject
     lateinit var days: List<Day>
 
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         subscribeObservers()
     }
-
 
     private fun subscribeObservers() {
         viewModel.stateMessage.observe(viewLifecycleOwner) { event ->
@@ -56,7 +51,6 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list) {
                 onResponseReceived(stateMessage.response)
             }
         }
-
         viewModel.getScreenType().observeOnce(viewLifecycleOwner) { screenType ->
             when (screenType) {
                 SCREEN_WEEKLY -> {
@@ -93,12 +87,12 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list) {
     }
 
     private fun setupWeeklyViewPager(routine: RoutineEntity) {
-            weeklyViewPagerAdapter =
-                WeeklyViewPagerAdapter(childFragmentManager, viewLifecycleOwner.lifecycle, routine.id)
-        if(weekly_view_pager.adapter==null){
+        weeklyViewPagerAdapter =
+            WeeklyViewPagerAdapter(childFragmentManager, viewLifecycleOwner.lifecycle, routine.id)
+        if (weekly_view_pager.adapter == null) {
             weekly_view_pager.apply {
                 this.adapter = weeklyViewPagerAdapter
-                this.offscreenPageLimit=7
+                this.offscreenPageLimit = 7
             }
         }
         setupTabLayout()
@@ -109,7 +103,6 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list) {
             val day = days[position]
             tab.text = day.shortName
         }.attach()
-
         weekly_tab_layout.apply {
             setTabTextColors(
                 ContextCompat.getColor(requireContext(), R.color.colorDark),
@@ -119,7 +112,6 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list) {
                 ContextCompat.getColor(requireContext(), R.color.label4)
             )
         }
-
         weekly_tab_layout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 requireActivity().bottom_app_bar.performShow()
@@ -134,7 +126,6 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list) {
             }
 
         })
-
         viewModel.getDayIndex().observeOnce(viewLifecycleOwner) {
             weekly_view_pager.postDelayed({
                 weekly_view_pager.currentItem = it
@@ -146,8 +137,7 @@ class WeeklyListFragment : BaseFragment(R.layout.fragment_weekly_list) {
     }
 
     override fun onPause() {
-        weeklyViewPagerAdapter=null
+        weeklyViewPagerAdapter = null
         super.onPause()
     }
-
 }

@@ -15,13 +15,13 @@ import com.aminook.tunemyday.framework.presentation.common.BaseViewHolder
 import kotlinx.android.synthetic.main.no_schedule_item.view.*
 import kotlinx.android.synthetic.main.schedule_item.view.*
 
-class ShortDailyScheduleAdapter(val context: Context,val curDay:Int) :
+class ShortDailyScheduleAdapter(val context: Context, val curDay: Int) :
     RecyclerView.Adapter<BaseViewHolder<Schedule>>() {
 
     private var listener: ItemClickListener? = null
     private val TYPE_BUSY = 1
     private val TYPE_FREE = 2
-    private val TYPE_LAST=3
+    private val TYPE_LAST = 3
 
     private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Schedule>() {
         override fun areItemsTheSame(oldItem: Schedule, newItem: Schedule): Boolean {
@@ -49,26 +49,24 @@ class ShortDailyScheduleAdapter(val context: Context,val curDay:Int) :
             val view =
                 LayoutInflater.from(parent.context).inflate(R.layout.schedule_item, parent, false)
             return BusyViewHolder(view)
-        } else if (viewType==TYPE_FREE) {
+        } else if (viewType == TYPE_FREE) {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.no_schedule_item, parent, false)
             return FreeViewHolder(view)
-        }else{
+        } else {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.last_item_empty, parent, false)
             return LASTViewHolder(view)
         }
-
-
     }
 
     override fun getItemViewType(position: Int): Int {
         val item = differ.currentList[position]
         return if (item.id == -1L) {
             TYPE_FREE
-        } else if (item.id==-2L){
+        } else if (item.id == -2L) {
             TYPE_LAST
-        }else{
+        } else {
             TYPE_BUSY
         }
     }
@@ -77,7 +75,6 @@ class ShortDailyScheduleAdapter(val context: Context,val curDay:Int) :
         val item = differ.currentList[position]
         holder.bind(item)
     }
-
 
     override fun getItemCount(): Int {
         return differ.currentList.size
@@ -89,17 +86,13 @@ class ShortDailyScheduleAdapter(val context: Context,val curDay:Int) :
 
     fun submitList(schedules: List<Schedule>) {
         differ.submitList(schedules)
-        //TODO(Check if notify db is needed)
     }
 
     inner class BusyViewHolder(itemView: View) : BaseViewHolder<Schedule>(itemView) {
-
         override fun bind(item: Schedule) {
             itemView.schedule_program.text = item.program.name
             val label = ContextCompat.getDrawable(context, R.drawable.program_label)
             label?.setTint(item.program.color)
-            //  itemView.program_color.background=label
-            //  itemView.program_color.
             itemView.layout_schedule_item.setStrokeColor(item.program.color)
             itemView.layout_child_schedule_item.setBackgroundColor(item.program.color)
             itemView.layout_child_schedule_item.background.alpha = 10
@@ -122,12 +115,12 @@ class ShortDailyScheduleAdapter(val context: Context,val curDay:Int) :
                 itemView.schedule_alarm_icon_off.visibility = View.VISIBLE
             }
 
-            if (item.startDay==curDay && item.startDay != item.endDay && (item.endTime.hour!=0 || item.endTime.minute!=0)) {
+            if (item.startDay == curDay && item.startDay != item.endDay && (item.endTime.hour != 0 || item.endTime.minute != 0)) {
                 itemView.txt_next_day.visibility = View.VISIBLE
             }
 
-            if (item.startDay!=curDay){
-                itemView.txt_prev_day.visibility=View.VISIBLE
+            if (item.startDay != curDay) {
+                itemView.txt_prev_day.visibility = View.VISIBLE
             }
 
             itemView.setOnClickListener {
@@ -138,23 +131,20 @@ class ShortDailyScheduleAdapter(val context: Context,val curDay:Int) :
 
     }
 
-    inner class FreeViewHolder(itemView: View) :BaseViewHolder<Schedule>(itemView) {
+    inner class FreeViewHolder(itemView: View) : BaseViewHolder<Schedule>(itemView) {
         override fun bind(item: Schedule) {
-            itemView.txt_zzz_start.text=item.startTime.toString()
-            itemView.txt_zzz_end.text=item.endTime.toString()
+            itemView.txt_zzz_start.text = item.startTime.toString()
+            itemView.txt_zzz_end.text = item.endTime.toString()
             itemView.setOnClickListener {
                 listener?.onItemClick(item)
             }
         }
     }
 
-    inner class LASTViewHolder(itemView: View):BaseViewHolder<Schedule>(itemView){
+    inner class LASTViewHolder(itemView: View) : BaseViewHolder<Schedule>(itemView) {
         override fun bind(item: Schedule) {
-
         }
     }
-
-
 }
 
 interface ItemClickListener {

@@ -34,66 +34,60 @@ class ViewTodoViewModel @ViewModelInject constructor(
     @DataStoreCache dataStoreCache: DataStore<Preferences>,
     @DataStoreSettings dataStoreSettings: DataStore<Preferences>
 ) : BaseViewModel(dataStoreCache, dataStoreSettings) {
-    private val TAG="aminjoon"
+    //private val TAG="aminjoon"
     var dayIndex = 0
-    var _schedule = Schedule()
+    private var _schedule = Schedule()
+    private val activeScope = viewModelScope.coroutineContext + Default
+    private val _newTodo = MutableLiveData<Todo?>()
+    private val _updatedTodo = MutableLiveData<Todo?>()
+    private val _deletedTodo = MutableLiveData<Todo?>()
+    private val _checkChangedTodo = MutableLiveData<Todo?>()
+    private val _draggedTodos = MutableLiveData<List<Todo>?>()
+    private val _scheduleLoaded = MutableLiveData<Boolean>()
 
-    val activeScope = viewModelScope.coroutineContext + Default
+    val scheduleLoaded: LiveData<Boolean>
+        get() = _scheduleLoaded
 
+    val newTodo: LiveData<Todo?>
+        get() = _newTodo
 
-    private val _newTodo= MutableLiveData<Todo?>()
-    private val _updatedTodo=MutableLiveData<Todo?>()
-    private val _deletedTodo=MutableLiveData<Todo?>()
-    private val _checkChangedTodo=MutableLiveData<Todo?>()
-    private val _draggedTodos=MutableLiveData<List<Todo>?>()
-    private val _scheduleLoaded=MutableLiveData<Boolean>()
-
-
-
-    val scheduleLoaded:LiveData<Boolean>
-    get() = _scheduleLoaded
-
-    val newTodo:LiveData<Todo?>
-    get() = _newTodo
-
-    val updatedTodo:LiveData<Todo?>
+    val updatedTodo: LiveData<Todo?>
         get() = _updatedTodo
 
-    val deletedTodo:LiveData<Todo?>
+    val deletedTodo: LiveData<Todo?>
         get() = _deletedTodo
 
-    val checkChangedTodo:LiveData<Todo?>
+    val checkChangedTodo: LiveData<Todo?>
         get() = _checkChangedTodo
 
-    val draggedTodos:LiveData<List<Todo>?>
+    val draggedTodos: LiveData<List<Todo>?>
         get() = _draggedTodos
 
-    fun getSchedule(scheduleId: Long,isSummary:Boolean): LiveData<Schedule?> {
+    fun getSchedule(scheduleId: Long, isSummary: Boolean): LiveData<Schedule?> {
         dayIndex = dateUtil.curDayIndex
         return scheduleInteractors.getSchedule(scheduleId)
             .map { dataState ->
                 processResponse(dataState?.stateMessage)
                 dataState?.data?.let {
                     _schedule = it
-                    if (isSummary){
-                        val tmpList= mutableListOf<Todo>()
+                    if (isSummary) {
+                        val tmpList = mutableListOf<Todo>()
                         tmpList.addAll(it.finishedTodos)
                         tmpList.addAll(it.unfinishedTodos)
                         it.unfinishedTodos.clear()
                         it.unfinishedTodos.addAll(tmpList)
                     }
                 }
-                _scheduleLoaded.value=true
+                _scheduleLoaded.value = true
                 dataState?.data
             }
             .asLiveData()
-
     }
 
     fun createTodo(
         task: String,
         isOneTime: Boolean = false
-    ){
+    ) {
         val todo = Todo(
             title = task,
             scheduleId = _schedule.id,
@@ -102,20 +96,19 @@ class ViewTodoViewModel @ViewModelInject constructor(
             priorityIndex = dateUtil.curDateInInt,
             dateAdded = dateUtil.curDateInInt
         )
-         addTodo(todo)
+        addTodo(todo)
     }
 
     fun addTodo(todo: Todo) {
-            CoroutineScope(activeScope).launch {
-                todoInteractors.insertTodo(todo)
-                    .collect {
-                        processResponse(it?.stateMessage)
-                        withContext(Main){
-                            _newTodo.value=it?.data
-                        }
+        CoroutineScope(activeScope).launch {
+            todoInteractors.insertTodo(todo)
+                .collect {
+                    processResponse(it?.stateMessage)
+                    withContext(Main) {
+                        _newTodo.value = it?.data
                     }
-            }
-
+                }
+        }
     }
 
     fun updateTodo(
@@ -133,16 +126,15 @@ class ViewTodoViewModel @ViewModelInject constructor(
                     }
                 }
         }
-
     }
 
-    fun moveTodos(todos: List<Todo>, scheduleId: Long){
+    fun moveTodos(todos: List<Todo>, scheduleId: Long) {
         CoroutineScope(activeScope).launch {
             todoInteractors.updateTodos(todos, scheduleId)
                 .collect {
                     processResponse(it?.stateMessage)
-                    withContext(Main){
-                        _draggedTodos.value=it?.data
+                    withContext(Main) {
+                        _draggedTodos.value = it?.data
                     }
                 }
         }
@@ -159,18 +151,14 @@ class ViewTodoViewModel @ViewModelInject constructor(
             todoInteractors.updateTodo(todo, showSnackbar, undoCallback, onDismissCallback)
                 .collect {
                     processResponse(it?.stateMessage)
-                    withContext(Main){
-                        _checkChangedTodo.value=it?.data
+                    withContext(Main) {
+                        _checkChangedTodo.value = it?.data
                     }
-
                 }
-
         }
 
 
-
     }
-
 
     fun deleteTodo(
         todo: Todo,
@@ -185,20 +173,10 @@ class ViewTodoViewModel @ViewModelInject constructor(
             )
                 .collect {
                     processResponse(it?.stateMessage)
-                    withContext(Main){
-                        _deletedTodo.value=it?.data
+                    withContext(Main) {
+                        _deletedTodo.value = it?.data
                     }
                 }
         }
-
-
-
     }
-
-
-    override fun onCleared() {
-        Log.d(TAG, "onCleared: view todo ")
-        super.onCleared()
-    }
-
 }

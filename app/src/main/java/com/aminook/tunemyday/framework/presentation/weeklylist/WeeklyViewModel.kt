@@ -33,14 +33,10 @@ class WeeklyViewModel @ViewModelInject constructor(
     @DataStoreCache dataStoreCache: DataStore<Preferences>,
     @DataStoreSettings dataStoreSettings: DataStore<Preferences>
 ) : BaseViewModel(dataStoreCache, dataStoreSettings) {
-    private val TAG = "aminjoon"
+    //private val TAG = "aminjoon"
     var fragmentDayIndex: Int = 0
     var fragmentRoutineIndex: Long = 0
-
     private val weeklyListManager = WeeklyListManager()
-
-
-
 
     fun getFragmentSchedules(): LiveData<List<Schedule>> {
         return scheduleInteractors.getDailySchedules(
@@ -50,21 +46,11 @@ class WeeklyViewModel @ViewModelInject constructor(
         )
             .map { dataState ->
                 processResponse(dataState?.stateMessage)
-
                 dataState?.data?.let { allSchedules ->
                     weeklyListManager.processSchedules(allSchedules)
-
                 } ?: emptyList()
             }
             .flowOn(Default)
             .asLiveData()
     }
-
-
-    override fun onCleared() {
-        Log.d(TAG, "onCleared: weeklyviewmodel")
-        super.onCleared()
-    }
-
-
 }

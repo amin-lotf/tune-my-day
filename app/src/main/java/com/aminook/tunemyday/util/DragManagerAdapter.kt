@@ -20,8 +20,6 @@ class DragManageAdapter<T>(adapter: T, val context: Context, dragDirs: Int, swip
         viewHolder: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        //recyclerView.adapter?.notifyItemMoved(viewHolder.adapterPosition,target.adapterPosition)
-
         return true
     }
 
@@ -45,16 +43,12 @@ class DragManageAdapter<T>(adapter: T, val context: Context, dragDirs: Int, swip
             nameAdapter.onItemSwap(viewHolder.layoutPosition, target.layoutPosition)
             super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y)
         }
-
-
     }
-
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
 
         nameAdapter.onItemSwipe(viewHolder.layoutPosition, direction)
     }
-
     override fun onChildDraw(
         c: Canvas,
         recyclerView: RecyclerView,

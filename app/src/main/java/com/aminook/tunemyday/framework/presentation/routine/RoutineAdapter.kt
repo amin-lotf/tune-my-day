@@ -13,14 +13,18 @@ import kotlinx.android.synthetic.main.routine_item.view.*
 class RoutineAdapter : ListAdapter<RoutineEntity, BaseViewHolder<RoutineEntity>>(DIFF_UTIL) {
     private var listener: RoutineAdapterListener? = null
 
-    val TYPE_ROUTINE=1
-    val TYPE_LAST=2
+    val TYPE_ROUTINE = 1
+    val TYPE_LAST = 2
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<RoutineEntity> {
-        if (viewType==TYPE_ROUTINE){
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.routine_item, parent, false)
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): BaseViewHolder<RoutineEntity> {
+        if (viewType == TYPE_ROUTINE) {
+            val view =
+                LayoutInflater.from(parent.context).inflate(R.layout.routine_item, parent, false)
             return ViewHolder(view)
-        }else{
+        } else {
             val view =
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.last_item_empty, parent, false)
@@ -29,14 +33,14 @@ class RoutineAdapter : ListAdapter<RoutineEntity, BaseViewHolder<RoutineEntity>>
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (getItem(position).id!=0L){
+        return if (getItem(position).id != 0L) {
             TYPE_ROUTINE
-        }else{
+        } else {
             TYPE_LAST
         }
     }
 
-    override fun onBindViewHolder(holder:BaseViewHolder<RoutineEntity>, position: Int) {
+    override fun onBindViewHolder(holder: BaseViewHolder<RoutineEntity>, position: Int) {
         val routine = currentList[position]
         holder.bind(routine)
     }
@@ -57,19 +61,15 @@ class RoutineAdapter : ListAdapter<RoutineEntity, BaseViewHolder<RoutineEntity>>
                 listener?.onRoutineClick(item)
             }
 
-
             itemView.img_edit_routine.setOnClickListener {
                 listener?.onUpdateRoutineClick(item)
             }
-
         }
     }
 
     inner class LastItemViewHolder(itemView: View) : BaseViewHolder<RoutineEntity>(itemView) {
         override fun bind(item: RoutineEntity) {
-
         }
-
     }
 
     companion object {
@@ -91,8 +91,5 @@ class RoutineAdapter : ListAdapter<RoutineEntity, BaseViewHolder<RoutineEntity>>
     interface RoutineAdapterListener {
         fun onRoutineClick(routineEntity: RoutineEntity)
         fun onUpdateRoutineClick(routineEntity: RoutineEntity)
-
     }
-
-
 }

@@ -45,9 +45,9 @@ import kotlin.concurrent.schedule
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
 
-    private val TAG = "aminjoon"
+    //private val TAG = "aminjoon"
     private val mainViewModel: MainViewModel by viewModels()
-    lateinit var snackbar : Snackbar
+    lateinit var snackbar: Snackbar
     private lateinit var mainBottomSheet: BottomSheetDialog
     var isDialogShowing = false
 
@@ -60,31 +60,22 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
     private var dialogInView: AlertDialog? = null
     lateinit var navHostFragment: NavHostFragment
     lateinit var navController: NavController
-    //lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         mainBottomSheet = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
-
-
         setupBottomAppBar()
         setupNavigation()
         subscribeObservers()
     }
 
-
-
     private fun setupBottomAppBar() {
         bottom_app_bar.setNavigationOnClickListener {
             if (!isDialogShowing) {
-
                 mainViewModel.getScreenType().observeOnce(this@MainActivity) { screenType ->
-
-
-
-                    val view=layoutInflater.inflate(R.layout.bottom_sheet_main,btm_sheet_main).apply {
-
+                    val view =
+                        layoutInflater.inflate(R.layout.bottom_sheet_main, btm_sheet_main).apply {
                             when (screenType) {
                                 SCREEN_DAILY -> {
                                     this.txt_schedule_type.text = "Switch to weekly schedules"
@@ -94,7 +85,7 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
                                             R.id.weeklyListFragment
                                         )
                                         mainViewModel.setScreenType(SCREEN_WEEKLY)
-                                        isDialogShowing=false
+                                        isDialogShowing = false
                                         mainBottomSheet.hide()
                                     }
                                     this.txt_load_weekly.setOnClickListener {
@@ -104,11 +95,9 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
                                         )
                                         mainBottomSheet.dismiss()
                                     }
-
                                 }
                                 SCREEN_WEEKLY -> {
                                     this.txt_schedule_type.text = "Switch to daily schedules"
-
                                     this.txt_schedule_type.setOnClickListener {
                                         mainViewModel.setScreenType(SCREEN_DAILY)
                                         mainViewModel.setDayIndex(
@@ -126,7 +115,6 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
                                         )
                                         mainBottomSheet.dismiss()
                                     }
-
                                 }
                                 SCREEN_BLANK -> {
                                     this.txt_schedule_type.visibility = View.GONE
@@ -140,18 +128,14 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
                                     }
                                 }
                             }
-
                             this.txt_show_activity.setOnClickListener {
                                 navController.navigate(R.id.action_global_activities)
                                 mainBottomSheet.dismiss()
                             }
-
                             this.txt_add_weekly.setOnClickListener {
                                 mainBottomSheet.dismiss()
                                 navController.navigate(R.id.action_global_add_routine)
-
                             }
-
                         }
                     mainBottomSheet.apply {
                         setOnShowListener {
@@ -160,10 +144,7 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
                         setOnDismissListener {
                             isDialogShowing = false
                         }
-
-
                     }
-
                     mainBottomSheet.setContentView(view)
                     mainBottomSheet.show()
                 }
@@ -184,7 +165,7 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
             if (it != 0L) {
                 mainViewModel.buffRoutineId?.let { buffered ->
                     if (it != buffered) {
-                       mainViewModel.rescheduleAlarmsForNewRoutine(buffered,it)
+                        mainViewModel.rescheduleAlarmsForNewRoutine(buffered, it)
                     }
                 }
             }
@@ -204,10 +185,9 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
     private fun setupNavigation() {
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.main_nav_host) as NavHostFragment
-
         navController = navHostFragment.navController
         navController.addOnDestinationChangedListener { controller, destination, _ ->
-            if(this::snackbar.isInitialized && snackbar.isShown){
+            if (this::snackbar.isInitialized && snackbar.isShown) {
                 snackbar.dismiss()
             }
             when (destination.id) {
@@ -222,7 +202,7 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
 
                 R.id.taskListFragment,
                 R.id.routineFragment,
-                R.id.viewTodoFragment-> {
+                R.id.viewTodoFragment -> {
                     bottom_app_bar.visibility = View.GONE
                     fab_schedule.show()
                     setupFabClickListener(destination.id)
@@ -234,12 +214,11 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
                     fab_schedule.hide()
                 }
             }
-
         }
     }
 
     private fun setupFabClickListener(fragmentId: Int) {
-        if(fragmentId==R.id.viewTodoFragment){
+        if (fragmentId == R.id.viewTodoFragment) {
             return
         }
         fab_schedule.setOnClickListener {
@@ -273,17 +252,13 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
             }
             try {
                 navController.navigate(action)
-            }
-            catch (e:IllegalArgumentException){
-                Log.d(TAG, "setupFabClickListener: error in navigation")
+            } catch (e: IllegalArgumentException) {
                 FirebaseCrashlytics.getInstance().recordException(e)
             }
-
         }
     }
 
     override fun <T> onResponseReceived(response: Response?, data: T?) {
-
         response?.let {
             when (response.uiComponentType) {
                 is UIComponentType.Toast -> {
@@ -291,7 +266,6 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
                         displayToast(it)
                     }
                 }
-
                 is UIComponentType.SnackBar -> {
                     val onDismissCallback = response.uiComponentType.onDismissCallback
                     val undoCallback = response.uiComponentType.undoCallback
@@ -313,41 +287,18 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
         }
     }
 
-    private fun areYouSureDialog(
-        message: String,
-        callback: AreYouSureCallback
-    ): AlertDialog {
-
-
-        return MaterialAlertDialogBuilder(this)
-            .setTitle("Are you Sure?")
-            .setMessage(message)
-            .setPositiveButton("Confirm") { _, _ ->
-                callback.proceed()
-            }
-            .setNegativeButton("Cancel") { _, _ ->
-                callback.cancel()
-            }.show()
-
-    }
-
     private fun displayDialog(response: Response) {
         response.message?.let { message ->
             dialogInView = when (response.messageType) {
-
                 is MessageType.Error -> {
                     displayErrorDialog(message = message)
                 }
-
                 is MessageType.Success -> {
                     displaySuccessDialog(message = message)
                 }
-
                 is MessageType.Info -> {
                     displayInfoDialog(message = message)
                 }
-
-
                 else -> null
             }
         }
@@ -362,7 +313,6 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
         snackbarUndoCallback: SnackbarUndoCallback?,
         onDismissCallback: TodoCallback?
     ) {
-
         snackbar = Snackbar.make(
             main_container,
             message,
@@ -381,13 +331,9 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
                 }
             })
         }
-
-        Timer("showingSnackbar",false).schedule(300){
+        Timer("showingSnackbar", false).schedule(300) {
             snackbar.show()
         }
-
-
-
     }
 
     private fun displaySuccessDialog(
@@ -397,9 +343,7 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
             .setTitle("Success")
             .setMessage(message)
             .setPositiveButton("Ok") { _, _ ->
-
             }.show()
-
     }
 
     private fun displayErrorDialog(
@@ -410,7 +354,6 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
             .setMessage(message)
             .setPositiveButton("ok") { _, _ ->
             }.show()
-
     }
 
     private fun displayInfoDialog(
@@ -423,20 +366,15 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
             }.show()
     }
 
+    override fun onScheduleDeleted(schedule: Schedule) {
+        mainViewModel.deleteSchedule(schedule)
+    }
+
     override fun onPause() {
         if (dialogInView != null) {
             dialogInView = null
         }
         super.onPause()
     }
-
-
-
-
-    override fun onScheduleDeleted(schedule: Schedule) {
-        mainViewModel.deleteSchedule(schedule)
-    }
-
-
 }
 

@@ -46,7 +46,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.firebase:firebase-crashlytics:17.2.2'
-    implementation 'com.google.firebase:firebase-analytics:17.6.0'
+    implementation 'com.google.firebase:firebase-analytics:18.0.0'
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
@@ -84,30 +84,16 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.0-beta01"
 
-
-
-
     // Navigation Components
     implementation "androidx.navigation:navigation-fragment-ktx:2.3.1"
     implementation "androidx.navigation:navigation-ui-ktx:2.3.1"
     implementation "androidx.navigation:navigation-dynamic-features-fragment:2.3.1"
 
     implementation 'com.beloo.widget:ChipsLayoutManager:0.3.7@aar'
-    //implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4'
-    // Glide
-    //implementation 'com.github.bumptech.glide:glide:4.11.0'
-    //kapt 'com.github.bumptech.glide:compiler:4.11.0'
-
-    // Google Maps Location Services
-//    implementation 'com.google.android.gms:play-services-location:17.0.0'
-//    implementation 'com.google.android.gms:play-services-maps:17.0.0'
 
     // Leak Canary
     def leak_canary_version = "2.4"
     //debugImplementation "com.squareup.leakcanary:leakcanary-android:$leak_canary_version"
-
-    // Easy Permissions
-    //implementation 'pub.devrel:easypermissions:3.0.0'
 
     // Card View
     def cardview_version = "1.0.0"
@@ -132,8 +118,5 @@ dependencies {
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
     implementation "androidx.datastore:datastore-preferences:1.0.0-alpha02"
-
-
-
 
 }

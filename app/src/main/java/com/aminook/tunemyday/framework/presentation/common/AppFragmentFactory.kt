@@ -22,11 +22,9 @@ class AppFragmentFactory @Inject constructor() : FragmentFactory() {
         return when (className) {
             WeeklyListFragment::class.java.name -> WeeklyListFragment()
 
-
             ProgramListFragment::class.java.name->ProgramListFragment()
 
             AddEditScheduleFragment::class.java.name->AddEditScheduleFragment()
-
 
             DailyFragment::class.java.name->DailyFragment()
 

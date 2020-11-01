@@ -28,25 +28,21 @@ class AlarmWorker @WorkerInject constructor(
     @Assisted params: WorkerParameters,
     val dateUtil: DateUtil,
     val alarmInteractors: AlarmInteractors,
-    val notificationManager: NotificationManager,
     @DataStoreCache val dataStoreCache: DataStore<Preferences>
 ) : CoroutineWorker(appContext, params) {
-    private val TAG = "aminjoon"
-    val alarmRange = 2
-
+    //private val TAG = "aminjoon"
 
     override suspend fun doWork(): Result {
         try {
             val type = inputData.getString(ACTION_TYPE)
-                if (type == TYPE_PERIODIC_SCHEDULE) {
-                Log.d(TAG, "doWork: periodic work")
+            if (type == TYPE_PERIODIC_SCHEDULE) {
                 dataStoreCache.data.collect {
                     val routine = it[ROUTINE_INDEX] ?: 0
                     if (routine != 0L) {
                         alarmInteractors.scheduleAlarmsForCurrentRoutine(routine)
                             .collect {
-                                if (it?.data==null || it.data==false){
-                                   throw Throwable("failed to schedule periodically")
+                                if (it?.data == null || it.data == false) {
+                                    throw Throwable("failed to schedule periodically")
                                 }
                             }
                     }
@@ -56,20 +52,13 @@ class AlarmWorker @WorkerInject constructor(
         } catch (e: Throwable) {
             e.printStackTrace()
             FirebaseCrashlytics.getInstance().recordException(e)
-            Log.d(TAG, "doWork: Error in alarm worker ${e.message}")
             return Result.failure()
         }
     }
 
-
-
     companion object {
         const val ACTION_TYPE = "action type"
-        const val ALARMS_IDS = "alarm ids"
         const val TYPE_PERIODIC_SCHEDULE = "periodic schedule"
-        const val TYPE_DELETE_ALARMS = "delete alarms"
-        const val TYPE_ADD_ALARMS = "add alarms"
-        const val ALARM_WORKER_NAME = "setupAlarm"
         const val PERIODIC_WORKER_NAME = "setupAlarm"
         const val ACTION_CALL_FROM_WORKER = "com.aminook.tunemyday.worker.show.notification"
     }

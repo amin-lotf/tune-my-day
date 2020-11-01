@@ -1,19 +1,11 @@
 package com.aminook.tunemyday.framework.presentation.common
 
 import android.content.Context
-import android.os.Bundle
-import android.util.Log
-import android.view.View
 import androidx.annotation.LayoutRes
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.aminook.tunemyday.business.domain.state.AreYouSureCallback
 import com.aminook.tunemyday.business.domain.state.Response
-import com.aminook.tunemyday.business.domain.state.StateMessage
 import com.aminook.tunemyday.business.domain.state.UIComponentType
-import com.aminook.tunemyday.business.interactors.schedule.InsertSchedule
-import com.aminook.tunemyday.framework.presentation.AlarmController
 import com.aminook.tunemyday.framework.presentation.MainActivity
 import com.aminook.tunemyday.framework.presentation.OnDeleteListener
 import com.aminook.tunemyday.framework.presentation.UIController

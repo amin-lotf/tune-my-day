@@ -35,34 +35,32 @@ import kotlin.concurrent.schedule
 class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
     TodoAdapter.ToDoRecyclerViewListener {
 
-    private val TAG="aminjoon"
+    //private val TAG="aminjoon"
 
-    private var unfinishedTodoAdapter:TodoAdapter?=null
-    private var finishedTodoAdapter:TodoAdapter?=null
-    private var isSummary=false
-
+    private var unfinishedTodoAdapter: TodoAdapter? = null
+    private var finishedTodoAdapter: TodoAdapter? = null
+    private var isSummary = false
     private val viewModel: ViewTodoViewModel by viewModels()
     private lateinit var addTodoBtmSheetDialog: BottomSheetDialog
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val args: ViewTodoFragmentArgs by navArgs()
-        isSummary=args.isSummary
+        isSummary = args.isSummary
         if (!isSummary) {
-            black_line_separator.visibility=View.VISIBLE
-            lbl_completed.visibility=View.VISIBLE
-            recycler_view_todo_finished.visibility=View.VISIBLE
+            black_line_separator.visibility = View.VISIBLE
+            lbl_completed.visibility = View.VISIBLE
+            recycler_view_todo_finished.visibility = View.VISIBLE
             initializeFinishedTodoAdapter()
-        }else{
-            black_line_separator.visibility=View.INVISIBLE
-            lbl_completed.visibility=View.INVISIBLE
-            recycler_view_todo_finished.visibility=View.INVISIBLE
-            lbl_remaining.text="Tasks"
+        } else {
+            black_line_separator.visibility = View.INVISIBLE
+            lbl_completed.visibility = View.INVISIBLE
+            recycler_view_todo_finished.visibility = View.INVISIBLE
+            lbl_remaining.text = "Tasks"
         }
         initializeUnFinishedTodoAdapter()
         setupToolbar()
         subscribeObservers(args.scheduleId)
-
     }
 
     override fun onResume() {
@@ -76,18 +74,16 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
         }
     }
 
-
     private fun subscribeObservers(scheduleId: Long) {
         viewModel.stateMessage.observe(viewLifecycleOwner) { event ->
             event?.getContentIfNotHandled()?.let { stateMessage ->
                 onResponseReceived(stateMessage.response)
             }
         }
-
-        viewModel.scheduleLoaded.observe(viewLifecycleOwner){loaded->
-            if (loaded){
-                layout_parent_view_todo.visibility=View.VISIBLE
-                Timer("delayedAnimation",false).schedule(500L){
+        viewModel.scheduleLoaded.observe(viewLifecycleOwner) { loaded ->
+            if (loaded) {
+                layout_parent_view_todo.visibility = View.VISIBLE
+                Timer("delayedAnimation", false).schedule(500L) {
                     layout_nested_view_todo.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
                     layout_nested_view_todo.layoutTransition.setDuration(150)
                     layout_const_view_todo.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
@@ -95,13 +91,12 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
                 }
             }
         }
-
-
-        if (scheduleId!=0L){
-            viewModel.getSchedule(scheduleId,isSummary).observeOnce(viewLifecycleOwner){
-                it?.let { schedule->
-                    toolbar_view_todo.title=schedule.program.name
-                    unfinishedTodoAdapter?.submitList(schedule.unfinishedTodos,
+        if (scheduleId != 0L) {
+            viewModel.getSchedule(scheduleId, isSummary).observeOnce(viewLifecycleOwner) {
+                it?.let { schedule ->
+                    toolbar_view_todo.title = schedule.program.name
+                    unfinishedTodoAdapter?.submitList(
+                        schedule.unfinishedTodos,
                         addPadding = false,
                         withAddButton = false
                     )
@@ -114,24 +109,19 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
                     }
                 }
             }
-        }
-        else{
+        } else {
             findNavController().popBackStack()
         }
-
-
-        viewModel.newTodo.observe(viewLifecycleOwner){
-           it?.let {
-               unfinishedTodoAdapter?.addItem(it)
-           }
-        }
-
-        viewModel.updatedTodo.observe(viewLifecycleOwner){
+        viewModel.newTodo.observe(viewLifecycleOwner) {
             it?.let {
-                if(isSummary){
+                unfinishedTodoAdapter?.addItem(it)
+            }
+        }
+        viewModel.updatedTodo.observe(viewLifecycleOwner) {
+            it?.let {
+                if (isSummary) {
                     unfinishedTodoAdapter?.updateItem(it)
-                }
-                else {
+                } else {
                     if (it.isDone) {
                         finishedTodoAdapter?.updateItem(it)
                     } else {
@@ -140,29 +130,24 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
                 }
             }
         }
-
-        viewModel.deletedTodo.observe(viewLifecycleOwner){
-          it?.let {
-              if(isSummary){
-                  unfinishedTodoAdapter?.removeItem(it)
-              }
-              else {
-                  if (it.isDone) {
-                      finishedTodoAdapter?.removeItem(it)
-                  } else {
-                      unfinishedTodoAdapter?.removeItem(it)
-                  }
-              }
-          }
-        }
-
-        viewModel.checkChangedTodo.observe(viewLifecycleOwner){
+        viewModel.deletedTodo.observe(viewLifecycleOwner) {
             it?.let {
-                Log.d(TAG, "subscribeObservers: $it")
-                if(isSummary){
+                if (isSummary) {
                     unfinishedTodoAdapter?.removeItem(it)
+                } else {
+                    if (it.isDone) {
+                        finishedTodoAdapter?.removeItem(it)
+                    } else {
+                        unfinishedTodoAdapter?.removeItem(it)
+                    }
                 }
-                else {
+            }
+        }
+        viewModel.checkChangedTodo.observe(viewLifecycleOwner) {
+            it?.let {
+                if (isSummary) {
+                    unfinishedTodoAdapter?.removeItem(it)
+                } else {
                     if (it.isDone) {
                         unfinishedTodoAdapter?.removeItem(it)
                         finishedTodoAdapter?.addItem(it)
@@ -174,12 +159,11 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
             }
         }
 
-        viewModel.draggedTodos.observe(viewLifecycleOwner){
+        viewModel.draggedTodos.observe(viewLifecycleOwner) {
             it?.let {
-                if(isSummary){
+                if (isSummary) {
                     unfinishedTodoAdapter?.moveItem(it)
-                }
-                else {
+                } else {
                     if (it.first().isDone) {
                         finishedTodoAdapter?.moveItem(it)
                     } else {
@@ -190,18 +174,19 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
         }
     }
 
-    private fun setupToolbar(){
+    private fun setupToolbar() {
         toolbar_view_todo.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
     }
 
     private fun initializeUnFinishedTodoAdapter() {
-        val chLayoutManager= ChipsLayoutManager.newBuilder(requireContext())
+        val chLayoutManager = ChipsLayoutManager.newBuilder(requireContext())
             .setOrientation(ChipsLayoutManager.HORIZONTAL)
             .setRowStrategy(ChipsLayoutManager.STRATEGY_DEFAULT)
             .build()
-        unfinishedTodoAdapter= TodoAdapter(currentDay = viewModel.dateUtil.currentDayInInt,isSummary = isSummary)
+        unfinishedTodoAdapter =
+            TodoAdapter(currentDay = viewModel.dateUtil.currentDayInInt, isSummary = isSummary)
         unfinishedTodoAdapter?.setListener(this)
         unfinishedTodoAdapter?.let {
             recycler_view_todo_unfinished.apply {
@@ -214,11 +199,11 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
     }
 
     private fun initializeFinishedTodoAdapter() {
-        val chLayoutManager= ChipsLayoutManager.newBuilder(requireContext())
+        val chLayoutManager = ChipsLayoutManager.newBuilder(requireContext())
             .setOrientation(ChipsLayoutManager.HORIZONTAL)
             .setRowStrategy(ChipsLayoutManager.STRATEGY_DEFAULT)
             .build()
-        finishedTodoAdapter= TodoAdapter(currentDay = viewModel.dateUtil.currentDayInInt)
+        finishedTodoAdapter = TodoAdapter(currentDay = viewModel.dateUtil.currentDayInInt)
         finishedTodoAdapter?.setListener(this)
         finishedTodoAdapter?.let {
             recycler_view_todo_finished.apply {
@@ -251,14 +236,11 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
             true,
             undoCallback = object : SnackbarUndoCallback {
                 override fun undo() {
-
-                    viewModel.changeTodoCheck(updatedTodo.copy(isDone = !checked),false)
+                    viewModel.changeTodoCheck(updatedTodo.copy(isDone = !checked), false)
                 }
-
             },
             onDismissCallback = object : TodoCallback {
                 override fun execute() {
-                    Log.d(TAG, "execute: todo delete snackbar dismissed")
                 }
 
             }
@@ -271,14 +253,10 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
         toPosition.priorityIndex = sourcePriorityIndex
         fromPosition.priorityIndex = destPriorityIndex
         viewModel.moveTodos(
-            listOf(fromPosition,toPosition),
+            listOf(fromPosition, toPosition),
             scheduleId = toPosition.scheduleId
         )
     }
-
-
-
-
 
     private fun showAddTodo(
         todo: Todo? = null
@@ -293,50 +271,43 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
             view.txt_add_todo.setText(todo.title)
         }
         view.txt_add_todo.requestFocus()
-        if (todo!=null) {
+        if (todo != null) {
             view.btn_delete_todo.setOnClickListener {
                 viewModel.deleteTodo(
                     todo,
                     undoCallback = object : SnackbarUndoCallback {
                         override fun undo() {
                             viewModel.addTodo(todo)
-
                         }
-
                     },
                     onDismissCallback = object : TodoCallback {
                         override fun execute() {
-                            Log.d(TAG, "execute: todo delete snackbar dismissed")
                         }
-
                     }
                 )
                 addTodoBtmSheetDialog.dismiss()
             }
-        }else{
-            view.btn_delete_todo.visibility=View.GONE
+        } else {
+            view.btn_delete_todo.visibility = View.GONE
         }
         view.txt_add_todo.setOnEditorActionListener { _, actionId, event ->
-            Log.d(TAG, "showAddTodo: action id:${actionId}")
-            var handled=false
-            if (actionId== EditorInfo.IME_ACTION_GO){
-                Log.d(TAG, "showAddTodo: clicked")
+            var handled = false
+            if (actionId == EditorInfo.IME_ACTION_GO) {
                 view.btn_save_todo.performClick()
-                handled=true
+                handled = true
             }
             return@setOnEditorActionListener handled
         }
         view.txt_add_todo.doOnTextChanged { text, start, before, count ->
-            if (!text.isNullOrBlank() && view.txt_add_todo_input_layout.error!=null){
-                view.txt_add_todo_input_layout.error=null
+            if (!text.isNullOrBlank() && view.txt_add_todo_input_layout.error != null) {
+                view.txt_add_todo_input_layout.error = null
             }
         }
         view.btn_save_todo.setOnClickListener {
             val task = view.txt_add_todo.text.toString().trim()
             if (!task.isBlank()) {
-
                 if (todo == null) {
-                    viewModel.createTodo( task)
+                    viewModel.createTodo(task)
                     addTodoBtmSheetDialog.dismiss()
                 } else {
                     viewModel.updateTodo(
@@ -344,12 +315,11 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
                         true,
                         undoCallback = object : SnackbarUndoCallback {
                             override fun undo() {
-                                viewModel.updateTodo(todo,false)
+                                viewModel.updateTodo(todo, false)
                             }
                         },
                         onDismissCallback = object : TodoCallback {
                             override fun execute() {
-                                Log.d(TAG, "execute: todo delete snackbar dismissed")
                             }
 
                         }
@@ -358,13 +328,8 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
                 }
                 view.txt_add_todo.setText("")
             } else {
-                view.txt_add_todo_input_layout.error="Invalid Name"
+                view.txt_add_todo_input_layout.error = "Invalid Name"
             }
         }
     }
-
-
-
-
-
 }

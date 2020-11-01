@@ -35,7 +35,7 @@ import kotlinx.android.synthetic.main.daily_schedule_last_schedule_gap.view.*
 class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val currentDay: Int) :
     ListAdapter<Schedule, BaseViewHolder<Schedule>>(DIFF_CALLBACK) {
 
-    private val TAG = "aminjoon"
+   // private val TAG = "aminjoon"
     private var listener: DailyScheduleAdapterListener? = null
 
     private val TYPE_SCHEDULE = 1
@@ -59,11 +59,9 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
     override fun onBindViewHolder(holder: BaseViewHolder<Schedule>, position: Int) {
         val schedule = getItem(position)
         holder.bind(schedule)
-        Log.d(TAG, "onBindViewHolder: ")
     }
 
     override fun getItemViewType(position: Int): Int {
-
         return if (position != currentList.size - 1) {
             if (position > 0 && currentList[position - 1].endInSec != currentList[position].startInSec) {
                 TYPE_SCHEDULE_DIFF_START
@@ -86,20 +84,16 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
 
     inner class ViewHolder(itemView: View, val viewType: Int) :
         BaseViewHolder<Schedule>(itemView) {
-
         val todoRecyclerView = itemView.recycler_schedule_todo
         override fun bind(item: Schedule) {
             val todoAdapter: TodoAdapter? = TodoAdapter(currentDay = currentDay)
-
             if (viewType == TYPE_SCHEDULE) {
                 if (item.startDay != todayIndex) {
                     itemView.txt_prev_day_daily.visibility = View.VISIBLE
                     itemView.view_prev_day.visibility = View.VISIBLE
                     itemView.txt_start_of_day.visibility = View.VISIBLE
-
                 }
             }
-
 
             if (viewType == TYPE_SCHEDULE_DIFF_START) {
                 if (layoutPosition > 0) {
@@ -157,17 +151,14 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
 
 
             itemView.txt_todo_add_daily.setOnClickListener {
-                Log.d(TAG, "bind: add todo clicked")
                 listener?.onAddNoteClick(item.id,item.program.id,todoAdapter)
             }
             itemView.btn_add_todo.setOnClickListener {
-
                 listener?.onAddNoteClick(item.id,item.program.id,todoAdapter)
             }
 
             itemView.card_view_daily.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
             itemView.layout_parent_daily.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
-
             itemView.txt_daily_start_time.text = item.startTime.toString()
             itemView.txt_daily_start_time.setOnClickListener {
                 val action=DailyFragmentDirections.actionDailyFragmentToAddScheduleFragment(
@@ -177,7 +168,6 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
                 listener?.onTimeClick(action)
             }
             itemView.txt_daily_program_name.text = item.program.name
-
             itemView.txt_daily_program_name.setOnClickListener {
                 listener?.onScheduleClick(item.id)
             }
@@ -186,11 +176,9 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
                 override fun onEditTodoClick(todo: Todo, position: Int) {
                     listener?.onEditTodoClick(todo, position, todoAdapter)
                 }
-
                 override fun onCheckChanged(todo: Todo, checked: Boolean, position: Int) {
                     listener?.onCheckChanged(todo, checked, position, todoAdapter)
                 }
-
                 override fun swapItems(fromPosition: Todo, toPosition: Todo) {
                     listener?.swapItems(fromPosition, toPosition, todoAdapter)
                 }
@@ -202,9 +190,7 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
                 .build()
 
             todoAdapter?.let {
-
                 it.submitList(item.unfinishedTodos)
-
                 todoRecyclerView.apply {
                     this.layoutManager = chLayoutManager
                     adapter = todoAdapter
@@ -232,7 +218,6 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
         fun onEditTodoClick(todo: Todo, position: Int, todoAdapter: TodoAdapter?)
         fun onCheckChanged(todo: Todo, checked: Boolean, position: Int, todoAdapter: TodoAdapter?)
         fun swapItems(fromPosition: Todo, toPosition: Todo, todoAdapter: TodoAdapter?)
-
         fun onTimeClick(action: NavDirections)
     }
 }

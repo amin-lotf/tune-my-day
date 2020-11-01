@@ -37,7 +37,7 @@ import kotlin.math.log
 @AndroidEntryPoint
 class DailyFragment : BaseFragment(R.layout.fragment_daily),
     DailyScheduleAdapter.DailyScheduleAdapterListener {
-    private val TAG = "aminjoon"
+   // private val TAG = "aminjoon"
     private val dailyViewModel: DailyViewModel by viewModels()
     private  var dailyScheduleAdapter:DailyScheduleAdapter?=null
     private  var addTodoBtmSheetDialog: BottomSheetDialog?=null
@@ -148,18 +148,12 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
         }
     }
 
-
-
-
-
     override fun swapItems(fromPosition: Todo, toPosition: Todo, todoAdapter: TodoAdapter?) {
         todoAdapter?.let {
-
             val destPriorityIndex = toPosition.priorityIndex
             val sourcePriorityIndex = fromPosition.priorityIndex
             toPosition.priorityIndex = sourcePriorityIndex
             fromPosition.priorityIndex = destPriorityIndex
-
             dailyViewModel.moveTodos(
                 listOf(fromPosition,toPosition),
                 toPosition.scheduleId
@@ -170,10 +164,7 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
             }
         }
-
-
     }
-
 
     override fun onAddNoteClick(
         scheduleId: Long,
@@ -209,16 +200,13 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                             dailyViewModel.addTodo(todo).observeOnce(viewLifecycleOwner) {
                                 it?.let {
                                     todoAdapter?.addItem(it)
-
                                 }
                             }
                         }
-
                     },
                     onDismissCallback = object : TodoCallback {
                         override fun execute() {
                         }
-
                     }
                 ).observe(viewLifecycleOwner){
                     it?.let {
@@ -270,12 +258,10 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                                     }
                                 }
                             }
-
                         },
                         onDismissCallback = object : TodoCallback {
                             override fun execute() {
                             }
-
                         }
                     )
                         .observeOnce(viewLifecycleOwner) {
@@ -294,7 +280,6 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
     }
 
     override fun onScheduleClick(scheduleId: Long) {
-
         val action=DailyFragmentDirections.actionDailyFragmentToViewTodoFragment(scheduleId)
         findNavController().navigate(action)
 
@@ -307,7 +292,6 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
     override fun onPause() {
         dailyScheduleAdapter?.setListener(null)
         addTodoBtmSheetDialog=null
-
         super.onPause()
 
     }

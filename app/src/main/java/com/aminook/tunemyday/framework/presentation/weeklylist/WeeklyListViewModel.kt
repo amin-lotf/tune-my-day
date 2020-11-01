@@ -30,33 +30,20 @@ import kotlinx.coroutines.flow.single
 class WeeklyListViewModel @ViewModelInject constructor(
     val scheduleInteractors: ScheduleInteractors,
     val routineInteractors: RoutineInteractors,
-    @DataStoreSettings  dataStoreSettings: DataStore<Preferences>,
-    @DataStoreCache  dataStoreCache: DataStore<Preferences>,
+    @DataStoreSettings dataStoreSettings: DataStore<Preferences>,
+    @DataStoreCache dataStoreCache: DataStore<Preferences>,
     val dateUtil: DateUtil,
-) : BaseViewModel(dataStoreCache,dataStoreSettings) {
-    private val TAG = "aminjoon"
-    private val activeScope = Dispatchers.IO + viewModelScope.coroutineContext
-    var savedDayIndex: Int = 0
-
-
-
+) : BaseViewModel(dataStoreCache, dataStoreSettings) {
+    //private val TAG = "aminjoon"
     private val _curRoutine = MutableLiveData<RoutineEntity?>()
-//    private val _curRoutineId = MutableLiveData<Long>()
     private val _dayIndex = MutableLiveData<Int>()
-
 
     val routine: LiveData<RoutineEntity?>
         get() = _curRoutine
-//
-//    val routineId: LiveData<Long>
-//        get() = _curRoutineId
+
 
     val curDayIndex: LiveData<Int>
         get() = _dayIndex
-
-
-
-
 
     fun getDayIndex(): LiveData<Int> {
         return dataStoreSettings.data
@@ -67,33 +54,18 @@ class WeeklyListViewModel @ViewModelInject constructor(
             .asLiveData()
     }
 
-    fun saveDayIndex(index:Int?) {
-        Log.d(TAG, "saveDayIndex: dayIndex saved: $index")
+    fun saveDayIndex(index: Int?) {
         CoroutineScope(IO).launch {
             dataStoreSettings.edit { settings ->
-                settings[DAY_INDEX] = index?:dateUtil.curDayIndex
+                settings[DAY_INDEX] = index ?: dateUtil.curDayIndex
             }
         }
     }
 
-    fun getRoutine(routineId: Long):LiveData<RoutineEntity?> {
-               return routineInteractors.getRoutine(routineId)
-                    .map {
-                         it?.data
-                    }.asLiveData()
-        }
-
-
-
-
-    override fun onCleared() {
-        Log.d(TAG, "onCleared: weeklyList ViewModel")
-        super.onCleared()
+    fun getRoutine(routineId: Long): LiveData<RoutineEntity?> {
+        return routineInteractors.getRoutine(routineId)
+            .map {
+                it?.data
+            }.asLiveData()
     }
-    fun bufferDayIndex(dayIndex: Int) {
-        savedDayIndex = dayIndex
-        _dayIndex.value = dayIndex
-    }
-
-
 }

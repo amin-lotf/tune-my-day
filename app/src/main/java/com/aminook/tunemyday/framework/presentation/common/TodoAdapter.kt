@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.todo_item.view.*
 class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
     RecyclerView.Adapter<BaseViewHolder<Todo>>(), ItemMoveCallback {
 
-    private val TAG = "aminjoon"
+    //private val TAG = "aminjoon"
     private var listener: ToDoRecyclerViewListener? = null
     private var _todos = mutableListOf<Todo>()
     private var _padding=0
@@ -31,9 +31,6 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
             LayoutInflater.from(parent.context).inflate(R.layout.todo_item, parent, false)
         return ViewHolder(view)
     }
-
-
-
 
     override fun getItemViewType(position: Int): Int {
         return 0
@@ -54,21 +51,14 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
     }
 
     fun removeItem(todo:Todo) {
-
         val pos=_todos.withIndex().indexOfFirst { it.value.id==todo.id }
-        Log.d(TAG, "removeItem: $pos")
         if(pos>=0){
             _todos.removeAt(pos)
             notifyItemRemoved(pos)
-        }else{
-            Log.d(TAG, "removeItem: not in list")
         }
-
-
     }
 
     fun moveItem(todos: List<Todo>) {
-
         val srcIndex = _todos.withIndex().indexOfFirst { it.value.id == todos.first().id }
         val destIndex = _todos.withIndex().indexOfFirst { it.value.id == todos.last().id }
 
@@ -78,9 +68,6 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
         _todos.removeAt(destIndex)
         _todos.add(destIndex, todos.first())
         notifyItemMoved(srcIndex, destIndex)
-
-
-        // listener?.updateTodos(_todos)
     }
 
     fun addItem(todo: Todo) {
@@ -99,8 +86,6 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
         list?.let {
             _todos.addAll(it)
         }
-        Log.d(TAG, "submitList: size: ${_todos.size}")
-
         if (withAddButton){
             _todos.add(Todo(id = -1))
             _padding+=1
@@ -109,16 +94,12 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
             _todos.add(Todo(id = -2))
             _padding+=1
         }
-
         notifyDataSetChanged()
     }
 
     fun setListener(listener: ToDoRecyclerViewListener) {
         this.listener = listener
     }
-
-
-
 
     override fun onItemSwap(fromPosition: Int, toPosition: Int) {
         if (toPosition < _todos.size - _padding && fromPosition < _todos.size - _padding) {
@@ -154,7 +135,7 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
                         listener?.onCheckChanged(
                             item,
                             itemView.chk_todo.isChecked,
-                            adapterPosition
+                            layoutPosition
                         )
                     }
                 } else {
@@ -167,32 +148,14 @@ class TodoAdapter(val isSummary: Boolean = false, val currentDay: Int) :
 
 
                 itemView.txt_todo_title.setOnClickListener {
-                    listener?.onEditTodoClick(item, adapterPosition)
+                    listener?.onEditTodoClick(item, layoutPosition)
                 }
             }
 
         }
     }
 
-
-    companion object {
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Todo>() {
-            override fun areItemsTheSame(oldItem: Todo, newItem: Todo): Boolean {
-                return oldItem.id == newItem.id
-            }
-
-            override fun areContentsTheSame(oldItem: Todo, newItem: Todo): Boolean {
-                return oldItem.title == newItem.title &&
-                        oldItem.dateAdded == newItem.dateAdded &&
-                        oldItem.isDone == newItem.isDone &&
-                        oldItem.priorityIndex == newItem.priorityIndex
-            }
-
-        }
-    }
-
     interface ToDoRecyclerViewListener {
-
         fun onEditTodoClick(todo: Todo, position: Int)
         fun onCheckChanged(todo: Todo, checked: Boolean, position: Int)
         fun swapItems(fromPosition: Todo, toPosition: Todo)

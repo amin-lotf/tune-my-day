@@ -25,7 +25,7 @@ import javax.inject.Inject
 
 @HiltAndroidApp
 class BaseApplication : Application(), Configuration.Provider {
-    private val TAG = "aminjoon"
+    //private val TAG = "aminjoon"
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
@@ -47,10 +47,10 @@ class BaseApplication : Application(), Configuration.Provider {
         super.onCreate()
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "Tune My Day",
-            NotificationManager.IMPORTANCE_HIGH
+            "Time Planner",
+            NotificationManager.IMPORTANCE_DEFAULT
         ).apply {
-            description = "Notification channel for TuneMyDay"
+            description = "Notification channel for Time Planner"
             setShowBadge(true)
         }
 
@@ -67,16 +67,12 @@ class BaseApplication : Application(), Configuration.Provider {
             dataStore.edit { settings ->
                 settings[DAY_INDEX] = dateUtil.curDayIndex
             }
-
         }
-
     }
-
 
     private fun setPeriodicSchedule() {
         val currentDate = Calendar.getInstance()
         val dueDate = Calendar.getInstance()
-        // Set Execution around 05:00:00 AM
         dueDate.set(Calendar.HOUR_OF_DAY, 5)
         dueDate.set(Calendar.MINUTE, 0)
         dueDate.set(Calendar.SECOND, 0)
@@ -84,7 +80,6 @@ class BaseApplication : Application(), Configuration.Provider {
             dueDate.add(Calendar.HOUR_OF_DAY, 24)
         }
         val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
-        Log.d(TAG, "setPeriodicSchedule: an app run timediff: $timeDiff")
         val data = Data.Builder()
             .putString(AlarmWorker.ACTION_TYPE, AlarmWorker.TYPE_PERIODIC_SCHEDULE)
             .build()
@@ -101,6 +96,5 @@ class BaseApplication : Application(), Configuration.Provider {
             ExistingPeriodicWorkPolicy.KEEP,
             periodicAlarmWorker
         )
-
     }
 }

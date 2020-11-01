@@ -25,7 +25,7 @@ class ProgramListViewModel @ViewModelInject constructor(
     val programInteractors: ProgramInteractors,
     @DataStoreCache dataStoreCache: DataStore<Preferences>,
     @DataStoreSettings dataStoreSettings: DataStore<Preferences>
-) : BaseViewModel(dataStoreCache,dataStoreSettings) {
+) : BaseViewModel(dataStoreCache, dataStoreSettings) {
 
 
     fun getAllPrograms(): LiveData<List<ProgramDetail>> {
@@ -37,7 +37,6 @@ class ProgramListViewModel @ViewModelInject constructor(
             .flowOn(Default)
             .asLiveData()
     }
-
 
 
 }

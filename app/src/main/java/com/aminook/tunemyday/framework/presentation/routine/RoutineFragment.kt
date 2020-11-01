@@ -24,23 +24,23 @@ import kotlinx.android.synthetic.main.fragment_routine.*
 @AndroidEntryPoint
 class RoutineFragment : BaseFragment(R.layout.fragment_routine),
     RoutineAdapter.RoutineAdapterListener {
-    private val TAG = "aminjoon"
+    //private val TAG = "aminjoon"
     private var routineAdapter: RoutineAdapter? = null
-
     private val viewModel: RoutineViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val args: RoutineFragmentArgs by navArgs()
         viewModel.routineId = args.curRoutineId
-
         subscribeObservers()
         toolbar_routines.setNavigationOnClickListener {
             findNavController().popBackStack()
-                findNavController().navigateWithSourcePopUp(R.id.routineFragment,R.id.weeklyListFragment)
+            findNavController().navigateWithSourcePopUp(
+                R.id.routineFragment,
+                R.id.weeklyListFragment
+            )
         }
     }
-
 
     override fun onResume() {
         super.onResume()
@@ -49,7 +49,6 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
 
     private fun setupAdapter() {
         routineAdapter = RoutineAdapter()
-
         routineAdapter?.setListener(this)
         recycler_routines.apply {
             layoutManager =
@@ -67,7 +66,10 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
 
         viewModel.routineLoaded.observe(viewLifecycleOwner) {
             if (it == true) {
-                findNavController().navigateWithSourcePopUp(R.id.routineFragment,R.id.weeklyListFragment)
+                findNavController().navigateWithSourcePopUp(
+                    R.id.routineFragment,
+                    R.id.weeklyListFragment
+                )
             }
         }
 
@@ -78,8 +80,6 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
 
     override fun onRoutineClick(routineEntity: RoutineEntity) {
         viewModel.saveRoutineIndex(routineEntity.id)
-
-
     }
 
     override fun onUpdateRoutineClick(routineEntity: RoutineEntity) {
@@ -90,10 +90,8 @@ class RoutineFragment : BaseFragment(R.layout.fragment_routine),
         findNavController().navigate(action)
     }
 
-
     override fun onPause() {
         routineAdapter = null
         super.onPause()
     }
-
 }

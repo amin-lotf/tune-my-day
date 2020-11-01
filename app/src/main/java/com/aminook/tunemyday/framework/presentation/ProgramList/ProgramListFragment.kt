@@ -34,11 +34,9 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ProgramListFragment : BaseFragment(R.layout.fragment_program_list),
     ProgramListAdapter.ProgramDetailListener {
-    private val TAG = "aminjoon"
-
+    // private val TAG = "aminjoon"
     private var programListAdapter: ProgramListAdapter? = null
     private val viewModel: ProgramListViewModel by viewModels()
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -62,35 +60,24 @@ class ProgramListFragment : BaseFragment(R.layout.fragment_program_list),
             setHasFixedSize(true)
             adapter = programListAdapter
         }
-
         subscribeObservers()
-
-
-
     }
 
 
     private fun subscribeObservers() {
-
         viewModel.stateMessage.observe(viewLifecycleOwner) { event ->
             event?.getContentIfNotHandled()?.let { stateMessage ->
-               onResponseReceived(stateMessage.response)
+                onResponseReceived(stateMessage.response)
             }
         }
-
         viewModel.getAllPrograms().observe(viewLifecycleOwner) {
-            Log.d(TAG, "program subscribeObservers: size:${it.size}")
-            it.forEach { p ->
-                Log.d(TAG, "subscribeObservers: ${p.program.name} ")
-            }
             programListAdapter?.submitList(it)
         }
     }
 
-
-
     override fun onProgramClick(program: ProgramDetail) {
-        val action=ProgramListFragmentDirections.actionTaskListFragmentToAddProgramFragment(program.program.id)
+        val action =
+            ProgramListFragmentDirections.actionTaskListFragmentToAddProgramFragment(program.program.id)
         findNavController().navigate(action)
     }
 
@@ -98,8 +85,4 @@ class ProgramListFragment : BaseFragment(R.layout.fragment_program_list),
         programListAdapter = null
         super.onPause()
     }
-
-
-
-
 }

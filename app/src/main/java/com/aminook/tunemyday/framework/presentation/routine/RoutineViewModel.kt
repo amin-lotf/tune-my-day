@@ -34,17 +34,17 @@ import kotlinx.coroutines.withContext
 class RoutineViewModel @ViewModelInject constructor(
     val routineInteractors: RoutineInteractors,
     val alarmInteractors: AlarmInteractors,
-    @DataStoreCache  dataStoreCache: DataStore<Preferences>,
+    @DataStoreCache dataStoreCache: DataStore<Preferences>,
     @DataStoreSettings dataStoreSettings: DataStore<Preferences>
-) : BaseViewModel(dataStoreCache,dataStoreSettings) {
+) : BaseViewModel(dataStoreCache, dataStoreSettings) {
 
     private val activeScope = Dispatchers.IO + viewModelScope.coroutineContext
-    private val _routineLoaded=MutableLiveData<Boolean>()
+    private val _routineLoaded = MutableLiveData<Boolean>()
 
-    private val routineManager=RoutineManager()
+    private val routineManager = RoutineManager()
 
-    val routineLoaded:LiveData<Boolean>
-    get() = _routineLoaded
+    val routineLoaded: LiveData<Boolean>
+        get() = _routineLoaded
 
     fun getRoutines(): LiveData<List<RoutineEntity>> {
         return routineInteractors.getAllRoutine()
@@ -56,22 +56,15 @@ class RoutineViewModel @ViewModelInject constructor(
             .asLiveData()
     }
 
-
-
-
-
     fun saveRoutineIndex(routineId: Long) {
         CoroutineScope(activeScope).launch {
             dataStoreCache.edit { cache ->
                 cache[ROUTINE_INDEX] = routineId
-                cache[SCREEN_TYPE]= if (routineId==0L) SCREEN_BLANK else SCREEN_WEEKLY
+                cache[SCREEN_TYPE] = if (routineId == 0L) SCREEN_BLANK else SCREEN_WEEKLY
                 withContext(Main) {
                     _routineLoaded.value = true
                 }
             }
-
         }
     }
-
-
 }
