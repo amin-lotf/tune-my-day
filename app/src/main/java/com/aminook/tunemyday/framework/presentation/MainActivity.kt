@@ -69,15 +69,7 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
     }
 
     private fun setupBottomAppBar() {
-        bottom_app_bar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.more -> {
-                    showNotificationDialog()
-                    true
-                }
-                else -> false
-            }
-        }
+
 
         bottom_app_bar.setNavigationOnClickListener {
             if (!isDialogShowing) {

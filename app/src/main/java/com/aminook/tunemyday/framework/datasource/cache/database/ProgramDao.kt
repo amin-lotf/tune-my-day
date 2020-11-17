@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Dao
 interface ProgramDao {
 
-    @Query("select * from programs")
+    @Query("select * from programs order by name")
     fun selectAllPrograms(): Flow<List<ProgramEntity>>
 
     @Query("select * from programs where id= :id")

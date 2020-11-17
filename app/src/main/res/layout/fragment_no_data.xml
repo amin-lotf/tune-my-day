@@ -18,21 +18,4 @@
         android:textSize="25sp"
          />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/canvas_container_routine"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/txt_info"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-    <TextView
-
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add new plan"
-        app:layout_constraintBottom_toBottomOf="@id/canvas_container_routine"
-        app:layout_constraintTop_toTopOf="@id/canvas_container_routine"
-        app:layout_constraintStart_toStartOf="@id/canvas_container_routine"
-        app:layout_constraintEnd_toEndOf="@id/canvas_container_routine"
-        android:textColor="@color/colorFontDark"
-        android:textSize="22sp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

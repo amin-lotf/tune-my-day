@@ -38,15 +38,11 @@ class NoDataFragment : BaseFragment(R.layout.fragment_no_data) {
                 SCREEN_DAILY->{
                     findNavController().navigateWithSourcePopUp(R.id.noDataFragment,R.id.dailyFragment)
                 }
-                SCREEN_BLANK->{
-                    initFragment()
-                }
+                SCREEN_BLANK->{ }
             }
         }
     }
 
-    private fun initFragment() {
-        canvas_container_routine.addView(NoRoutineCanvas(requireContext()))
-    }
+
 
 }

@@ -81,7 +81,7 @@ class AddRoutineViewModel @ViewModelInject constructor(
     }
 
     fun requestDelete(activeRoutineId: Long){
-        getConfirmation("All sub schedules will be deleted!",object :AreYouSureCallback{
+        getConfirmation("All sub-schedules will be deleted!",object :AreYouSureCallback{
             override fun proceed() {
                 deleteRoutine(routineId)
             }
