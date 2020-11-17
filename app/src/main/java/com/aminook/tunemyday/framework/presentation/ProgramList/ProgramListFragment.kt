@@ -71,6 +71,11 @@ class ProgramListFragment : BaseFragment(R.layout.fragment_program_list),
             }
         }
         viewModel.getAllPrograms().observe(viewLifecycleOwner) {
+            if (it.isEmpty()){
+                txt_no_activity.visibility=View.VISIBLE
+            }else{
+                txt_no_activity.visibility=View.GONE
+            }
             programListAdapter?.submitList(it)
         }
     }

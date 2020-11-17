@@ -92,9 +92,9 @@ class AddRoutineFragment : BaseFragment(R.layout.fragment_add_routine) {
                         val routine=edt_add_routine.text.toString().trim()
                         if (routine.isNotBlank()) {
                             if (viewModel.routineInEditId == 0L) {
-                                viewModel.addRoutine(edt_add_routine.text.toString())
+                                viewModel.addRoutine(routine)
                             } else {
-                                viewModel.updateRoutine(edt_add_routine.text.toString())
+                                viewModel.updateRoutine(routine)
                             }
                             true
                         }else{

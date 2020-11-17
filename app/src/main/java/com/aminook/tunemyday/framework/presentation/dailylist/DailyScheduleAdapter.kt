@@ -207,7 +207,12 @@ class DailyScheduleAdapter(val context: Context, val todayIndex: Int, val curren
                 return oldItem.id == newItem.id
             }
             override fun areContentsTheSame(oldItem: Schedule, newItem: Schedule): Boolean {
-                return oldItem.id == newItem.id
+                return oldItem.id == newItem.id &&
+                        oldItem.startTime==newItem.startTime &&
+                        oldItem.endTime==newItem.endTime &&
+                        oldItem.program==newItem.program &&
+                        oldItem.startDay==newItem.startDay
+
             }
         }
     }

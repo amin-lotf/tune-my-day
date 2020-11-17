@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.util.Log
+import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
 import androidx.datastore.preferences.edit
@@ -51,11 +52,13 @@ class BaseApplication : Application(), Configuration.Provider {
             NotificationManager.IMPORTANCE_DEFAULT
         ).apply {
             description = "Notification channel for Time Planner"
+            enableVibration(true)
+
             setShowBadge(true)
         }
 
-        val notificationManager = getSystemService(NotificationManager::class.java)
-        notificationManager?.createNotificationChannel(channel)
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
         setPeriodicSchedule()
 
         updateDayIndex()

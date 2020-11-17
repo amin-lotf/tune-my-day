@@ -9,3 +9,7 @@ annotation class DataStoreSettings
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class DataStoreCache
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class DataStoreNotification

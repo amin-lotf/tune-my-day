@@ -1,43 +1,41 @@
 package com.aminook.tunemyday.framework.presentation
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.datastore.DataStore
-import androidx.datastore.preferences.Preferences
+import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.state.*
 import com.aminook.tunemyday.business.domain.util.DateUtil
-import com.aminook.tunemyday.di.DataStoreSettings
-import com.aminook.tunemyday.framework.datasource.cache.model.ProgramDetail
 import com.aminook.tunemyday.framework.presentation.ProgramList.ProgramListFragmentDirections
-
 import com.aminook.tunemyday.framework.presentation.dailylist.DailyFragmentDirections
 import com.aminook.tunemyday.framework.presentation.nodata.NoDataFragmentDirections
 import com.aminook.tunemyday.framework.presentation.routine.RoutineFragmentDirections
 import com.aminook.tunemyday.framework.presentation.weeklylist.WeeklyListFragmentDirections
 import com.aminook.tunemyday.util.*
-import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.aminook.tunemyday.worker.NotificationReceiver
+import com.aminook.tunemyday.worker.NotificationReceiver.Companion.CHANNEL_ID
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.crashlytics.internal.common.CrashlyticsCore
-import com.google.firebase.crashlytics.internal.model.CrashlyticsReport
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.bottom_sheet_main.*
 import kotlinx.android.synthetic.main.bottom_sheet_main.view.*
 import java.util.*
-
 import javax.inject.Inject
 import kotlin.concurrent.schedule
 
@@ -45,7 +43,7 @@ import kotlin.concurrent.schedule
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
 
-    //private val TAG = "aminjoon"
+    private val TAG = "aminjoon"
     private val mainViewModel: MainViewModel by viewModels()
     lateinit var snackbar: Snackbar
     private lateinit var mainBottomSheet: BottomSheetDialog
@@ -54,9 +52,9 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
     @Inject
     lateinit var dateUtil: DateUtil
 
-    @Inject
-    @DataStoreSettings
-    lateinit var dataStore: DataStore<Preferences>
+
+
+
     private var dialogInView: AlertDialog? = null
     lateinit var navHostFragment: NavHostFragment
     lateinit var navController: NavController
@@ -71,6 +69,16 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
     }
 
     private fun setupBottomAppBar() {
+        bottom_app_bar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.more -> {
+                    showNotificationDialog()
+                    true
+                }
+                else -> false
+            }
+        }
+
         bottom_app_bar.setNavigationOnClickListener {
             if (!isDialogShowing) {
                 mainViewModel.getScreenType().observeOnce(this@MainActivity) { screenType ->
@@ -150,6 +158,64 @@ class MainActivity : AppCompatActivity(), UIController, OnDeleteListener {
                 }
             }
         }
+    }
+
+    private fun showNotificationDialog() {
+
+        if (checkIfNotificationsEnabled()) {
+            mainViewModel.getNotificationSettings().observeOnce(this){
+                it?.let {settings->
+                    val multiItems= arrayOf("Sound","Vibrate")
+                    val checkedItems= booleanArrayOf(it.shouldRing,it.shouldVibrate)
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("Notification Type")
+                        .setMultiChoiceItems(multiItems, checkedItems) { dialog, which, checked ->
+                            if(which==0){
+                                settings.shouldRing=checked
+                            }else{
+                                settings.shouldVibrate=checked
+                            }
+
+                        }
+                        .setPositiveButton("Done") { _, _ ->
+                            mainViewModel.updateNotificationSettings(settings)
+//                            val not_channel =
+//                                getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+//                            not_channel.deleteNotificationChannel(CHANNEL_ID)
+                        }
+                        .setNegativeButton("Cancel"){_,_ ->}
+                        .show()
+
+                }
+            }
+
+        } else {
+            promptToEnableNotification()
+        }
+    }
+
+    private fun promptToEnableNotification() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Activate Notifications")
+            .setMessage("Turn on notifications for this app in the settings  to receive notifications ")
+            .setPositiveButton("Settings") { _, _ ->
+                val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
+                    putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                    putExtra(Settings.EXTRA_CHANNEL_ID, CHANNEL_ID)
+                }
+                startActivity(intent)
+
+            }
+            .setNegativeButton("Cancel") { _, _ ->
+
+            }
+            .show()
+
+    }
+
+    private fun checkIfNotificationsEnabled(): Boolean {
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        return notificationManager.checkIfNotificationEnabled()
     }
 
 

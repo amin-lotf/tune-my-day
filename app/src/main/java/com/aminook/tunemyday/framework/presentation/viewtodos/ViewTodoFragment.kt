@@ -53,9 +53,9 @@ class ViewTodoFragment : BaseFragment(R.layout.fragment_view_todo),
             recycler_view_todo_finished.visibility = View.VISIBLE
             initializeFinishedTodoAdapter()
         } else {
-            black_line_separator.visibility = View.INVISIBLE
-            lbl_completed.visibility = View.INVISIBLE
-            recycler_view_todo_finished.visibility = View.INVISIBLE
+            black_line_separator.visibility = View.GONE
+            lbl_completed.visibility = View.GONE
+            recycler_view_todo_finished.visibility = View.GONE
             lbl_remaining.text = "Tasks"
         }
         initializeUnFinishedTodoAdapter()

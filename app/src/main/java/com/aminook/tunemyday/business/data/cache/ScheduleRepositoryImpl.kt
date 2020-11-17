@@ -1,6 +1,9 @@
 package com.aminook.tunemyday.business.data.cache
 
-import android.util.Log
+import androidx.datastore.DataStore
+import androidx.datastore.preferences.Preferences
+import androidx.datastore.preferences.edit
+import androidx.datastore.preferences.emptyPreferences
 import com.aminook.tunemyday.business.data.util.CacheConstants.TODO_CONVERSION_FINISHED
 import com.aminook.tunemyday.business.data.util.CacheConstants.TODO_CONVERSION_UNFINISHED
 import com.aminook.tunemyday.business.data.util.getConflictedSchedules
@@ -8,15 +11,20 @@ import com.aminook.tunemyday.business.data.util.selectSchedulesToDelete
 import com.aminook.tunemyday.business.data.util.updateSchedules
 import com.aminook.tunemyday.business.domain.model.*
 import com.aminook.tunemyday.business.domain.util.DateUtil
+import com.aminook.tunemyday.di.DataStoreNotification
 import com.aminook.tunemyday.framework.datasource.cache.database.*
 import com.aminook.tunemyday.framework.datasource.cache.mappers.Mappers
 import com.aminook.tunemyday.framework.datasource.cache.model.*
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
-import com.aminook.tunemyday.worker.NotificationManager
+import com.aminook.tunemyday.util.SOUND_SETTINGS
+import com.aminook.tunemyday.util.VIBRATE_SETTINGS
+import com.aminook.tunemyday.worker.AppNotificationManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,9 +35,44 @@ class ScheduleRepositoryImpl @Inject constructor(
     val mappers: Mappers,
     val dateUtil: DateUtil,
     val scheduleDatabase: ScheduleDatabase,
-    val notificationManager: NotificationManager
+    val appNotificationManager: AppNotificationManager,
+    @DataStoreNotification
+    val dataStoreNotification: DataStore<Preferences>
 ) : ScheduleRepository {
     //private val TAG = "aminjoon"
+
+    override suspend fun updateNotificationSettings(notificationSettings: NotificationSettings) {
+
+        try {
+            dataStoreNotification.edit { settings ->
+                settings[VIBRATE_SETTINGS] = notificationSettings.shouldVibrate
+                settings[SOUND_SETTINGS] = notificationSettings.shouldRing
+            }
+        }catch (exception:Throwable){
+            FirebaseCrashlytics.getInstance().recordException(exception)
+        }
+
+    }
+
+    override fun getNotificationSettings(): Flow<NotificationSettings> {
+        return dataStoreNotification.data
+            .catch { exception ->
+                if (exception is IOException) {
+                    FirebaseCrashlytics.getInstance().recordException(exception)
+                    emit(
+                        emptyPreferences()
+                    )
+                } else {
+                    FirebaseCrashlytics.getInstance().recordException(exception)
+                    throw  exception
+                }
+            }
+            .map { settings ->
+                val shouldVibrate = settings[VIBRATE_SETTINGS] ?: true
+                val shouldRing = settings[SOUND_SETTINGS] ?: true
+                NotificationSettings(shouldRing, shouldVibrate)
+            }
+    }
 
     override suspend fun getNotificationScheduleByAlarmId(alarmId: Long): Schedule {
         val entity = daoService.alarmDao.getAlarmNotificationById(alarmId)
@@ -43,10 +86,10 @@ class ScheduleRepositoryImpl @Inject constructor(
     override suspend fun scheduleUpcomingAlarmsByRoutine(routineId: Long): Boolean {
         val dayRange = dateUtil.shortDayRange
         return try {
-            val alarms=daoService.alarmDao.selectUpcomingAlarms(dayRange,routineId)
-            notificationManager.addAlarms(alarms)
+            val alarms = daoService.alarmDao.selectUpcomingAlarms(dayRange, routineId)
+            appNotificationManager.addAlarms(alarms)
             true
-        }catch (e:Throwable){
+        } catch (e: Throwable) {
             e.printStackTrace()
             FirebaseCrashlytics.getInstance().recordException(e)
             false
@@ -59,8 +102,8 @@ class ScheduleRepositoryImpl @Inject constructor(
         currentRoutineId: Long
     ): Boolean {
         return try {
-            val res=cancelCurrentRoutineAlarms(prevRoutineId)
-            if (!res){
+            val res = cancelCurrentRoutineAlarms(prevRoutineId)
+            if (!res) {
                 return false
             }
             return scheduleCurrentRoutineAlarms(currentRoutineId)
@@ -71,7 +114,6 @@ class ScheduleRepositoryImpl @Inject constructor(
     }
 
 
-
     override suspend fun cancelCurrentRoutineAlarms(routineId: Long): Boolean {
         val dayRange = dateUtil.shortDayRange
 
@@ -80,7 +122,7 @@ class ScheduleRepositoryImpl @Inject constructor(
             routineId
         )
         return try {
-            notificationManager.cancelAlarms(alarmIds)
+            appNotificationManager.cancelAlarms(alarmIds)
             true
         } catch (e: Throwable) {
             FirebaseCrashlytics.getInstance().recordException(e)
@@ -92,18 +134,15 @@ class ScheduleRepositoryImpl @Inject constructor(
     override suspend fun scheduleCurrentRoutineAlarms(routineId: Long): Boolean {
         val dayRange = dateUtil.shortDayRange
 
-        val alarms = daoService.alarmDao.selectUpcomingAlarms(dayRange,routineId)
+        val alarms = daoService.alarmDao.selectUpcomingAlarms(dayRange, routineId)
         return try {
-            notificationManager.addAlarms(alarms)
+            appNotificationManager.addAlarms(alarms)
             true
         } catch (e: Throwable) {
             FirebaseCrashlytics.getInstance().recordException(e)
             false
         }
     }
-
-
-
 
 
     override suspend fun getAlarmsById(alarmIds: List<Long>): List<Alarm> {
@@ -187,7 +226,7 @@ class ScheduleRepositoryImpl @Inject constructor(
         program.schedules.forEach { s ->
             alarmsToDelete.addAll(s.alarms.map { it.id })
         }
-        notificationManager.cancelAlarms(alarmsToDelete)
+        appNotificationManager.cancelAlarms(alarmsToDelete)
         return daoService.programDao.deleteProgram(program.program)
     }
 
@@ -263,7 +302,7 @@ class ScheduleRepositoryImpl @Inject constructor(
                     val todos = fullSchedule.todos.onEach { it.programId = fullSchedule.program.id }
                     daoService.todoDao.updateTodos(todos)
                 }
-                notificationManager.cancelAlarms(alarmIdsToCancel)
+                appNotificationManager.cancelAlarms(alarmIdsToCancel)
                 val res = daoService.scheduleDao.updateTransaction(
                     scheduleEntity = fullSchedule.schedule,
                     schedulesToDelete = scheduleEntitiesToDelete,
@@ -280,7 +319,7 @@ class ScheduleRepositoryImpl @Inject constructor(
                     curRoutine
                 )
                 alarmsToSchedule.addAll(newScheduleAlarms)
-                notificationManager.addAlarms(alarmsToSchedule)
+                appNotificationManager.addAlarms(alarmsToSchedule)
                 return res
 
             } catch (e: Throwable) {
@@ -289,7 +328,7 @@ class ScheduleRepositoryImpl @Inject constructor(
             }
         } else {
             return try {
-                notificationManager.cancelAlarms(alarmIdsToCancel)
+                appNotificationManager.cancelAlarms(alarmIdsToCancel)
                 val res = daoService.scheduleDao.insertTransaction(
                     scheduleEntity = fullSchedule.schedule,
                     schedulesToDelete = scheduleEntitiesToDelete,
@@ -305,7 +344,7 @@ class ScheduleRepositoryImpl @Inject constructor(
                     curRoutine
                 )
                 alarmsToSchedule.addAll(newScheduleAlarms)
-                notificationManager.addAlarms(newScheduleAlarms)
+                appNotificationManager.addAlarms(newScheduleAlarms)
 
                 return res
             } catch (e: Throwable) {
@@ -339,7 +378,7 @@ class ScheduleRepositoryImpl @Inject constructor(
     override suspend fun deleteSchedule(schedule: Schedule): Int {
         val alarmsToDelete = schedule.alarms.map { it.id }
 
-        notificationManager.cancelAlarms(alarmsToDelete)
+        appNotificationManager.cancelAlarms(alarmsToDelete)
 
         return daoService.scheduleDao.deleteSchedule(
             mappers.fullScheduleCacheMapper.mapToEntity(

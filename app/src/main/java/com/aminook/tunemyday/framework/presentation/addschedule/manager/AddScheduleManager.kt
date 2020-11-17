@@ -8,7 +8,7 @@ import com.aminook.tunemyday.business.domain.model.*
 
 
 class AddScheduleManager {
-    //private val TAG = "aminjoon"
+
 
     private val _buffSchedule = Schedule()
     private var _chosenProgram = MutableLiveData<Program>()
@@ -24,7 +24,6 @@ class AddScheduleManager {
     private val _isNextDay = MutableLiveData<Boolean>()
 
     init {
-
         _scheduleLoaded.value = false
     }
 

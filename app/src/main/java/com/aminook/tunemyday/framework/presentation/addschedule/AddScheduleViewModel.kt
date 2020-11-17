@@ -45,6 +45,10 @@ class AddScheduleViewModel @ViewModelInject constructor(
     private var _requestType: String = SCHEDULE_REQUEST_NEW
     private val _scheduleValidated = MutableLiveData<Boolean>()
     private var _todosLoaded = false
+    private val _programListSize=MutableLiveData<Int>()
+
+    val programListSize:LiveData<Int>
+        get() = _programListSize
 
     val requestType: String
         get() = _requestType
@@ -300,6 +304,7 @@ class AddScheduleViewModel @ViewModelInject constructor(
                     processResponse(dataState?.stateMessage)
                     dataState?.data?.let {
                         _allPrograms.postValue(it)
+                        _programListSize.value=it.size
                     }
                 }
         }

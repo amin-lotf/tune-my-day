@@ -13,6 +13,7 @@ import com.aminook.tunemyday.framework.presentation.MainActivity
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_EDIT
 import com.aminook.tunemyday.util.SCHEDULE_REQUEST_NEW
+import com.beloo.widget.chipslayoutmanager.ChipsLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
@@ -61,11 +62,18 @@ class WeeklyFragment : BaseFragment(R.layout.fragment_weekly), ItemClickListener
 
 
         daily_short_schedules_recycler.apply {
+
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
             adapter = shortDailyScheduleAdapter
         }
         viewModel.getFragmentSchedules().observe(viewLifecycleOwner) {
+            if (it.size==1){
+
+                txt_no_weekly_schedule.visibility=View.VISIBLE
+            }else{
+                txt_no_weekly_schedule.visibility=View.GONE
+            }
             shortDailyScheduleAdapter?.submitList(it)
         }
     }

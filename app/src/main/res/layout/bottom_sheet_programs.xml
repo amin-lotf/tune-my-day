@@ -40,10 +40,22 @@
             android:layout_height="400dp"
             android:layout_marginTop="4dp"
             tools:listitem="@layout/program_item"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            android:scrollbars="vertical"
             tools:itemCount="10"
             app:layout_constraintTop_toBottomOf="@id/img_add_new_program"/>
 
-
+    <TextView
+        android:id="@+id/txt_no_activity_schedule"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="150dp"
+        android:text="No activity defined yet"
+        android:textSize="18sp"
+        android:visibility="gone"
+        android:textColor="@color/colorFontDark"
+        android:textAlignment="center"/>
 
 
 

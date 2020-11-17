@@ -13,7 +13,7 @@ import com.aminook.tunemyday.business.domain.model.Color
 import com.aminook.tunemyday.business.domain.util.DateUtil
 import com.aminook.tunemyday.framework.datasource.cache.database.ScheduleDatabase
 import com.aminook.tunemyday.framework.presentation.common.AppFragmentFactory
-import com.aminook.tunemyday.worker.NotificationManager
+import com.aminook.tunemyday.worker.AppNotificationManager
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -32,7 +32,7 @@ abstract class AppModule {
         @Singleton
         @Provides
         fun provideNotificationManager(@ApplicationContext context:Context,dateUtil: DateUtil)=
-            NotificationManager(context,dateUtil)
+            AppNotificationManager(context,dateUtil)
 
         @Singleton
         @Provides
@@ -116,6 +116,15 @@ abstract class AppModule {
         fun getCacheDataStore(@ApplicationContext context: Context):DataStore<Preferences>{
             return context.createDataStore(
                 "cache"
+            )
+        }
+
+        @DataStoreNotification
+        @Singleton
+        @Provides
+        fun provideNotificationSettings(@ApplicationContext context:Context):DataStore<Preferences>{
+            return context.createDataStore(
+                "notificationSettings"
             )
         }
 

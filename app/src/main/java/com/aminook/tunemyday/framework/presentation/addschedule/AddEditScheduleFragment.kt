@@ -35,14 +35,18 @@ import kotlinx.android.synthetic.main.bottom_sheet_programs.view.*
 import kotlinx.android.synthetic.main.fragment_add_edit_schedule.*
 import kotlinx.android.synthetic.main.layout_add_alarm.*
 import kotlinx.android.synthetic.main.layout_add_alarm.view.*
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.withContext
+import java.util.*
 import javax.inject.Inject
+import kotlin.concurrent.schedule
 
 
 @AndroidEntryPoint
 class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule),
     ProgramClickListener,
     TimePickerDialog.OnTimeSetListener, AlarmListAdapter.AlarmClickListener{
-   // private val TAG = "aminjoon"
+    //private val TAG = "aminjoon"
 
 
     private var isShowingDialog = false
@@ -197,22 +201,18 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
         viewModel.scheduleLoaded.observe(viewLifecycleOwner){loaded->
             if (loaded){
-                if (viewModel.requestType == SCHEDULE_REQUEST_EDIT) {
-                    toolbar_add_schedule.title = "Edit Schedule"
-
-                    toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = true
-                } else {
-                    toolbar_add_schedule.title = "New Schedule"
-                    if (add_schedule_name.text.isBlank()){
-                        add_schedule_name.text = "Choose an activity"
-                    }
-                    add_schedule_name.visibility=View.VISIBLE
-                    toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = false
-                    layout_todo_group.visibility = View.GONE
-                }
                 scroll_view_add_schedule.visibility=View.VISIBLE
                 scroll_view_add_schedule.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
                 scroll_view_add_schedule.layoutTransition.setDuration(70)
+                add_schedule_name.postDelayed({
+                    if (add_schedule_name.text.isNullOrBlank()){
+                        add_schedule_name.text = "Choose an activity"
+                    }
+                    add_schedule_name.visibility=View.VISIBLE
+                },50)
+                if(viewModel.requestType==SCHEDULE_REQUEST_EDIT){
+                    layout_todo_group.visibility = View.VISIBLE
+                }
 
             }else{
                 viewModel.getRoutineIndex().observeOnce(viewLifecycleOwner){routineId->
@@ -221,14 +221,16 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
                             viewModel.processRequest(this, args,routineId)
                             if (this == SCHEDULE_REQUEST_EDIT) {
                                 toolbar_add_schedule.title = "Edit Schedule"
-
+                                layout_todo_group.visibility = View.VISIBLE
                                 toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = true
                             } else {
+                               
                                 toolbar_add_schedule.title = "New Schedule"
+
                                 add_schedule_name.text = "Choose an activity"
-                                add_schedule_name.visibility=View.VISIBLE
+                                add_schedule_name.visibility=View.INVISIBLE
                                 toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = false
-                                layout_todo_group.isVisible = false
+                                layout_todo_group.visibility = View.GONE
                             }
                         }
                     }else{
@@ -245,6 +247,7 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
         }
 
         viewModel.allPrograms.observe(viewLifecycleOwner) {
+
             programsAdapter?.submitList(it)
         }
 
@@ -469,12 +472,21 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
 
         view.img_add_new_program.setOnClickListener {
             chooseProgramBtmSheetDialog.dismiss()
+            add_schedule_name.visibility=View.INVISIBLE
             val action=AddEditScheduleFragmentDirections.actionAddScheduleFragmentToAddProgramFragment(fromAddSchedule = true)
             findNavController().navigate(action)
         }
 
         programsAdapter = SheetProgramAdapter()
         viewModel.getAllPrograms()
+
+        viewModel.programListSize.observe(viewLifecycleOwner){
+            if(it==0){
+                view.txt_no_activity_schedule.visibility=View.VISIBLE
+            }else{
+                view.txt_no_activity_schedule.visibility=View.GONE
+            }
+        }
 
         programsAdapter?.setProgramClickListener(this)
         view.recycler_programs_sheet.apply {

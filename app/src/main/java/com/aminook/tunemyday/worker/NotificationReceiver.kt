@@ -1,12 +1,22 @@
 package com.aminook.tunemyday.worker
 
+import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.NotificationManager.IMPORTANCE_DEFAULT
+import android.app.NotificationManager.IMPORTANCE_HIGH
+
+
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+
+
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.asLiveData
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -15,9 +25,10 @@ import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Alarm
 import com.aminook.tunemyday.business.domain.model.Schedule
 import com.aminook.tunemyday.business.domain.util.DateUtil
-import com.aminook.tunemyday.business.interactors.alarm.AlarmInteractors
 import com.aminook.tunemyday.business.interactors.schedule.ScheduleInteractors
+import com.aminook.tunemyday.business.interactors.settings.NotificationSettingsInteractors
 import com.aminook.tunemyday.framework.presentation.MainActivity
+import com.aminook.tunemyday.util.safeCollect
 import com.aminook.tunemyday.worker.AlarmWorker.Companion.ACTION_CALL_FROM_WORKER
 import com.aminook.tunemyday.worker.AlarmWorker.Companion.PERIODIC_WORKER_NAME
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -25,9 +36,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -41,6 +51,9 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
 
     @Inject
     lateinit var scheduleInteractors: ScheduleInteractors
+
+    @Inject
+    lateinit var notificationSettingsInteractors: NotificationSettingsInteractors
 
     @Inject
     lateinit var dateUtil: DateUtil
@@ -78,51 +91,90 @@ class NotificationReceiver() : HiltBroadcastReceiver() {
     }
 
     fun showNotification(context: Context, schedule: Schedule) {
-        val alarm = schedule.alarms.first()
-        val summaryNotification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setContentTitle(R.string.app_name.toString())
-            .setContentText("Upcoming Activity")
-            .setSmallIcon(R.drawable.ic_notification_new)
-            .setColor(ContextCompat.getColor(context, R.color.colorAccent))
-            .setGroup(GROUP_KEY)
-            .setGroupSummary(true)
-            .setAutoCancel(true)
-            .build()
+        CoroutineScope(Default).launch {
+            val notifManager=context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            notifManager.deleteNotificationChannel(CHANNEL_ID)
+            notificationSettingsInteractors.getNotificationSettings().safeCollect {
+                var vibratePattern= longArrayOf(500,0,500)
+                it?.data?.let {settings->
+                    if (!settings.shouldVibrate){
+                       vibratePattern= longArrayOf(0)
+                    }
+                }
+                val alarm = schedule.alarms.first()
+                val summaryNotification = NotificationCompat.Builder(context, CHANNEL_ID)
+                    .setContentTitle(R.string.app_name.toString())
+                    .setContentText("Upcoming Activity")
+                    .setSmallIcon(R.drawable.ic_notification_new)
+                    .setColor(ContextCompat.getColor(context, R.color.colorAccent))
+                    .setGroup(GROUP_KEY)
+                    .setVibrate(vibratePattern)
+                    .setGroupSummary(true)
+                    .setAutoCancel(true)
+                    .build()
 
-        val notificationIntent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
+                val notificationIntent = Intent(context, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
 
-        val notificationPendingIntent = PendingIntent.getActivity(
-            context,
-            schedule.id.toInt(),
-            notificationIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
+                val notificationPendingIntent = PendingIntent.getActivity(
+                    context,
+                    schedule.id.toInt(),
+                    notificationIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                )
 
-        val notification = NotificationCompat.Builder(context.applicationContext, CHANNEL_ID)
 
-            .setContentTitle(
-                schedule.program.name
-            )
-            .setSmallIcon(R.drawable.ic_notification_new)
-            .setColor(ContextCompat.getColor(context, R.color.colorAccent))
-            .setContentText(getNotificationSmallFormat(alarm, schedule))
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(
-                        getNotificationBigFormat(schedule)
+                val notification = NotificationCompat.Builder(context.applicationContext, CHANNEL_ID)
+
+                    .setContentTitle(
+                        schedule.program.name
                     )
-            )
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(notificationPendingIntent)
-            .setGroup(GROUP_KEY)
-            .setAutoCancel(true)
-            .build()
-        with(NotificationManagerCompat.from(context.applicationContext)) {
-            notify(alarm.scheduleId.toInt(), notification)
-            notify(GROUP_KEY_ID, summaryNotification)
+                    .setSmallIcon(R.drawable.ic_notification_new)
+                    .setColor(ContextCompat.getColor(context, R.color.colorAccent))
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setContentText(getNotificationSmallFormat(alarm, schedule))
+
+                    .setVibrate(vibratePattern)
+                    .setStyle(
+                        NotificationCompat.BigTextStyle()
+                            .bigText(
+                                getNotificationBigFormat(schedule)
+                            )
+                    )
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setContentIntent(notificationPendingIntent)
+                    .setGroup(GROUP_KEY)
+                    .setAutoCancel(true)
+                    .build()
+
+                val channel = NotificationChannel(
+                    CHANNEL_ID,
+                    "Time Planner2",
+                    NotificationManager.IMPORTANCE_DEFAULT
+                ).apply {
+                    description = "Notification channel for Time Planner"
+                    enableVibration(true)
+                    vibratePattern=(longArrayOf(0))
+                    setShowBadge(true)
+                }
+                notifManager.createNotificationChannel(channel)
+                notifManager.notify(alarm.scheduleId.toInt(), notification)
+                notifManager.notify(GROUP_KEY_ID, summaryNotification)
+//                with(NotificationManagerCompat.from(context.applicationContext)) {
+//
+//                    notify(alarm.scheduleId.toInt(), notification)
+//                    notify(GROUP_KEY_ID, summaryNotification)
+//
+//                }
+
+                cancel()
+            }
         }
+
+
+
+
     }
 
 

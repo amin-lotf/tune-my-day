@@ -6,6 +6,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface ScheduleRepository {
 
+    suspend fun updateNotificationSettings(notificationSettings: NotificationSettings)
+    fun getNotificationSettings():Flow<NotificationSettings>
+
     suspend fun cancelCurrentRoutineAlarms(routineId: Long): Boolean
     suspend fun scheduleCurrentRoutineAlarms(routineId: Long): Boolean
     suspend fun rescheduleAlarmsForNewRoutine(prevRoutineId:Long,currentRoutineId:Long):Boolean

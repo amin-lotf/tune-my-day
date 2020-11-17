@@ -1,23 +1,17 @@
 package com.aminook.tunemyday.framework.presentation.dailylist
 
 import android.os.Bundle
-import android.util.Log
-import android.view.Gravity
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.SimpleItemAnimator
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.aminook.tunemyday.R
 import com.aminook.tunemyday.business.domain.model.Todo
 import com.aminook.tunemyday.business.domain.state.SnackbarUndoCallback
-import com.aminook.tunemyday.framework.datasource.cache.database.TodoDao
-import com.aminook.tunemyday.framework.datasource.cache.mappers.DetailedScheduleCacheMapper
-import com.aminook.tunemyday.framework.datasource.cache.mappers.TodoCacheMapper
 import com.aminook.tunemyday.framework.presentation.common.BaseFragment
 import com.aminook.tunemyday.framework.presentation.common.TodoAdapter
 import com.aminook.tunemyday.util.*
@@ -28,11 +22,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.bottom_sheet_add_todo.*
 import kotlinx.android.synthetic.main.bottom_sheet_add_todo.view.*
 import kotlinx.android.synthetic.main.fragment_daily.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.launch
-import javax.inject.Inject
-import kotlin.math.log
 
 @AndroidEntryPoint
 class DailyFragment : BaseFragment(R.layout.fragment_daily),
@@ -45,12 +34,14 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         dailyViewModel.getRoutineIndex().observeOnce(viewLifecycleOwner) {
             if (it != 0L) {
                 dailyViewModel.getDailySchedules(it)
             }
         }
         initializeAdapters()
+
         subscribeObservers()
         top_toolbar_daily.title = "Today"
         dailyViewModel.getScreenType().observe(viewLifecycleOwner){screenType->
@@ -63,7 +54,18 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
                 }
             }
         }
+
+        layout_refresh_daily.setOnRefreshListener {
+            dailyViewModel.getRoutineIndex().observeOnce(viewLifecycleOwner) {
+                if (it != 0L) {
+                    dailyViewModel.getDailySchedules(it)
+                    layout_refresh_daily.isRefreshing=false
+                }
+            }
+        }
     }
+
+
 
 
     override fun onResume() {
@@ -84,6 +86,12 @@ class DailyFragment : BaseFragment(R.layout.fragment_daily),
         }
 
         dailyViewModel.schedules.observe(viewLifecycleOwner) {
+            if (it.isEmpty()){
+                txt_no_schedule_daily.visibility=View.VISIBLE
+            }else{
+                txt_no_schedule_daily.visibility=View.GONE
+            }
+
             dailyScheduleAdapter?.submitList(it)
             layout_nested_daily.visibility=View.VISIBLE
         }

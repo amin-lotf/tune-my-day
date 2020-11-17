@@ -12,7 +12,7 @@ import com.aminook.tunemyday.framework.presentation.MainActivity
 import kotlin.math.roundToLong
 
 
-class NotificationManager(
+class AppNotificationManager(
     val context: Context,
     val dateUtil: DateUtil
 ) {
