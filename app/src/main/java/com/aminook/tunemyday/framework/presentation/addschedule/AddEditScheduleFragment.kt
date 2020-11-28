@@ -212,6 +212,8 @@ class AddEditScheduleFragment : BaseFragment(R.layout.fragment_add_edit_schedule
                 },50)
                 if(viewModel.requestType==SCHEDULE_REQUEST_EDIT){
                     layout_todo_group.visibility = View.VISIBLE
+                }else{
+                    toolbar_add_schedule.menu.findItem(R.id.action_delete).isVisible = false
                 }
 
             }else{
