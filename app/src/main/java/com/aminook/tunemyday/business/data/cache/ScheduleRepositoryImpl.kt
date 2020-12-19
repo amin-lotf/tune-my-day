@@ -39,7 +39,7 @@ class ScheduleRepositoryImpl @Inject constructor(
     @DataStoreNotification
     val dataStoreNotification: DataStore<Preferences>
 ) : ScheduleRepository {
-    //private val TAG = "aminjoon"
+
 
     override suspend fun updateNotificationSettings(notificationSettings: NotificationSettings) {
 
